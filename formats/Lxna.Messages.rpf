@@ -1,0 +1,23 @@
+﻿syntax = v1;
+
+option csharp_namespace = "Lxna.Messages";
+
+message ErrorMessage {
+    Type: string(8192) = 0,
+    Message: string(8192) = 1,
+    StackTrace: string(8192) = 2,
+}
+
+message FileMetadata {
+    Path: string(1024) = 0,
+}
+
+enum ImageFormatType : uint8 {
+    Png = 0,
+}
+
+message ThumbnailImage {
+    Type: ImageFormatType = 0,
+    [Recyclable]
+    Value: memory(33554432) = 1,
+}
