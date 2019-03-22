@@ -1,7 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="4.5.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Collections\Omnix.Collections.csproj" />
+    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Configuration\Omnix.Configuration.csproj" />
+    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Network.Connection\Omnix.Network.Connection.csproj" />
+    <ProjectReference Include="..\Lxna.Messages\Lxna.Messages.csproj" />
+  </ItemGroup>
 
 </Project>

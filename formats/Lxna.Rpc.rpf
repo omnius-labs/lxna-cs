@@ -1,0 +1,45 @@
+﻿syntax = v1;
+
+using "Lxna.Messages.rpf"
+
+option csharp_namespace = "Lxna.Rpc";
+
+enum LxnaRpcRequestType : uint8
+{
+    Exit = 0,
+    Cancel = 1,
+    Load = 2,
+    Save = 3,
+    GetState = 4,
+    Start = 5,
+    Stop = 6,
+    GetFileMetadatas = 7,
+    GetFileThumbnail = 8,
+    ReadFileContent = 9,
+}
+
+enum LxnaRpcResponseType : uint8
+{
+    Result = 0,
+    Output = 1,
+    Cancel = 2,
+    Error = 3,
+}
+
+message LxnaRpcRequestHeader {
+    Type: LxnaRpcRequestType = 0,
+    Id: uint32 = 1,
+}
+
+message LxnaRpcResponseHeader {
+    Type: LxnaRpcResponseType = 0,
+    Id: uint32 = 1,
+}
+
+message GetFileMetadatasRequestBody {
+    Path: string(1024) = 0,
+}
+
+message GetFileMetadatasResponseBody {
+    FileMetadatas: vector<FileMetadata>(8192) = 0,
+}
