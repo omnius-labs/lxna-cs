@@ -18,8 +18,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Messages", "src\Lxna.M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Core", "src\Lxna.Core\Lxna.Core.csproj", "{6F9CD2A3-8407-4CE1-A5E6-B33330F07CC0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Rpc.Server", "src\Lxna.Rpc.Server\Lxna.Rpc.Server.csproj", "{81533193-1AFA-4D53-B1AD-DC11CA7457F2}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01.Omnix", "01.Omnix", "{80F78AEA-F870-4B42-996C-859FE6D635EC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02.Lxna", "02.Lxna", "{2A7F00C7-96AB-483B-B6F8-B2E906A210A3}"
@@ -32,41 +30,45 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gui", "Gui", "{709B5FC7-3E3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mobile", "Mobile", "{BA3C53C7-5CF2-40DF-9614-ECB7F891DC2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lxna.Daemon", "src\Lxna.Daemon\Lxna.Daemon.csproj", "{60EE37EE-76B5-45E9-9F17-4F570D7E6DFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Daemon", "src\Lxna.Daemon\Lxna.Daemon.csproj", "{60EE37EE-76B5-45E9-9F17-4F570D7E6DFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lxna.Rpc", "src\Lxna.Rpc\Lxna.Rpc.csproj", "{DF909AFD-1A7C-437D-8B07-FDD859C7DD41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Rpc", "src\Lxna.Rpc\Lxna.Rpc.csproj", "{DF909AFD-1A7C-437D-8B07-FDD859C7DD41}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Rpc.Client", "src\Lxna.Rpc.Client\Lxna.Rpc.Client.csproj", "{B4651EA6-53E8-431B-9503-787F199C5FBB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lxna.Updater.Windows", "src\Lxna.Updater.Windows\Lxna.Updater.Windows.csproj", "{C2970313-4FF8-4083-BEC9-82AFA3ED89AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Updater.Windows", "src\Lxna.Updater.Windows\Lxna.Updater.Windows.csproj", "{C2970313-4FF8-4083-BEC9-82AFA3ED89AF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Updater", "Updater", "{B4D6C194-2ED1-4ACD-AEA4-236E09CD6C58}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Base", "ref\Omnix\src\Omnix.Base\Omnix.Base.csproj", "{F0B1B8E1-1DFB-4490-98EA-2276748A5074}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Base", "refs\Omnix\src\Omnix.Base\Omnix.Base.csproj", "{F0B1B8E1-1DFB-4490-98EA-2276748A5074}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Collections", "ref\Omnix\src\Omnix.Collections\Omnix.Collections.csproj", "{585B0C83-DF20-499A-8820-D22EA1227631}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Collections", "refs\Omnix\src\Omnix.Collections\Omnix.Collections.csproj", "{585B0C83-DF20-499A-8820-D22EA1227631}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Configuration", "ref\Omnix\src\Omnix.Configuration\Omnix.Configuration.csproj", "{831A541C-D5DD-46A3-BB0B-CE6EEB9BDBBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Configuration", "refs\Omnix\src\Omnix.Configuration\Omnix.Configuration.csproj", "{831A541C-D5DD-46A3-BB0B-CE6EEB9BDBBC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Correction", "ref\Omnix\src\Omnix.Correction\Omnix.Correction.csproj", "{A49BCE23-BD34-4859-8B8C-EF87786848FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Correction", "refs\Omnix\src\Omnix.Correction\Omnix.Correction.csproj", "{A49BCE23-BD34-4859-8B8C-EF87786848FD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Cryptography", "ref\Omnix\src\Omnix.Cryptography\Omnix.Cryptography.csproj", "{8D278B24-001B-43AF-8237-047C4B46419E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Cryptography", "refs\Omnix\src\Omnix.Cryptography\Omnix.Cryptography.csproj", "{8D278B24-001B-43AF-8237-047C4B46419E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Io", "ref\Omnix\src\Omnix.Io\Omnix.Io.csproj", "{FA036B6C-4CA5-4EB8-9E6D-F6E3D91CE999}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Io", "refs\Omnix\src\Omnix.Io\Omnix.Io.csproj", "{FA036B6C-4CA5-4EB8-9E6D-F6E3D91CE999}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Network", "ref\Omnix\src\Omnix.Network\Omnix.Network.csproj", "{F46EA923-1C95-49DE-AE7D-5F1E7C6BD0EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Network", "refs\Omnix\src\Omnix.Network\Omnix.Network.csproj", "{F46EA923-1C95-49DE-AE7D-5F1E7C6BD0EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Network.Connection", "ref\Omnix\src\Omnix.Network.Connection\Omnix.Network.Connection.csproj", "{9C99D8B8-492D-4BCD-AAC5-0B78F2973B6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Network.Connection", "refs\Omnix\src\Omnix.Network.Connection\Omnix.Network.Connection.csproj", "{9C99D8B8-492D-4BCD-AAC5-0B78F2973B6A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Network.I2p", "ref\Omnix\src\Omnix.Network.I2p\Omnix.Network.I2p.csproj", "{4C8D3C3F-0E2E-459A-81AE-C0190F19E117}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Network.I2p", "refs\Omnix\src\Omnix.Network.I2p\Omnix.Network.I2p.csproj", "{4C8D3C3F-0E2E-459A-81AE-C0190F19E117}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Network.Tor", "ref\Omnix\src\Omnix.Network.Tor\Omnix.Network.Tor.csproj", "{6DCBC5D9-E529-4411-A35A-CCC4D5045E01}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Network.Tor", "refs\Omnix\src\Omnix.Network.Tor\Omnix.Network.Tor.csproj", "{6DCBC5D9-E529-4411-A35A-CCC4D5045E01}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Network.Upnp", "ref\Omnix\src\Omnix.Network.Upnp\Omnix.Network.Upnp.csproj", "{47923B0A-82EA-4CB9-9F0B-CA4A7740C841}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Network.Upnp", "refs\Omnix\src\Omnix.Network.Upnp\Omnix.Network.Upnp.csproj", "{47923B0A-82EA-4CB9-9F0B-CA4A7740C841}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Serialization", "ref\Omnix\src\Omnix.Serialization\Omnix.Serialization.csproj", "{B2E4AE9B-6E65-4B12-B564-94C0F4A9F686}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Serialization", "refs\Omnix\src\Omnix.Serialization\Omnix.Serialization.csproj", "{B2E4AE9B-6E65-4B12-B564-94C0F4A9F686}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Serialization.RocketPack", "ref\Omnix\src\Omnix.Serialization.RocketPack\Omnix.Serialization.RocketPack.csproj", "{E32D5EC9-B771-412F-A591-63A3FAE73E16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Serialization.RocketPack", "refs\Omnix\src\Omnix.Serialization.RocketPack\Omnix.Serialization.RocketPack.csproj", "{E32D5EC9-B771-412F-A591-63A3FAE73E16}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Desktop", "Desktop", "{7E4F1EAB-8451-4EB3-AFCF-207D211F1F3C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Avalonia", "refs\Omnix\src\Omnix.Avalonia\Omnix.Avalonia.csproj", "{123D694C-D2D9-40D0-B2A6-90245C0B06F1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Gui.Desktop", "src\Lxna.Gui.Desktop\Lxna.Gui.Desktop.csproj", "{A56F2A49-C2D4-4A97-B723-9FA73325E743}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -142,18 +144,6 @@ Global
 		{6F9CD2A3-8407-4CE1-A5E6-B33330F07CC0}.Release|iPhone.Build.0 = Release|Any CPU
 		{6F9CD2A3-8407-4CE1-A5E6-B33330F07CC0}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{6F9CD2A3-8407-4CE1-A5E6-B33330F07CC0}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Release|iPhone.Build.0 = Release|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{60EE37EE-76B5-45E9-9F17-4F570D7E6DFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{60EE37EE-76B5-45E9-9F17-4F570D7E6DFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60EE37EE-76B5-45E9-9F17-4F570D7E6DFE}.Debug|iPhone.ActiveCfg = Debug|Any CPU
@@ -178,18 +168,6 @@ Global
 		{DF909AFD-1A7C-437D-8B07-FDD859C7DD41}.Release|iPhone.Build.0 = Release|Any CPU
 		{DF909AFD-1A7C-437D-8B07-FDD859C7DD41}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{DF909AFD-1A7C-437D-8B07-FDD859C7DD41}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Release|iPhone.Build.0 = Release|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{B4651EA6-53E8-431B-9503-787F199C5FBB}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{C2970313-4FF8-4083-BEC9-82AFA3ED89AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C2970313-4FF8-4083-BEC9-82AFA3ED89AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2970313-4FF8-4083-BEC9-82AFA3ED89AF}.Debug|iPhone.ActiveCfg = Debug|Any CPU
@@ -358,6 +336,30 @@ Global
 		{E32D5EC9-B771-412F-A591-63A3FAE73E16}.Release|iPhone.Build.0 = Release|Any CPU
 		{E32D5EC9-B771-412F-A591-63A3FAE73E16}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{E32D5EC9-B771-412F-A591-63A3FAE73E16}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Release|iPhone.Build.0 = Release|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Release|iPhone.Build.0 = Release|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -368,14 +370,12 @@ Global
 		{F99E49FC-D488-4846-B3EB-88E4A35DC021} = {BA3C53C7-5CF2-40DF-9614-ECB7F891DC2F}
 		{1E9668B9-41B7-4ECE-ABD1-5E00C4009F2A} = {1FD1A747-4A58-459E-8EAC-D089CCBE4860}
 		{6F9CD2A3-8407-4CE1-A5E6-B33330F07CC0} = {809FC0E3-D360-4838-B8C6-C1B636321EC9}
-		{81533193-1AFA-4D53-B1AD-DC11CA7457F2} = {1FD1A747-4A58-459E-8EAC-D089CCBE4860}
 		{1FD1A747-4A58-459E-8EAC-D089CCBE4860} = {2A7F00C7-96AB-483B-B6F8-B2E906A210A3}
 		{809FC0E3-D360-4838-B8C6-C1B636321EC9} = {2A7F00C7-96AB-483B-B6F8-B2E906A210A3}
 		{709B5FC7-3E3F-4AFC-B5CC-0360BD851A81} = {2A7F00C7-96AB-483B-B6F8-B2E906A210A3}
 		{BA3C53C7-5CF2-40DF-9614-ECB7F891DC2F} = {709B5FC7-3E3F-4AFC-B5CC-0360BD851A81}
 		{60EE37EE-76B5-45E9-9F17-4F570D7E6DFE} = {809FC0E3-D360-4838-B8C6-C1B636321EC9}
 		{DF909AFD-1A7C-437D-8B07-FDD859C7DD41} = {1FD1A747-4A58-459E-8EAC-D089CCBE4860}
-		{B4651EA6-53E8-431B-9503-787F199C5FBB} = {1FD1A747-4A58-459E-8EAC-D089CCBE4860}
 		{C2970313-4FF8-4083-BEC9-82AFA3ED89AF} = {B4D6C194-2ED1-4ACD-AEA4-236E09CD6C58}
 		{B4D6C194-2ED1-4ACD-AEA4-236E09CD6C58} = {2A7F00C7-96AB-483B-B6F8-B2E906A210A3}
 		{F0B1B8E1-1DFB-4490-98EA-2276748A5074} = {80F78AEA-F870-4B42-996C-859FE6D635EC}
@@ -391,6 +391,9 @@ Global
 		{47923B0A-82EA-4CB9-9F0B-CA4A7740C841} = {80F78AEA-F870-4B42-996C-859FE6D635EC}
 		{B2E4AE9B-6E65-4B12-B564-94C0F4A9F686} = {80F78AEA-F870-4B42-996C-859FE6D635EC}
 		{E32D5EC9-B771-412F-A591-63A3FAE73E16} = {80F78AEA-F870-4B42-996C-859FE6D635EC}
+		{7E4F1EAB-8451-4EB3-AFCF-207D211F1F3C} = {709B5FC7-3E3F-4AFC-B5CC-0360BD851A81}
+		{123D694C-D2D9-40D0-B2A6-90245C0B06F1} = {80F78AEA-F870-4B42-996C-859FE6D635EC}
+		{A56F2A49-C2D4-4A97-B723-9FA73325E743} = {7E4F1EAB-8451-4EB3-AFCF-207D211F1F3C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {137D0DC4-121C-4ACE-9FEF-64AF29E88458}

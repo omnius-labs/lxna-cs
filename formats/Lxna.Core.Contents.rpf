@@ -1,0 +1,16 @@
+﻿syntax = v1;
+
+using "Lxna.Messages.rpf"
+
+option csharp_namespace = "Lxna.Core.Contents";
+
+message ThumbnailId {
+    Path: string(1024) = 0,
+    LastWriteTime: timestamp = 1,
+    Length: uint64 = 2,
+}
+
+message ThumbnailInfo {
+    Id: ThumbnailId = 0,
+    Images: vector<ThumbnailImage>(1024) = 1,
+}
