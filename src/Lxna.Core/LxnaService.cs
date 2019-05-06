@@ -15,8 +15,7 @@ namespace Lxna.Core
 {
     public sealed class LxnaService : ServiceBase, ILxnaService, ISettings
     {
-        private readonly string _basePath;
-
+        private readonly LxnaOptions _options;
         private readonly ContentsManager _contentsManager;
 
         private ServiceStateType _state = ServiceStateType.Stopped;
@@ -24,27 +23,59 @@ namespace Lxna.Core
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private volatile bool _disposed;
 
-        public LxnaService(string basePath)
+        public LxnaService(LxnaOptions options)
         {
-            _basePath = basePath;
-
-            _contentsManager = new ContentsManager(basePath);
+            _options = options;
+            _contentsManager = new ContentsManager(_options);
         }
 
-        public IEnumerable<FileMetadata> GetFileMetadatas(string path)
+        public IEnumerable<ContentId> GetContentIds(string? path, CancellationToken token = default)
         {
-            foreach (var fileInfo in new DirectoryInfo(path).GetFiles())
+            var result = new List<ContentId>();
+
+            if (path is null)
             {
-                yield return new FileMetadata(fileInfo.Name);
+                foreach (var drivePath in Directory.GetLogicalDrives())
+                {
+                    result.Add(new ContentId(ContentType.Directory, drivePath));
+                }
             }
+            else
+            {
+                try
+                {
+                    foreach (var directoryPath in Directory.EnumerateDirectories(path, "*", SearchOption.TopDirectoryOnly))
+                    {
+                        result.Add(new ContentId(ContentType.Directory, directoryPath));
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+
+                }
+
+                try
+                {
+                    foreach (var filePath in Directory.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly))
+                    {
+                        result.Add(new ContentId(ContentType.File, filePath));
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+
+                }
+            }
+
+            return result;
         }
 
-        public IEnumerable<ThumbnailImage> GetFileThumbnail(string path, int width, int height)
+        public IEnumerable<Thumbnail> GetThumbnails(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken token = default)
         {
-            return _contentsManager.GetThumnailImages(path, width, height);
+            return _contentsManager.GetThumnails(path, width, height, formatType, resizeType, token);
         }
 
-        public void ReadFileContent(string path, long position, Span<byte> buffer)
+        public void ReadContent(string path, long position, Span<byte> buffer, CancellationToken token = default)
         {
             using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
@@ -79,7 +110,7 @@ namespace Lxna.Core
             _state = ServiceStateType.Stopped;
         }
 
-        public override async ValueTask Start(CancellationToken token = default)
+        public override async ValueTask Start()
         {
             using (await _asyncLock.LockAsync())
             {
@@ -87,7 +118,7 @@ namespace Lxna.Core
             }
         }
 
-        public override async ValueTask Stop(CancellationToken token = default)
+        public override async ValueTask Stop()
         {
             using (await _asyncLock.LockAsync())
             {
@@ -95,7 +126,7 @@ namespace Lxna.Core
             }
         }
 
-        public override async ValueTask Restart(CancellationToken token = default)
+        public override async ValueTask Restart()
         {
             using (await _asyncLock.LockAsync())
             {
@@ -111,7 +142,7 @@ namespace Lxna.Core
 
             if (disposing)
             {
-
+                _contentsManager.Dispose();
             }
         }
     }
