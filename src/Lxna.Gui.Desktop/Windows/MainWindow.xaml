@@ -1,18 +1,56 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+        xmlns:local="clr-namespace:Lxna.Gui.Desktop.Windows"
+        xmlns:lc="clr-namespace:Omnix.Avalonia.Controls;assembly=Omnix.Avalonia"
+        xmlns:lp="clr-namespace:Omnix.Avalonia.Presenters;assembly=Omnix.Avalonia"
         Title="Lxna.Gui.Desktop"
         Height="300"
         Width="500">
-  <Grid RowDefinitions="*,*" ColumnDefinitions="Auto,*">
-    <TreeView Grid.RowSpan="2" Width="150" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
-      <TreeView.ItemTemplate>
-        <TreeDataTemplate ItemsSource="{Binding Children}">
-          <StackPanel Orientation="Horizontal">
-            <Image Source="{Binding Icon}" />
-            <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"/>
-          </StackPanel>
-        </TreeDataTemplate>
-      </TreeView.ItemTemplate>
-    </TreeView>
-  </Grid>
+    <Grid ColumnDefinitions="Auto,*">
+        <TreeView Name="_treeView" Grid.Column="0" Width="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                  Items="{Binding RootDirectories}" SelectedItem="{Binding SelectedDirectory.Value}" >
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Children}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding Icon}" />
+                        <TextBlock Text="{Binding Name.Value}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+        <ListBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 Items="{Binding CurrentFiles}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <ListBox.Template>
+                <ControlTemplate>
+                    <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <lp:ItemsPresenter VirtualizationMode="Simple"
+                                           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                           Items="{Binding $parent[ListBox].Items}"
+                                           ItemsPanel="{Binding $parent[ListBox].ItemsPanel}"
+                                           ItemTemplate="{Binding $parent[ListBox].ItemTemplate}"
+                                           MemberSelector="{Binding $parent[ListBox].MemberSelector}"/>
+                    </ScrollViewer>
+                </ControlTemplate>
+            </ListBox.Template>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <lc:VirtualizingWrapPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                              Height="{Binding $parent[ScrollViewer].Bounds.Height}"
+                                              Width="{Binding $parent[ScrollViewer].Bounds.Width}"
+                                              Orientation="Horizontal" Background="White" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical" Width="256" Height="256">
+                        <Image Source="{Binding Thumbnail}" />
+                        <TextBlock Text="{Binding Name.Value}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
 </Window>

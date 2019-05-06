@@ -1,118 +1,224 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Omnix.Base;
-using Omnix.Configuration;
-using Lxna.Messages;
-using System.IO;
-using LiteDB;
-using System.Threading;
-using System.Threading.Tasks;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp;
-using Omnix.Io;
 using System.Buffers;
-using Lxna.Core.Internal;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Threading;
+using LiteDB;
+using Lxna.Messages;
+using Omnix.Base;
+using Omnix.Cryptography;
+using Omnix.Io;
 using Omnix.Serialization;
+using Omnix.Serialization.Extensions;
+using Omnix.Serialization.RocketPack;
+using Omnix.Serialization.RocketPack.Helpers;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace Lxna.Core.Contents.Internal
 {
     public sealed class ThumbnailCacheStorage : DisposableBase
     {
-        private readonly string _basePath;
-        private LiteDatabase _liteDatabase;
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly AsyncLock _asyncLock = new AsyncLock();
+        private readonly LxnaOptions _options;
+        private readonly LiteDatabase _liteDatabase;
+
         private volatile bool _disposed;
 
-        private readonly static HashSet<string> _pictureTypeExtensionList = new HashSet<string>() { ".jpg", ".png", ".gif" };
-        private readonly static HashSet<string> _movieTypeExtensionList = new HashSet<string>() { ".mp4", ".avi" };
+        private readonly static HashSet<string> _pictureTypeExtensionList = new HashSet<string>() { ".jpg", ".jpeg", ".png", ".gif" };
+        private readonly static HashSet<string> _videoTypeExtensionList = new HashSet<string>() { ".mp4", ".avi" };
+        private readonly static Base16 _base16 = new Base16(ConvertStringCase.Lower);
 
-        public ThumbnailCacheStorage(string basePath)
+        public ThumbnailCacheStorage(LxnaOptions options)
         {
-            _basePath = basePath;
-            _liteDatabase = new LiteDatabase(Path.Combine(_basePath, "Thumbnail.db"));
+            _options = options;
+
+            var directoryPath = Path.Combine(_options.ConfigDirectoryPath, "ThumbnailCache");
+
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            _liteDatabase = new LiteDatabase(Path.Combine(directoryPath, "lite.db"));
         }
 
-        private static bool ExtensionIsPictureType(string ext)
+        private static string ResizeTypeToString(ThumbnailResizeType resizeType)
         {
-            return _pictureTypeExtensionList.Contains(ext);
+            return resizeType switch
+            {
+                ThumbnailResizeType.Crop => "crop",
+                ThumbnailResizeType.Pad => "pad",
+                _ => throw new NotSupportedException(nameof(resizeType)),
+            };
         }
 
-        public IEnumerable<ThumbnailImage> GetThumnailImages(string path, int width, int height)
+        private static string FormatTypeToString(ThumbnailFormatType formatType)
         {
+            return formatType switch
+            {
+                ThumbnailFormatType.Png => "png",
+                _ => throw new NotSupportedException(nameof(formatType)),
+            };
+        }
+
+        private Thumbnail? GetPictureThumnailImage(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType)
+        {
+            if (!_pictureTypeExtensionList.Contains(Path.GetExtension(path)))
+            {
+                return null;
+            }
+
             var fullPath = Path.GetFullPath(path);
             var fileInfo = new FileInfo(fullPath);
 
-            var databaseId = fullPath + $"{height}x{width}";
-            var thumbnailId = new ThumbnailId(path, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc), (ulong)fileInfo.Length);
+            var databaseId = $"$/picture/v1_{FormatTypeToString(formatType)}_{width}x{height}_{ResizeTypeToString(resizeType)}/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/";
+            var fileId = new FileId(path, (ulong)fileInfo.Length, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc));
 
-            ThumbnailInfo thumbnailInfo = null;
-
-            // データベースからThumbnailInfoの読み込みを行う。
             {
-                var liteFileInfo = _liteDatabase.FileStorage.FindById(databaseId);
+                bool changed = true;
 
-                if (liteFileInfo != null)
+                // DBに保存されているFileIdと比較を行い、サムネイル生成元のファイルが更新されているかを確認する。
                 {
-                    using (var inStream = liteFileInfo.OpenRead())
+                    var liteFileInfo = _liteDatabase.FileStorage.FindById(databaseId + "FileId");
+
+                    if (liteFileInfo != null)
                     {
-                        thumbnailInfo = RocketPackHelper.StreamToMessage<ThumbnailInfo>(inStream);
-                    }
-                }
-            }
-
-            // ThumbnailInfoを読み込めた場合には、FileIdのチェックを行う。
-            if (thumbnailInfo?.Id != thumbnailId)
-            {
-                _liteDatabase.FileStorage.Delete(databaseId);
-
-                foreach (var thumbnailImage in thumbnailInfo.Images)
-                {
-                    thumbnailImage.Dispose();
-                }
-
-                thumbnailInfo = null;
-            }
-
-            if (thumbnailInfo == null)
-            {
-                IMemoryOwner<byte> memoryOwner = null;
-
-                // 画像を読み込み、リサイズを行う。
-                using (var image = Image.Load(fullPath))
-                {
-                    image.Mutate(x =>
-                    {
-                        x.Resize(new ResizeOptions
+                        using (var inStream = liteFileInfo.OpenRead())
                         {
-                            Mode = ResizeMode.Crop,
-                            Position = AnchorPositionMode.Center,
-                            Size = new SixLabors.Primitives.Size(width, height)
-                        });
-                    });
+                            var readFileId = RocketPackHelper.StreamToMessage<FileId>(inStream);
 
-                    using (var stream = new RecyclableMemoryStream(BufferPool.Shared))
-                    {
-                        var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
-                        image.Save(stream, encoder);
-                        memoryOwner = stream.ToArray();
+                            if(fileId == readFileId)
+                            {
+                                changed = false;
+                            }
+                        }
                     }
                 }
 
-                thumbnailInfo = new ThumbnailInfo(thumbnailId, new[] { new ThumbnailImage(ImageFormatType.Png, memoryOwner) });
-
-                // データベースに画像を保存する。
-                using (var recyclableMemoryStream = new RecyclableMemoryStream(BufferPool.Shared))
+                // キャッシュされたサムネイルが存在し、サムネイル生成元のファイルが更新されていない場合。
+                if (!changed)
                 {
-                    RocketPackHelper.MessageToStream(thumbnailInfo, recyclableMemoryStream);
-                    recyclableMemoryStream.Seek(0, SeekOrigin.Begin);
+                    var liteFileInfo = _liteDatabase.FileStorage.FindById(databaseId + "ThumbnailCache");
 
-                    _liteDatabase.FileStorage.Upload(databaseId, Path.GetFileName(fullPath), recyclableMemoryStream);
+                    if (liteFileInfo != null)
+                    {
+                        using (var inStream = liteFileInfo.OpenRead())
+                        {
+                            var readThumbnailCache = RocketPackHelper.StreamToMessage<ThumbnailsCache>(inStream);
+
+                            if (readThumbnailCache != null)
+                            {
+                                // キャッシュされているサムネイルを返す。
+                                return readThumbnailCache.Thumbnails.First();
+                            }
+                        }
+                    }
+                }
+
+                // サムネイルのキャッシュが存在しない、またはサムネイル生成元ファイルが更新されている場合、サムネイル画像を生成する。
+                {
+                    Thumbnail? thumbnail = null;
+
+                    try
+                    {
+                        // 画像を読み込み、リサイズを行う。
+                        using (var image = Image.Load(fullPath))
+                        {
+                            image.Mutate(x =>
+                            {
+                                var resizeOptions = new ResizeOptions();
+                                resizeOptions.Position = AnchorPositionMode.Center;
+                                resizeOptions.Size = new SixLabors.Primitives.Size(width, height);
+                                resizeOptions.Mode = resizeType switch
+                                {
+                                    ThumbnailResizeType.Pad => ResizeMode.Pad,
+                                    ThumbnailResizeType.Crop => ResizeMode.Crop,
+                                    _ => throw new NotSupportedException(),
+                                };
+
+                                x.Resize(resizeOptions);
+                            });
+
+                            using (var stream = new RecyclableMemoryStream(BufferPool.Shared))
+                            {
+                                var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
+                                image.Save(stream, encoder);
+                                thumbnail = new Thumbnail(stream.ToMemoryOwner());
+                            }
+                        }
+                    }
+                    catch (NotSupportedException e)
+                    {
+                        _logger.Info(e);
+                    }
+
+                    if (thumbnail == null)
+                    {
+                        return null;
+                    }
+
+                    var thumbnailCache = new ThumbnailsCache(new[] { thumbnail });
+
+                    // データベースにFileIdを保存する。
+                    using (var recyclableMemoryStream = new RecyclableMemoryStream(BufferPool.Shared))
+                    {
+                        RocketPackHelper.MessageToStream(fileId, recyclableMemoryStream);
+                        recyclableMemoryStream.Seek(0, SeekOrigin.Begin);
+
+                        _liteDatabase.FileStorage.Upload(databaseId + "FileId", Path.GetFileName(fullPath), recyclableMemoryStream);
+                    }
+
+                    // データベースにThumbnailCacheを保存する。
+                    using (var recyclableMemoryStream = new RecyclableMemoryStream(BufferPool.Shared))
+                    {
+                        RocketPackHelper.MessageToStream(thumbnailCache, recyclableMemoryStream);
+                        recyclableMemoryStream.Seek(0, SeekOrigin.Begin);
+
+                        _liteDatabase.FileStorage.Upload(databaseId + "ThumbnailCache", Path.GetFileName(fullPath), recyclableMemoryStream);
+                    }
+
+                    return thumbnail;
+                }
+            }
+        }
+
+        private IEnumerable<Thumbnail>? GetVideoThumnailImage(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType)
+        {
+            if (!_videoTypeExtensionList.Contains(Path.GetExtension(path)))
+            {
+                return null;
+            }
+
+            // TODO
+            return null;
+        }
+
+        public IEnumerable<Thumbnail> GetThumnailImages(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken token = default)
+        {
+            {
+                var result = this.GetPictureThumnailImage(path, width, height, formatType, resizeType);
+
+                if (result != null)
+                {
+                    return new[] { result };
                 }
             }
 
-            return thumbnailInfo.Images;
+            {
+                var result = this.GetVideoThumnailImage(path, width, height, formatType, resizeType);
+
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+
+            return Enumerable.Empty<Thumbnail>();
         }
 
         protected override void Dispose(bool disposing)
@@ -122,11 +228,7 @@ namespace Lxna.Core.Contents.Internal
 
             if (disposing)
             {
-                if (_liteDatabase != null)
-                {
-                    _liteDatabase.Dispose();
-                    _liteDatabase = null;
-                }
+                _liteDatabase.Dispose();
             }
         }
     }

@@ -9,10 +9,10 @@ using Omnix.Configuration;
 
 namespace Lxna.Rpc
 {
-    public interface ILxnaService: IService, ISettings
+    public interface ILxnaService : IService, ISettings
     {
-        IEnumerable<FileMetadata> GetFileMetadatas(string path, CancellationToken token = default);
-        IEnumerable<ThumbnailImage> GetFileThumbnail(string path, int width, int height, CancellationToken token = default);
-        void ReadFileContent(string path, long position, Span<byte> buffer, CancellationToken token = default);
+        IEnumerable<ContentId> GetContentIds(string? path, CancellationToken token = default);
+        IEnumerable<Thumbnail> GetThumbnails(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken token = default);
+        void ReadContent(string path, long position, Span<byte> buffer, CancellationToken token = default);
     }
 }
