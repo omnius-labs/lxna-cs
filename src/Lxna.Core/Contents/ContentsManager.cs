@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,8 +13,7 @@ namespace Lxna.Core.Contents
 {
     public sealed class ContentsManager : ServiceBase, ISettings
     {
-        private readonly string _basePath;
-
+        private readonly LxnaOptions _options;
         private readonly ThumbnailCacheStorage _thumbnailCacheStorage;
 
         private ServiceStateType _state = ServiceStateType.Stopped;
@@ -21,18 +21,17 @@ namespace Lxna.Core.Contents
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private volatile bool _disposed;
 
-        public ContentsManager(string basePath)
+        public ContentsManager(LxnaOptions options)
         {
-            _basePath = basePath;
-
-            _thumbnailCacheStorage = new ThumbnailCacheStorage(_basePath);
+            _options = options;
+            _thumbnailCacheStorage = new ThumbnailCacheStorage(_options);
         }
 
         public override ServiceStateType StateType { get; }
 
-        public IEnumerable<ThumbnailImage> GetThumnailImages(string path, int width, int height)
+        public IEnumerable<Thumbnail> GetThumnails(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken token = default)
         {
-            return _thumbnailCacheStorage.GetThumnailImages(path, width, height);
+            return _thumbnailCacheStorage.GetThumnailImages(path, width, height, formatType, resizeType, token);
         }
 
         public void Load()
@@ -59,7 +58,7 @@ namespace Lxna.Core.Contents
             _state = ServiceStateType.Stopped;
         }
 
-        public override async ValueTask Start(CancellationToken token = default)
+        public override async ValueTask Start()
         {
             using (await _asyncLock.LockAsync())
             {
@@ -67,7 +66,7 @@ namespace Lxna.Core.Contents
             }
         }
 
-        public override async ValueTask Stop(CancellationToken token = default)
+        public override async ValueTask Stop()
         {
             using (await _asyncLock.LockAsync())
             {
@@ -75,7 +74,7 @@ namespace Lxna.Core.Contents
             }
         }
 
-        public override async ValueTask Restart(CancellationToken token = default)
+        public override async ValueTask Restart()
         {
             using (await _asyncLock.LockAsync())
             {

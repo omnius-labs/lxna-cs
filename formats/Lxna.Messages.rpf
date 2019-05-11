@@ -2,22 +2,31 @@
 
 option csharp_namespace = "Lxna.Messages";
 
-message ErrorMessage {
-    Type: string(8192) = 0,
-    Message: string(8192) = 1,
-    StackTrace: string(8192) = 2,
+message LxnaOptions {
+    ConfigDirectoryPath: string(1024) = 0,
 }
 
-message FileMetadata {
-    Path: string(1024) = 0,
+enum ContentType : uint8 {
+    Directory = 0,
+    Archive = 1,
+    File = 2,
 }
 
-enum ImageFormatType : uint8 {
+message ContentId {
+    Type: ContentType = 0,
+    Path: string(1024) = 1,
+}
+
+enum ThumbnailResizeType : uint8 {
+    Pad = 0,
+    Crop = 1,
+}
+
+enum ThumbnailFormatType : uint8 {
     Png = 0,
 }
 
-message ThumbnailImage {
-    Type: ImageFormatType = 0,
+message Thumbnail {
     [Recyclable]
-    Value: memory(33554432) = 1,
+    Value: memory(33554432) = 0,
 }
