@@ -1,217 +1,209 @@
-﻿using Omnix.Base;
-using Omnix.Base.Helpers;
-using Omnix.Serialization;
-using Omnix.Serialization.RocketPack;
-using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿
+#nullable enable
 
 namespace Lxna.Messages
 {
-    public enum ImageFormatType : byte
+    public enum ContentType : byte
+    {
+        Directory = 0,
+        Archive = 1,
+        File = 2,
+    }
+
+    public enum ThumbnailResizeType : byte
+    {
+        Pad = 0,
+        Crop = 1,
+    }
+
+    public enum ThumbnailFormatType : byte
     {
         Png = 0,
     }
 
-    public sealed partial class ErrorMessage : RocketPackMessageBase<ErrorMessage>
+    public sealed partial class LxnaOptions : Omnix.Serialization.RocketPack.RocketPackMessageBase<LxnaOptions>
     {
-        static ErrorMessage()
+        static LxnaOptions()
         {
-            ErrorMessage.Formatter = new CustomFormatter();
+            LxnaOptions.Formatter = new CustomFormatter();
+            LxnaOptions.Empty = new LxnaOptions(string.Empty);
         }
 
-        public static readonly int MaxTypeLength = 8192;
-        public static readonly int MaxMessageLength = 8192;
-        public static readonly int MaxStackTraceLength = 8192;
+        private readonly int __hashCode;
 
-        public ErrorMessage(string type, string message, string stackTrace)
+        public static readonly int MaxConfigDirectoryPathLength = 1024;
+
+        public LxnaOptions(string configDirectoryPath)
         {
-            if (type is null) throw new ArgumentNullException("type");
-            if (type.Length > 8192) throw new ArgumentOutOfRangeException("type");
-            if (message is null) throw new ArgumentNullException("message");
-            if (message.Length > 8192) throw new ArgumentOutOfRangeException("message");
-            if (stackTrace is null) throw new ArgumentNullException("stackTrace");
-            if (stackTrace.Length > 8192) throw new ArgumentOutOfRangeException("stackTrace");
+            if (configDirectoryPath is null) throw new System.ArgumentNullException("configDirectoryPath");
+            if (configDirectoryPath.Length > 1024) throw new System.ArgumentOutOfRangeException("configDirectoryPath");
 
-            this.Type = type;
-            this.Message = message;
-            this.StackTrace = stackTrace;
+            this.ConfigDirectoryPath = configDirectoryPath;
 
             {
-                var hashCode = new HashCode();
-                if (this.Type != default) hashCode.Add(this.Type.GetHashCode());
-                if (this.Message != default) hashCode.Add(this.Message.GetHashCode());
-                if (this.StackTrace != default) hashCode.Add(this.StackTrace.GetHashCode());
-                _hashCode = hashCode.ToHashCode();
+                var __h = new System.HashCode();
+                if (this.ConfigDirectoryPath != default) __h.Add(this.ConfigDirectoryPath.GetHashCode());
+                __hashCode = __h.ToHashCode();
             }
         }
 
-        public string Type { get; }
-        public string Message { get; }
-        public string StackTrace { get; }
+        public string ConfigDirectoryPath { get; }
 
-        public override bool Equals(ErrorMessage target)
+        public override bool Equals(LxnaOptions? target)
         {
-            if ((object)target == null) return false;
-            if (Object.ReferenceEquals(this, target)) return true;
-            if (this.Type != target.Type) return false;
-            if (this.Message != target.Message) return false;
-            if (this.StackTrace != target.StackTrace) return false;
+            if (target is null) return false;
+            if (object.ReferenceEquals(this, target)) return true;
+            if (this.ConfigDirectoryPath != target.ConfigDirectoryPath) return false;
 
             return true;
         }
 
-        private readonly int _hashCode;
-        public override int GetHashCode() => _hashCode;
+        public override int GetHashCode() => __hashCode;
 
-        private sealed class CustomFormatter : IRocketPackFormatter<ErrorMessage>
+        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<LxnaOptions>
         {
-            public void Serialize(RocketPackWriter w, ErrorMessage value, int rank)
+            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, LxnaOptions value, int rank)
             {
-                if (rank > 256) throw new FormatException();
+                if (rank > 256) throw new System.FormatException();
 
-                // Write property count
                 {
-                    int propertyCount = 0;
-                    if (value.Type != default) propertyCount++;
-                    if (value.Message != default) propertyCount++;
-                    if (value.StackTrace != default) propertyCount++;
-                    w.Write((ulong)propertyCount);
+                    uint propertyCount = 0;
+                    if (value.ConfigDirectoryPath != string.Empty)
+                    {
+                        propertyCount++;
+                    }
+                    w.Write(propertyCount);
                 }
 
-                // Type
-                if (value.Type != default)
+                if (value.ConfigDirectoryPath != string.Empty)
                 {
-                    w.Write((ulong)0);
-                    w.Write(value.Type);
-                }
-                // Message
-                if (value.Message != default)
-                {
-                    w.Write((ulong)1);
-                    w.Write(value.Message);
-                }
-                // StackTrace
-                if (value.StackTrace != default)
-                {
-                    w.Write((ulong)2);
-                    w.Write(value.StackTrace);
+                    w.Write((uint)0);
+                    w.Write(value.ConfigDirectoryPath);
                 }
             }
 
-            public ErrorMessage Deserialize(RocketPackReader r, int rank)
+            public LxnaOptions Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
             {
-                if (rank > 256) throw new FormatException();
+                if (rank > 256) throw new System.FormatException();
 
                 // Read property count
-                int propertyCount = (int)r.GetUInt64();
+                uint propertyCount = r.GetUInt32();
 
-                string p_type = default;
-                string p_message = default;
-                string p_stackTrace = default;
+                string p_configDirectoryPath = string.Empty;
 
                 for (; propertyCount > 0; propertyCount--)
                 {
-                    int id = (int)r.GetUInt64();
+                    uint id = r.GetUInt32();
                     switch (id)
                     {
-                        case 0: // Type
+                        case 0: // ConfigDirectoryPath
                             {
-                                p_type = r.GetString(8192);
-                                break;
-                            }
-                        case 1: // Message
-                            {
-                                p_message = r.GetString(8192);
-                                break;
-                            }
-                        case 2: // StackTrace
-                            {
-                                p_stackTrace = r.GetString(8192);
+                                p_configDirectoryPath = r.GetString(1024);
                                 break;
                             }
                     }
                 }
 
-                return new ErrorMessage(p_type, p_message, p_stackTrace);
+                return new LxnaOptions(p_configDirectoryPath);
             }
         }
     }
 
-    public sealed partial class FileMetadata : RocketPackMessageBase<FileMetadata>
+    public sealed partial class ContentId : Omnix.Serialization.RocketPack.RocketPackMessageBase<ContentId>
     {
-        static FileMetadata()
+        static ContentId()
         {
-            FileMetadata.Formatter = new CustomFormatter();
+            ContentId.Formatter = new CustomFormatter();
+            ContentId.Empty = new ContentId((ContentType)0, string.Empty);
         }
+
+        private readonly int __hashCode;
 
         public static readonly int MaxPathLength = 1024;
 
-        public FileMetadata(string path)
+        public ContentId(ContentType type, string path)
         {
-            if (path is null) throw new ArgumentNullException("path");
-            if (path.Length > 1024) throw new ArgumentOutOfRangeException("path");
+            if (path is null) throw new System.ArgumentNullException("path");
+            if (path.Length > 1024) throw new System.ArgumentOutOfRangeException("path");
 
+            this.Type = type;
             this.Path = path;
 
             {
-                var hashCode = new HashCode();
-                if (this.Path != default) hashCode.Add(this.Path.GetHashCode());
-                _hashCode = hashCode.ToHashCode();
+                var __h = new System.HashCode();
+                if (this.Type != default) __h.Add(this.Type.GetHashCode());
+                if (this.Path != default) __h.Add(this.Path.GetHashCode());
+                __hashCode = __h.ToHashCode();
             }
         }
 
+        public ContentType Type { get; }
         public string Path { get; }
 
-        public override bool Equals(FileMetadata target)
+        public override bool Equals(ContentId? target)
         {
-            if ((object)target == null) return false;
-            if (Object.ReferenceEquals(this, target)) return true;
+            if (target is null) return false;
+            if (object.ReferenceEquals(this, target)) return true;
+            if (this.Type != target.Type) return false;
             if (this.Path != target.Path) return false;
 
             return true;
         }
 
-        private readonly int _hashCode;
-        public override int GetHashCode() => _hashCode;
+        public override int GetHashCode() => __hashCode;
 
-        private sealed class CustomFormatter : IRocketPackFormatter<FileMetadata>
+        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<ContentId>
         {
-            public void Serialize(RocketPackWriter w, FileMetadata value, int rank)
+            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, ContentId value, int rank)
             {
-                if (rank > 256) throw new FormatException();
+                if (rank > 256) throw new System.FormatException();
 
-                // Write property count
                 {
-                    int propertyCount = 0;
-                    if (value.Path != default) propertyCount++;
-                    w.Write((ulong)propertyCount);
+                    uint propertyCount = 0;
+                    if (value.Type != (ContentType)0)
+                    {
+                        propertyCount++;
+                    }
+                    if (value.Path != string.Empty)
+                    {
+                        propertyCount++;
+                    }
+                    w.Write(propertyCount);
                 }
 
-                // Path
-                if (value.Path != default)
+                if (value.Type != (ContentType)0)
                 {
-                    w.Write((ulong)0);
+                    w.Write((uint)0);
+                    w.Write((ulong)value.Type);
+                }
+                if (value.Path != string.Empty)
+                {
+                    w.Write((uint)1);
                     w.Write(value.Path);
                 }
             }
 
-            public FileMetadata Deserialize(RocketPackReader r, int rank)
+            public ContentId Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
             {
-                if (rank > 256) throw new FormatException();
+                if (rank > 256) throw new System.FormatException();
 
                 // Read property count
-                int propertyCount = (int)r.GetUInt64();
+                uint propertyCount = r.GetUInt32();
 
-                string p_path = default;
+                ContentType p_type = (ContentType)0;
+                string p_path = string.Empty;
 
                 for (; propertyCount > 0; propertyCount--)
                 {
-                    int id = (int)r.GetUInt64();
+                    uint id = r.GetUInt32();
                     switch (id)
                     {
-                        case 0: // Path
+                        case 0: // Type
+                            {
+                                p_type = (ContentType)r.GetUInt64();
+                                break;
+                            }
+                        case 1: // Path
                             {
                                 p_path = r.GetString(1024);
                                 break;
@@ -219,107 +211,93 @@ namespace Lxna.Messages
                     }
                 }
 
-                return new FileMetadata(p_path);
+                return new ContentId(p_type, p_path);
             }
         }
     }
 
-    public sealed partial class ThumbnailImage : RocketPackMessageBase<ThumbnailImage>, IDisposable
+    public sealed partial class Thumbnail : Omnix.Serialization.RocketPack.RocketPackMessageBase<Thumbnail>, System.IDisposable
     {
-        static ThumbnailImage()
+        static Thumbnail()
         {
-            ThumbnailImage.Formatter = new CustomFormatter();
+            Thumbnail.Formatter = new CustomFormatter();
+            Thumbnail.Empty = new Thumbnail(Omnix.Base.SimpleMemoryOwner<byte>.Empty);
         }
+
+        private readonly int __hashCode;
 
         public static readonly int MaxValueLength = 33554432;
 
-        public ThumbnailImage(ImageFormatType type, IMemoryOwner<byte> value)
+        public Thumbnail(System.Buffers.IMemoryOwner<byte> value)
         {
-            if (value is null) throw new ArgumentNullException("value");
-            if (value.Memory.Length > 33554432) throw new ArgumentOutOfRangeException("value");
+            if (value is null) throw new System.ArgumentNullException("value");
+            if (value.Memory.Length > 33554432) throw new System.ArgumentOutOfRangeException("value");
 
-            this.Type = type;
             _value = value;
 
             {
-                var hashCode = new HashCode();
-                if (this.Type != default) hashCode.Add(this.Type.GetHashCode());
-                if (!this.Value.IsEmpty) hashCode.Add(ObjectHelper.GetHashCode(this.Value.Span));
-                _hashCode = hashCode.ToHashCode();
+                var __h = new System.HashCode();
+                if (!this.Value.IsEmpty) __h.Add(Omnix.Base.Helpers.ObjectHelper.GetHashCode(this.Value.Span));
+                __hashCode = __h.ToHashCode();
             }
         }
 
-        public ImageFormatType Type { get; }
-        private readonly IMemoryOwner<byte> _value;
-        public ReadOnlyMemory<byte> Value => _value.Memory;
+        private readonly System.Buffers.IMemoryOwner<byte> _value;
+        public System.ReadOnlyMemory<byte> Value => _value.Memory;
 
-        public override bool Equals(ThumbnailImage target)
+        public override bool Equals(Thumbnail? target)
         {
-            if ((object)target == null) return false;
-            if (Object.ReferenceEquals(this, target)) return true;
-            if (this.Type != target.Type) return false;
-            if (!BytesOperations.SequenceEqual(this.Value.Span, target.Value.Span)) return false;
+            if (target is null) return false;
+            if (object.ReferenceEquals(this, target)) return true;
+            if (!Omnix.Base.BytesOperations.SequenceEqual(this.Value.Span, target.Value.Span)) return false;
 
             return true;
         }
 
-        private readonly int _hashCode;
-        public override int GetHashCode() => _hashCode;
+        public override int GetHashCode() => __hashCode;
 
         public void Dispose()
         {
             _value?.Dispose();
         }
 
-        private sealed class CustomFormatter : IRocketPackFormatter<ThumbnailImage>
+        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<Thumbnail>
         {
-            public void Serialize(RocketPackWriter w, ThumbnailImage value, int rank)
+            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, Thumbnail value, int rank)
             {
-                if (rank > 256) throw new FormatException();
+                if (rank > 256) throw new System.FormatException();
 
-                // Write property count
                 {
-                    int propertyCount = 0;
-                    if (value.Type != default) propertyCount++;
-                    if (!value.Value.IsEmpty) propertyCount++;
-                    w.Write((ulong)propertyCount);
+                    uint propertyCount = 0;
+                    if (!value.Value.IsEmpty)
+                    {
+                        propertyCount++;
+                    }
+                    w.Write(propertyCount);
                 }
 
-                // Type
-                if (value.Type != default)
-                {
-                    w.Write((ulong)0);
-                    w.Write((ulong)value.Type);
-                }
-                // Value
                 if (!value.Value.IsEmpty)
                 {
-                    w.Write((ulong)1);
+                    w.Write((uint)0);
                     w.Write(value.Value.Span);
                 }
             }
 
-            public ThumbnailImage Deserialize(RocketPackReader r, int rank)
+            public Thumbnail Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
             {
-                if (rank > 256) throw new FormatException();
+                if (rank > 256) throw new System.FormatException();
 
                 // Read property count
-                int propertyCount = (int)r.GetUInt64();
+                uint propertyCount = r.GetUInt32();
 
-                ImageFormatType p_type = default;
-                IMemoryOwner<byte> p_value = default;
+                System.Buffers.IMemoryOwner<byte> p_value = Omnix.Base.SimpleMemoryOwner<byte>.Empty;
 
                 for (; propertyCount > 0; propertyCount--)
                 {
-                    int id = (int)r.GetUInt64();
+                    uint id = r.GetUInt32();
                     switch (id)
                     {
-                        case 0: // Type
-                            {
-                                p_type = (ImageFormatType)r.GetUInt64();
-                                break;
-                            }
-                        case 1: // Value
+                        case 0: // Value
                             {
                                 p_value = r.GetRecyclableMemory(33554432);
                                 break;
@@ -327,7 +305,7 @@ namespace Lxna.Messages
                     }
                 }
 
-                return new ThumbnailImage(p_type, p_value);
+                return new Thumbnail(p_value);
             }
         }
     }

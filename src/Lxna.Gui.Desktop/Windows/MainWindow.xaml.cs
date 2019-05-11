@@ -1,4 +1,7 @@
-﻿using Avalonia;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
@@ -8,6 +11,8 @@ namespace Lxna.Gui.Desktop.Windows
     {
         public MainWindow()
         {
+            this.DataContext = new MainWindowViewModel();
+
             InitializeComponent();
 #if DEBUG
             this.AttachDevTools();
@@ -17,6 +22,16 @@ namespace Lxna.Gui.Desktop.Windows
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        protected override void HandleClosed()
+        {
+            base.HandleClosed();
+
+            if (this.DataContext is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
     }
 }
