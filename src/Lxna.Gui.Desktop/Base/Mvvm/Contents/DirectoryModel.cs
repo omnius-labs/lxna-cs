@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using Lxna.Gui.Desktop.Base.Mvvm.Primitives;
 using Lxna.Messages;
-using Omnix.Avalonia;
-using Omnix.Avalonia.ViewModels;
 
-namespace Lxna.Gui.Desktop.Windows
+namespace Lxna.Gui.Desktop.Models
 {
-    sealed class DirectoryModel : BindableBase
+    public sealed class DirectoryModel : BindableBase
     {
         public DirectoryModel(ContentId contentId)
         {

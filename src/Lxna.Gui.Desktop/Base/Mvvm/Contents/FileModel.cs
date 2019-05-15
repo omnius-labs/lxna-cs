@@ -4,15 +4,12 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using Avalonia.Controls;
-using Avalonia.Media.Imaging;
+using Lxna.Gui.Desktop.Base.Mvvm.Primitives;
 using Lxna.Messages;
-using Omnix.Avalonia;
-using Omnix.Avalonia.ViewModels;
 
-namespace Lxna.Gui.Desktop.Windows
+namespace Lxna.Gui.Desktop.Models
 {
-    sealed class FileModel : BindableBase
+    public sealed class FileModel : BindableBase
     {
         public FileModel(ContentId contentId)
         {
@@ -28,18 +25,6 @@ namespace Lxna.Gui.Desktop.Windows
         {
             get => _name;
             set => this.SetProperty(ref _name, value);
-        }
-
-        private Bitmap? _thumbnailBitmap = null;
-        public Bitmap? Thumbnail
-        {
-            get
-            {
-                Debug.WriteLine(this.ContentId.Path);
-
-                return _thumbnailBitmap;
-            }
-            set => this.SetProperty(ref _thumbnailBitmap, value);
         }
     }
 }

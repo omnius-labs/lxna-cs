@@ -2,7 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Logging.Serilog;
-using Lxna.Gui.Desktop.Windows;
+using Lxna.Gui.Desktop.Windows.Main;
 
 namespace Lxna.Gui.Desktop
 {
