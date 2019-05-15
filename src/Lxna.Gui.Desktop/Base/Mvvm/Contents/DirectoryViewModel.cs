@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Omnix.Avalonia;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Omnix.Base;
+using Lxna.Gui.Desktop.Models;
+using Lxna.Gui.Desktop.Base.Mvvm.Primitives;
 
-namespace Lxna.Gui.Desktop.Windows
+namespace Lxna.Gui.Desktop.Base.Contents
 {
     sealed class DirectoryViewModel : DisposableBase
     {

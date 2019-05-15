@@ -12,8 +12,10 @@ using Lxna.Messages;
 using Omnix.Base;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using Lxna.Gui.Desktop.Models;
+using Lxna.Gui.Desktop.Base.Contents;
 
-namespace Lxna.Gui.Desktop.Windows
+namespace Lxna.Gui.Desktop.Windows.Main
 {
     sealed class MainWindowViewModel : DisposableBase
     {
@@ -79,7 +81,7 @@ namespace Lxna.Gui.Desktop.Windows
                         memoryStream.Write(image.Value.Span);
                         memoryStream.Seek(0, SeekOrigin.Begin);
 
-                        fileModel.Thumbnail = new Bitmap(memoryStream);
+                        //fileModel.Thumbnail = new Bitmap(memoryStream);
                     }
 
                     _currentFileModels.Add(fileModel);

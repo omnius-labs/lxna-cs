@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Text;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Omnix.Avalonia;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Omnix.Base;
-using Avalonia.Media.Imaging;
+using Lxna.Gui.Desktop.Models;
+using Lxna.Gui.Desktop.Base.Mvvm.Primitives;
 
-namespace Lxna.Gui.Desktop.Windows
+namespace Lxna.Gui.Desktop.Base.Contents
 {
-    sealed class FileViewModel : DisposableBase
+    sealed class FileViewModel : BindableBase
     {
         private CompositeDisposable _disposable = new CompositeDisposable();
         private volatile bool _disposed;
@@ -27,22 +27,16 @@ namespace Lxna.Gui.Desktop.Windows
 
         public ReadOnlyReactivePropertySlim<string> Name { get; }
 
-        public Bitmap? Thumbnail
+        bool _isEffectivelyVisible;
+        public bool IsEffectivelyVisible
         {
             get
             {
-                return this.Model.Thumbnail;
+                return _isEffectivelyVisible;
             }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (_disposed) return;
-            _disposed = true;
-
-            if (disposing)
+            set
             {
-                _disposable.Dispose();
+                _isEffectivelyVisible = value;
             }
         }
     }

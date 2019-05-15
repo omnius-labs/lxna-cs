@@ -5,7 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace Lxna.Gui.Desktop.Windows
+namespace Lxna.Gui.Desktop.Windows.Main
 {
     public class MainWindow : Window
     {

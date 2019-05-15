@@ -25,8 +25,6 @@
     <PackageReference Include="ReactiveProperty" Version="5.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Avalonia\Omnix.Avalonia.csproj" />
-    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Base\Omnix.Base.csproj" />
     <ProjectReference Include="..\Lxna.Core\Lxna.Core.csproj" />
   </ItemGroup>
 </Project>
