@@ -4,7 +4,7 @@
 
 namespace Lxna.Core.Contents
 {
-    public sealed partial class FileId : Omnix.Serialization.RocketPack.RocketPackMessageBase<FileId>
+    internal sealed partial class FileId : Omnix.Serialization.RocketPack.RocketPackMessageBase<FileId>
     {
         static FileId()
         {
@@ -129,19 +129,19 @@ namespace Lxna.Core.Contents
         }
     }
 
-    public sealed partial class ThumbnailsCache : Omnix.Serialization.RocketPack.RocketPackMessageBase<ThumbnailsCache>
+    internal sealed partial class ThumbnailsCache : Omnix.Serialization.RocketPack.RocketPackMessageBase<ThumbnailsCache>
     {
         static ThumbnailsCache()
         {
             ThumbnailsCache.Formatter = new CustomFormatter();
-            ThumbnailsCache.Empty = new ThumbnailsCache(System.Array.Empty<Thumbnail>());
+            ThumbnailsCache.Empty = new ThumbnailsCache(System.Array.Empty<LxnaThumbnail>());
         }
 
         private readonly int __hashCode;
 
         public static readonly int MaxThumbnailsCount = 1024;
 
-        public ThumbnailsCache(Thumbnail[] thumbnails)
+        public ThumbnailsCache(LxnaThumbnail[] thumbnails)
         {
             if (thumbnails is null) throw new System.ArgumentNullException("thumbnails");
             if (thumbnails.Length > 1024) throw new System.ArgumentOutOfRangeException("thumbnails");
@@ -150,7 +150,7 @@ namespace Lxna.Core.Contents
                 if (n is null) throw new System.ArgumentNullException("n");
             }
 
-            this.Thumbnails = new Omnix.Collections.ReadOnlyListSlim<Thumbnail>(thumbnails);
+            this.Thumbnails = new Omnix.Collections.ReadOnlyListSlim<LxnaThumbnail>(thumbnails);
 
             {
                 var __h = new System.HashCode();
@@ -162,7 +162,7 @@ namespace Lxna.Core.Contents
             }
         }
 
-        public Omnix.Collections.ReadOnlyListSlim<Thumbnail> Thumbnails { get; }
+        public Omnix.Collections.ReadOnlyListSlim<LxnaThumbnail> Thumbnails { get; }
 
         public override bool Equals(ThumbnailsCache? target)
         {
@@ -196,7 +196,7 @@ namespace Lxna.Core.Contents
                     w.Write((uint)value.Thumbnails.Count);
                     foreach (var n in value.Thumbnails)
                     {
-                        Thumbnail.Formatter.Serialize(w, n, rank + 1);
+                        LxnaThumbnail.Formatter.Serialize(w, n, rank + 1);
                     }
                 }
             }
@@ -208,7 +208,7 @@ namespace Lxna.Core.Contents
                 // Read property count
                 uint propertyCount = r.GetUInt32();
 
-                Thumbnail[] p_thumbnails = System.Array.Empty<Thumbnail>();
+                LxnaThumbnail[] p_thumbnails = System.Array.Empty<LxnaThumbnail>();
 
                 for (; propertyCount > 0; propertyCount--)
                 {
@@ -218,10 +218,10 @@ namespace Lxna.Core.Contents
                         case 0: // Thumbnails
                             {
                                 var length = r.GetUInt32();
-                                p_thumbnails = new Thumbnail[length];
+                                p_thumbnails = new LxnaThumbnail[length];
                                 for (int i = 0; i < p_thumbnails.Length; i++)
                                 {
-                                    p_thumbnails[i] = Thumbnail.Formatter.Deserialize(r, rank + 1);
+                                    p_thumbnails[i] = LxnaThumbnail.Formatter.Deserialize(r, rank + 1);
                                 }
                                 break;
                             }

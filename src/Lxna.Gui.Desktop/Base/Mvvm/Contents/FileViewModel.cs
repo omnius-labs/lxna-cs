@@ -8,18 +8,25 @@ using System.Reactive.Linq;
 using Omnix.Base;
 using Lxna.Gui.Desktop.Models;
 using Lxna.Gui.Desktop.Base.Mvvm.Primitives;
+using Avalonia.Media.Imaging;
 
 namespace Lxna.Gui.Desktop.Base.Contents
 {
     sealed class FileViewModel : BindableBase
     {
+        private readonly Action<FileViewModel> _callback;
+
+        private Bitmap? _thumbnail = null;
+
         private CompositeDisposable _disposable = new CompositeDisposable();
+
         private volatile bool _disposed;
 
-        public FileViewModel(FileModel model)
+        public FileViewModel(FileModel model, Action<FileViewModel> callback)
         {
-            this.Model = model;
+            _callback = callback;
 
+            this.Model = model;
             this.Name = this.Model.ObserveProperty(n => n.Name).ToReadOnlyReactivePropertySlim().AddTo(_disposable);
         }
 
@@ -27,17 +34,23 @@ namespace Lxna.Gui.Desktop.Base.Contents
 
         public ReadOnlyReactivePropertySlim<string> Name { get; }
 
-        bool _isEffectivelyVisible;
-        public bool IsEffectivelyVisible
+        public Bitmap? Thumbnail
         {
             get
             {
-                return _isEffectivelyVisible;
+                if (_thumbnail == null)
+                {
+                    _callback?.Invoke(this);
+                }
+
+                return _thumbnail;
             }
-            set
-            {
-                _isEffectivelyVisible = value;
-            }
+        }
+
+        public void SetThumbnail(Bitmap thumbnail)
+        {
+            _thumbnail = thumbnail;
+            base.OnPropertyChanged(nameof(this.Thumbnail));
         }
     }
 }

@@ -14,17 +14,24 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Lxna.Gui.Desktop.Models;
 using Lxna.Gui.Desktop.Base.Contents;
+using System.Threading.Channels;
+using System.Threading;
 
 namespace Lxna.Gui.Desktop.Windows.Main
 {
     sealed class MainWindowViewModel : DisposableBase
     {
-        private LxnaService _lxnaService;
+        private readonly LxnaService _lxnaService;
 
-        private ObservableCollection<DirectoryModel> _rootDirectoryModels = new ObservableCollection<DirectoryModel>();
-        private ObservableCollection<FileModel> _currentFileModels = new ObservableCollection<FileModel>();
+        private readonly Channel<FileViewModel> _fileViewModelChannel;
 
-        private CompositeDisposable _disposable = new CompositeDisposable();
+        private TaskManager _watchTask;
+
+        private readonly ObservableCollection<DirectoryModel> _rootDirectoryModels = new ObservableCollection<DirectoryModel>();
+        private readonly ObservableCollection<FileModel> _currentFileModels = new ObservableCollection<FileModel>();
+
+        private readonly CompositeDisposable _disposable = new CompositeDisposable();
+
         private volatile bool _disposed;
 
         public MainWindowViewModel()
@@ -32,11 +39,15 @@ namespace Lxna.Gui.Desktop.Windows.Main
             _lxnaService = new LxnaService(this.GetLxnaOptions());
             _lxnaService.Load();
 
+            _fileViewModelChannel = Channel.CreateUnbounded<FileViewModel>();
+
+            _watchTask = new TaskManager(this.WatchThread);
+            _watchTask.Start();
+
             this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(n)).AddTo(_disposable);
             this.SelectedDirectory = new ReactiveProperty<DirectoryViewModel>().AddTo(_disposable);
             this.SelectedDirectory.Subscribe(n => { if (n != null) this.TreeView_SelectionChanged(n); }).AddTo(_disposable);
-
-            this.CurrentFiles = _currentFileModels.ToReadOnlyReactiveCollection(n => new FileViewModel(n)).AddTo(_disposable);
+            this.CurrentFiles = _currentFileModels.ToReadOnlyReactiveCollection(n => new FileViewModel(n, (viewModel) => _fileViewModelChannel.Writer.TryWrite(viewModel))).AddTo(_disposable);
 
             foreach (var contentMetadata in _lxnaService.GetContentIds(null))
             {
@@ -44,9 +55,39 @@ namespace Lxna.Gui.Desktop.Windows.Main
             }
         }
 
+        private async void WatchThread(CancellationToken token)
+        {
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    if (!_fileViewModelChannel.Reader.TryRead(out var viewModel))
+                    {
+                        await _fileViewModelChannel.Reader.WaitToReadAsync(token);
+                        continue;
+                    }
+
+                    using var image = _lxnaService.GetThumbnails(viewModel.Model.ContentId.Path, 256, 256, LxnaThumbnailFormatType.Png, LxnaThumbnailResizeType.Crop).FirstOrDefault();
+                    if (image == null) continue;
+
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        memoryStream.Write(image.Value.Span);
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+
+                        var bitmap = new Bitmap(memoryStream);
+                        viewModel.SetThumbnail(bitmap);
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+
+            }
+        }
+
         public ReadOnlyReactiveCollection<DirectoryViewModel> RootDirectories { get; }
         public ReactiveProperty<DirectoryViewModel> SelectedDirectory { get; }
-
         public ReadOnlyReactiveCollection<FileViewModel> CurrentFiles { get; }
 
         private LxnaOptions GetLxnaOptions()
@@ -63,28 +104,15 @@ namespace Lxna.Gui.Desktop.Windows.Main
             selectedDirectory.Model.Children.Clear();
             _currentFileModels.Clear();
 
-            foreach (var contentMetadata in _lxnaService.GetContentIds(selectedDirectory.Model.ContentId.Path))
+            foreach (var contentId in _lxnaService.GetContentIds(selectedDirectory.Model.ContentId.Path))
             {
-                if (contentMetadata.Type == ContentType.Directory || contentMetadata.Type == ContentType.Archive)
+                if (contentId.Type == LxnaContentType.Directory || contentId.Type == LxnaContentType.Archive)
                 {
-                    selectedDirectory.Model.Children.Add(new DirectoryModel(contentMetadata));
+                    selectedDirectory.Model.Children.Add(new DirectoryModel(contentId));
                 }
-                else if (contentMetadata.Type == ContentType.File)
+                else if (contentId.Type == LxnaContentType.File)
                 {
-                    using var image = _lxnaService.GetThumbnails(contentMetadata.Path, 256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Crop).FirstOrDefault();
-                    if (image == null) continue;
-
-                    var fileModel = new FileModel(contentMetadata);
-
-                    var memoryStream = new MemoryStream();
-                    {
-                        memoryStream.Write(image.Value.Span);
-                        memoryStream.Seek(0, SeekOrigin.Begin);
-
-                        //fileModel.Thumbnail = new Bitmap(memoryStream);
-                    }
-
-                    _currentFileModels.Add(fileModel);
+                    _currentFileModels.Add(new FileModel(contentId));
                 }
             }
         }
@@ -96,6 +124,9 @@ namespace Lxna.Gui.Desktop.Windows.Main
 
             if (disposing)
             {
+                _watchTask.Cancel();
+                _watchTask.Dispose();
+
                 _disposable.Dispose();
             }
         }

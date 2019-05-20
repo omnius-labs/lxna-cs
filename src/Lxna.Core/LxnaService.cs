@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Lxna.Core.Contents;
 using Lxna.Messages;
 using Lxna.Rpc;
+using Lxna.Rpc.Primitives;
 using Omnix.Base;
 using Omnix.Configuration;
 
@@ -16,7 +17,7 @@ namespace Lxna.Core
     public sealed class LxnaService : ServiceBase, ILxnaService, ISettings
     {
         private readonly LxnaOptions _options;
-        private readonly ContentsManager _contentsManager;
+        private readonly ContentExplorer _contentExplorer;
 
         private ServiceStateType _state = ServiceStateType.Stopped;
 
@@ -26,18 +27,18 @@ namespace Lxna.Core
         public LxnaService(LxnaOptions options)
         {
             _options = options;
-            _contentsManager = new ContentsManager(_options);
+            _contentExplorer = new ContentExplorer(_options);
         }
 
-        public IEnumerable<ContentId> GetContentIds(string? path, CancellationToken token = default)
+        public IEnumerable<LxnaContentId> GetContentIds(string? path, CancellationToken token = default)
         {
-            var result = new List<ContentId>();
+            var result = new List<LxnaContentId>();
 
             if (path is null)
             {
                 foreach (var drivePath in Directory.GetLogicalDrives())
                 {
-                    result.Add(new ContentId(ContentType.Directory, drivePath));
+                    result.Add(new LxnaContentId(LxnaContentType.Directory, drivePath));
                 }
             }
             else
@@ -46,7 +47,7 @@ namespace Lxna.Core
                 {
                     foreach (var directoryPath in Directory.EnumerateDirectories(path, "*", SearchOption.TopDirectoryOnly))
                     {
-                        result.Add(new ContentId(ContentType.Directory, directoryPath));
+                        result.Add(new LxnaContentId(LxnaContentType.Directory, directoryPath));
                     }
                 }
                 catch (UnauthorizedAccessException)
@@ -58,7 +59,7 @@ namespace Lxna.Core
                 {
                     foreach (var filePath in Directory.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly))
                     {
-                        result.Add(new ContentId(ContentType.File, filePath));
+                        result.Add(new LxnaContentId(LxnaContentType.File, filePath));
                     }
                 }
                 catch (UnauthorizedAccessException)
@@ -70,9 +71,9 @@ namespace Lxna.Core
             return result;
         }
 
-        public IEnumerable<Thumbnail> GetThumbnails(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken token = default)
+        public IEnumerable<LxnaThumbnail> GetThumbnails(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
-            return _contentsManager.GetThumnails(path, width, height, formatType, resizeType, token);
+            return _contentExplorer.GetThumnails(path, width, height, formatType, resizeType, token);
         }
 
         public void ReadContent(string path, long position, Span<byte> buffer, CancellationToken token = default)
@@ -142,7 +143,7 @@ namespace Lxna.Core
 
             if (disposing)
             {
-                _contentsManager.Dispose();
+                _contentExplorer.Dispose();
             }
         }
     }

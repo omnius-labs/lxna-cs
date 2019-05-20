@@ -47,26 +47,26 @@ namespace Lxna.Core.Contents.Internal
             _liteDatabase = new LiteDatabase(Path.Combine(directoryPath, "lite.db"));
         }
 
-        private static string ResizeTypeToString(ThumbnailResizeType resizeType)
+        private static string ResizeTypeToString(LxnaThumbnailResizeType resizeType)
         {
             return resizeType switch
             {
-                ThumbnailResizeType.Crop => "crop",
-                ThumbnailResizeType.Pad => "pad",
+                LxnaThumbnailResizeType.Crop => "crop",
+                LxnaThumbnailResizeType.Pad => "pad",
                 _ => throw new NotSupportedException(nameof(resizeType)),
             };
         }
 
-        private static string FormatTypeToString(ThumbnailFormatType formatType)
+        private static string FormatTypeToString(LxnaThumbnailFormatType formatType)
         {
             return formatType switch
             {
-                ThumbnailFormatType.Png => "png",
+                LxnaThumbnailFormatType.Png => "png",
                 _ => throw new NotSupportedException(nameof(formatType)),
             };
         }
 
-        private Thumbnail? GetPictureThumnailImage(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType)
+        private LxnaThumbnail? GetPictureThumnailImage(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType)
         {
             if (!_pictureTypeExtensionList.Contains(Path.GetExtension(path)))
             {
@@ -122,7 +122,7 @@ namespace Lxna.Core.Contents.Internal
 
                 // サムネイルのキャッシュが存在しない、またはサムネイル生成元ファイルが更新されている場合、サムネイル画像を生成する。
                 {
-                    Thumbnail? thumbnail = null;
+                    LxnaThumbnail? thumbnail = null;
 
                     try
                     {
@@ -136,8 +136,8 @@ namespace Lxna.Core.Contents.Internal
                                 resizeOptions.Size = new SixLabors.Primitives.Size(width, height);
                                 resizeOptions.Mode = resizeType switch
                                 {
-                                    ThumbnailResizeType.Pad => ResizeMode.Pad,
-                                    ThumbnailResizeType.Crop => ResizeMode.Crop,
+                                    LxnaThumbnailResizeType.Pad => ResizeMode.Pad,
+                                    LxnaThumbnailResizeType.Crop => ResizeMode.Crop,
                                     _ => throw new NotSupportedException(),
                                 };
 
@@ -148,7 +148,7 @@ namespace Lxna.Core.Contents.Internal
                             {
                                 var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
                                 image.Save(stream, encoder);
-                                thumbnail = new Thumbnail(stream.ToMemoryOwner());
+                                thumbnail = new LxnaThumbnail(stream.ToMemoryOwner());
                             }
                         }
                     }
@@ -187,7 +187,7 @@ namespace Lxna.Core.Contents.Internal
             }
         }
 
-        private IEnumerable<Thumbnail>? GetVideoThumnailImage(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType)
+        private IEnumerable<LxnaThumbnail>? GetVideoThumnailImage(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType)
         {
             if (!_videoTypeExtensionList.Contains(Path.GetExtension(path)))
             {
@@ -198,7 +198,7 @@ namespace Lxna.Core.Contents.Internal
             return null;
         }
 
-        public IEnumerable<Thumbnail> GetThumnailImages(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken token = default)
+        public IEnumerable<LxnaThumbnail> GetThumnailImages(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
             {
                 var result = this.GetPictureThumnailImage(path, width, height, formatType, resizeType);
@@ -218,7 +218,7 @@ namespace Lxna.Core.Contents.Internal
                 }
             }
 
-            return Enumerable.Empty<Thumbnail>();
+            return Enumerable.Empty<LxnaThumbnail>();
         }
 
         protected override void Dispose(bool disposing)
