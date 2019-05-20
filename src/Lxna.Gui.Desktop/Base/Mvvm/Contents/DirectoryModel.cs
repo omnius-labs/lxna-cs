@@ -10,7 +10,7 @@ namespace Lxna.Gui.Desktop.Models
 {
     public sealed class DirectoryModel : BindableBase
     {
-        public DirectoryModel(ContentId contentId)
+        public DirectoryModel(LxnaContentId contentId)
         {
             this.ContentId = contentId;
 
@@ -24,7 +24,7 @@ namespace Lxna.Gui.Desktop.Models
             }
         }
 
-        public ContentId ContentId { get; }
+        public LxnaContentId ContentId { get; }
 
         private string _name = string.Empty;
         public string Name

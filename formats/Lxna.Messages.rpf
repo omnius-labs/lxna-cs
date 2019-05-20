@@ -6,27 +6,27 @@ message LxnaOptions {
     ConfigDirectoryPath: string(1024) = 0,
 }
 
-enum ContentType : uint8 {
+enum LxnaContentType : uint8 {
     Directory = 0,
     Archive = 1,
     File = 2,
 }
 
-message ContentId {
-    Type: ContentType = 0,
+message LxnaContentId {
+    Type: LxnaContentType = 0,
     Path: string(1024) = 1,
 }
 
-enum ThumbnailResizeType : uint8 {
+enum LxnaThumbnailResizeType : uint8 {
     Pad = 0,
     Crop = 1,
 }
 
-enum ThumbnailFormatType : uint8 {
+enum LxnaThumbnailFormatType : uint8 {
     Png = 0,
 }
 
-message Thumbnail {
+message LxnaThumbnail {
     [Recyclable]
     Value: memory(33554432) = 0,
 }

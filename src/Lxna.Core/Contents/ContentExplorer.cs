@@ -6,12 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Lxna.Core.Contents.Internal;
 using Lxna.Messages;
+using Lxna.Rpc.Primitives;
 using Omnix.Base;
 using Omnix.Configuration;
 
 namespace Lxna.Core.Contents
 {
-    public sealed class ContentsManager : ServiceBase, ISettings
+    public sealed class ContentExplorer : ServiceBase, ISettings
     {
         private readonly LxnaOptions _options;
         private readonly ThumbnailCacheStorage _thumbnailCacheStorage;
@@ -21,7 +22,7 @@ namespace Lxna.Core.Contents
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private volatile bool _disposed;
 
-        public ContentsManager(LxnaOptions options)
+        public ContentExplorer(LxnaOptions options)
         {
             _options = options;
             _thumbnailCacheStorage = new ThumbnailCacheStorage(_options);
@@ -29,7 +30,7 @@ namespace Lxna.Core.Contents
 
         public override ServiceStateType StateType { get; }
 
-        public IEnumerable<Thumbnail> GetThumnails(string path, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken token = default)
+        public IEnumerable<LxnaThumbnail> GetThumnails(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
             return _thumbnailCacheStorage.GetThumnailImages(path, width, height, formatType, resizeType, token);
         }

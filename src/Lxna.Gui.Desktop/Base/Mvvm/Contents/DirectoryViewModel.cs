@@ -14,6 +14,7 @@ namespace Lxna.Gui.Desktop.Base.Contents
     sealed class DirectoryViewModel : DisposableBase
     {
         private CompositeDisposable _disposable = new CompositeDisposable();
+
         private volatile bool _disposed;
 
         public DirectoryViewModel(DirectoryModel model)

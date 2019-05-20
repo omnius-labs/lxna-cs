@@ -3,20 +3,20 @@
 
 namespace Lxna.Messages
 {
-    public enum ContentType : byte
+    public enum LxnaContentType : byte
     {
         Directory = 0,
         Archive = 1,
         File = 2,
     }
 
-    public enum ThumbnailResizeType : byte
+    public enum LxnaThumbnailResizeType : byte
     {
         Pad = 0,
         Crop = 1,
     }
 
-    public enum ThumbnailFormatType : byte
+    public enum LxnaThumbnailFormatType : byte
     {
         Png = 0,
     }
@@ -109,19 +109,19 @@ namespace Lxna.Messages
         }
     }
 
-    public sealed partial class ContentId : Omnix.Serialization.RocketPack.RocketPackMessageBase<ContentId>
+    public sealed partial class LxnaContentId : Omnix.Serialization.RocketPack.RocketPackMessageBase<LxnaContentId>
     {
-        static ContentId()
+        static LxnaContentId()
         {
-            ContentId.Formatter = new CustomFormatter();
-            ContentId.Empty = new ContentId((ContentType)0, string.Empty);
+            LxnaContentId.Formatter = new CustomFormatter();
+            LxnaContentId.Empty = new LxnaContentId((LxnaContentType)0, string.Empty);
         }
 
         private readonly int __hashCode;
 
         public static readonly int MaxPathLength = 1024;
 
-        public ContentId(ContentType type, string path)
+        public LxnaContentId(LxnaContentType type, string path)
         {
             if (path is null) throw new System.ArgumentNullException("path");
             if (path.Length > 1024) throw new System.ArgumentOutOfRangeException("path");
@@ -137,10 +137,10 @@ namespace Lxna.Messages
             }
         }
 
-        public ContentType Type { get; }
+        public LxnaContentType Type { get; }
         public string Path { get; }
 
-        public override bool Equals(ContentId? target)
+        public override bool Equals(LxnaContentId? target)
         {
             if (target is null) return false;
             if (object.ReferenceEquals(this, target)) return true;
@@ -152,15 +152,15 @@ namespace Lxna.Messages
 
         public override int GetHashCode() => __hashCode;
 
-        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<ContentId>
+        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<LxnaContentId>
         {
-            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, ContentId value, int rank)
+            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, LxnaContentId value, int rank)
             {
                 if (rank > 256) throw new System.FormatException();
 
                 {
                     uint propertyCount = 0;
-                    if (value.Type != (ContentType)0)
+                    if (value.Type != (LxnaContentType)0)
                     {
                         propertyCount++;
                     }
@@ -171,7 +171,7 @@ namespace Lxna.Messages
                     w.Write(propertyCount);
                 }
 
-                if (value.Type != (ContentType)0)
+                if (value.Type != (LxnaContentType)0)
                 {
                     w.Write((uint)0);
                     w.Write((ulong)value.Type);
@@ -183,14 +183,14 @@ namespace Lxna.Messages
                 }
             }
 
-            public ContentId Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
+            public LxnaContentId Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
             {
                 if (rank > 256) throw new System.FormatException();
 
                 // Read property count
                 uint propertyCount = r.GetUInt32();
 
-                ContentType p_type = (ContentType)0;
+                LxnaContentType p_type = (LxnaContentType)0;
                 string p_path = string.Empty;
 
                 for (; propertyCount > 0; propertyCount--)
@@ -200,7 +200,7 @@ namespace Lxna.Messages
                     {
                         case 0: // Type
                             {
-                                p_type = (ContentType)r.GetUInt64();
+                                p_type = (LxnaContentType)r.GetUInt64();
                                 break;
                             }
                         case 1: // Path
@@ -211,24 +211,24 @@ namespace Lxna.Messages
                     }
                 }
 
-                return new ContentId(p_type, p_path);
+                return new LxnaContentId(p_type, p_path);
             }
         }
     }
 
-    public sealed partial class Thumbnail : Omnix.Serialization.RocketPack.RocketPackMessageBase<Thumbnail>, System.IDisposable
+    public sealed partial class LxnaThumbnail : Omnix.Serialization.RocketPack.RocketPackMessageBase<LxnaThumbnail>, System.IDisposable
     {
-        static Thumbnail()
+        static LxnaThumbnail()
         {
-            Thumbnail.Formatter = new CustomFormatter();
-            Thumbnail.Empty = new Thumbnail(Omnix.Base.SimpleMemoryOwner<byte>.Empty);
+            LxnaThumbnail.Formatter = new CustomFormatter();
+            LxnaThumbnail.Empty = new LxnaThumbnail(Omnix.Base.SimpleMemoryOwner<byte>.Empty);
         }
 
         private readonly int __hashCode;
 
         public static readonly int MaxValueLength = 33554432;
 
-        public Thumbnail(System.Buffers.IMemoryOwner<byte> value)
+        public LxnaThumbnail(System.Buffers.IMemoryOwner<byte> value)
         {
             if (value is null) throw new System.ArgumentNullException("value");
             if (value.Memory.Length > 33554432) throw new System.ArgumentOutOfRangeException("value");
@@ -245,7 +245,7 @@ namespace Lxna.Messages
         private readonly System.Buffers.IMemoryOwner<byte> _value;
         public System.ReadOnlyMemory<byte> Value => _value.Memory;
 
-        public override bool Equals(Thumbnail? target)
+        public override bool Equals(LxnaThumbnail? target)
         {
             if (target is null) return false;
             if (object.ReferenceEquals(this, target)) return true;
@@ -261,9 +261,9 @@ namespace Lxna.Messages
             _value?.Dispose();
         }
 
-        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<Thumbnail>
+        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<LxnaThumbnail>
         {
-            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, Thumbnail value, int rank)
+            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, LxnaThumbnail value, int rank)
             {
                 if (rank > 256) throw new System.FormatException();
 
@@ -283,7 +283,7 @@ namespace Lxna.Messages
                 }
             }
 
-            public Thumbnail Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
+            public LxnaThumbnail Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
             {
                 if (rank > 256) throw new System.FormatException();
 
@@ -305,7 +305,7 @@ namespace Lxna.Messages
                     }
                 }
 
-                return new Thumbnail(p_value);
+                return new LxnaThumbnail(p_value);
             }
         }
     }

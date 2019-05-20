@@ -11,14 +11,14 @@ namespace Lxna.Gui.Desktop.Models
 {
     public sealed class FileModel : BindableBase
     {
-        public FileModel(ContentId contentId)
+        public FileModel(LxnaContentId contentId)
         {
             this.ContentId = contentId;
 
             this.Name = Path.GetFileName(this.ContentId.Path);
         }
 
-        public ContentId ContentId { get; }
+        public LxnaContentId ContentId { get; }
 
         private string _name = string.Empty;
         public string Name
