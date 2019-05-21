@@ -1,108 +1,109 @@
 ﻿using Lxna.Messages;
-using Omnix.Base;
-using Omnix.Base.Helpers;
-using Omnix.Serialization;
-using Omnix.Serialization.RocketPack;
-using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+
+#nullable enable
 
 namespace Lxna.Core.Contents
 {
-    public sealed partial class ThumbnailId : RocketPackMessageBase<ThumbnailId>
+    internal sealed partial class FileId : Omnix.Serialization.RocketPack.RocketPackMessageBase<FileId>
     {
-        static ThumbnailId()
+        static FileId()
         {
-            ThumbnailId.Formatter = new CustomFormatter();
+            FileId.Formatter = new CustomFormatter();
+            FileId.Empty = new FileId(string.Empty, 0, Omnix.Serialization.RocketPack.Timestamp.Zero);
         }
+
+        private readonly int __hashCode;
 
         public static readonly int MaxPathLength = 1024;
 
-        public ThumbnailId(string path, Timestamp lastWriteTime, ulong length)
+        public FileId(string path, ulong length, Omnix.Serialization.RocketPack.Timestamp lastWriteTime)
         {
-            if (path is null) throw new ArgumentNullException("path");
-            if (path.Length > 1024) throw new ArgumentOutOfRangeException("path");
+            if (path is null) throw new System.ArgumentNullException("path");
+            if (path.Length > 1024) throw new System.ArgumentOutOfRangeException("path");
             this.Path = path;
-            this.LastWriteTime = lastWriteTime;
             this.Length = length;
+            this.LastWriteTime = lastWriteTime;
 
             {
-                var hashCode = new HashCode();
-                if (this.Path != default) hashCode.Add(this.Path.GetHashCode());
-                if (this.LastWriteTime != default) hashCode.Add(this.LastWriteTime.GetHashCode());
-                if (this.Length != default) hashCode.Add(this.Length.GetHashCode());
-                _hashCode = hashCode.ToHashCode();
+                var __h = new System.HashCode();
+                if (this.Path != default) __h.Add(this.Path.GetHashCode());
+                if (this.Length != default) __h.Add(this.Length.GetHashCode());
+                if (this.LastWriteTime != default) __h.Add(this.LastWriteTime.GetHashCode());
+                __hashCode = __h.ToHashCode();
             }
         }
 
         public string Path { get; }
-        public Timestamp LastWriteTime { get; }
         public ulong Length { get; }
+        public Omnix.Serialization.RocketPack.Timestamp LastWriteTime { get; }
 
-        public override bool Equals(ThumbnailId target)
+        public override bool Equals(FileId? target)
         {
-            if ((object)target == null) return false;
-            if (Object.ReferenceEquals(this, target)) return true;
+            if (target is null) return false;
+            if (object.ReferenceEquals(this, target)) return true;
             if (this.Path != target.Path) return false;
-            if (this.LastWriteTime != target.LastWriteTime) return false;
             if (this.Length != target.Length) return false;
+            if (this.LastWriteTime != target.LastWriteTime) return false;
 
             return true;
         }
 
-        private readonly int _hashCode;
-        public override int GetHashCode() => _hashCode;
+        public override int GetHashCode() => __hashCode;
 
-        private sealed class CustomFormatter : IRocketPackFormatter<ThumbnailId>
+        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<FileId>
         {
-            public void Serialize(RocketPackWriter w, ThumbnailId value, int rank)
+            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, FileId value, int rank)
             {
-                if (rank > 256) throw new FormatException();
+                if (rank > 256) throw new System.FormatException();
 
-                // Write property count
                 {
-                    int propertyCount = 0;
-                    if (value.Path != default) propertyCount++;
-                    if (value.LastWriteTime != default) propertyCount++;
-                    if (value.Length != default) propertyCount++;
-                    w.Write((ulong)propertyCount);
+                    uint propertyCount = 0;
+                    if (value.Path != string.Empty)
+                    {
+                        propertyCount++;
+                    }
+                    if (value.Length != 0)
+                    {
+                        propertyCount++;
+                    }
+                    if (value.LastWriteTime != Omnix.Serialization.RocketPack.Timestamp.Zero)
+                    {
+                        propertyCount++;
+                    }
+                    w.Write(propertyCount);
                 }
 
-                // Path
-                if (value.Path != default)
+                if (value.Path != string.Empty)
                 {
-                    w.Write((ulong)0);
+                    w.Write((uint)0);
                     w.Write(value.Path);
                 }
-                // LastWriteTime
-                if (value.LastWriteTime != default)
+                if (value.Length != 0)
                 {
-                    w.Write((ulong)1);
-                    w.Write(value.LastWriteTime);
+                    w.Write((uint)1);
+                    w.Write(value.Length);
                 }
-                // Length
-                if (value.Length != default)
+                if (value.LastWriteTime != Omnix.Serialization.RocketPack.Timestamp.Zero)
                 {
-                    w.Write((ulong)2);
-                    w.Write((ulong)value.Length);
+                    w.Write((uint)2);
+                    w.Write(value.LastWriteTime);
                 }
             }
 
-            public ThumbnailId Deserialize(RocketPackReader r, int rank)
+            public FileId Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
             {
-                if (rank > 256) throw new FormatException();
+                if (rank > 256) throw new System.FormatException();
 
                 // Read property count
-                int propertyCount = (int)r.GetUInt64();
+                uint propertyCount = r.GetUInt32();
 
-                string p_path = default;
-                Timestamp p_lastWriteTime = default;
-                ulong p_length = default;
+                string p_path = string.Empty;
+                ulong p_length = 0;
+                Omnix.Serialization.RocketPack.Timestamp p_lastWriteTime = Omnix.Serialization.RocketPack.Timestamp.Zero;
 
                 for (; propertyCount > 0; propertyCount--)
                 {
-                    int id = (int)r.GetUInt64();
+                    uint id = r.GetUInt32();
                     switch (id)
                     {
                         case 0: // Path
@@ -110,140 +111,124 @@ namespace Lxna.Core.Contents
                                 p_path = r.GetString(1024);
                                 break;
                             }
-                        case 1: // LastWriteTime
+                        case 1: // Length
+                            {
+                                p_length = r.GetUInt64();
+                                break;
+                            }
+                        case 2: // LastWriteTime
                             {
                                 p_lastWriteTime = r.GetTimestamp();
                                 break;
                             }
-                        case 2: // Length
-                            {
-                                p_length = (ulong)r.GetUInt64();
-                                break;
-                            }
                     }
                 }
 
-                return new ThumbnailId(p_path, p_lastWriteTime, p_length);
+                return new FileId(p_path, p_length, p_lastWriteTime);
             }
         }
     }
 
-    public sealed partial class ThumbnailInfo : RocketPackMessageBase<ThumbnailInfo>
+    internal sealed partial class ThumbnailsCache : Omnix.Serialization.RocketPack.RocketPackMessageBase<ThumbnailsCache>
     {
-        static ThumbnailInfo()
+        static ThumbnailsCache()
         {
-            ThumbnailInfo.Formatter = new CustomFormatter();
+            ThumbnailsCache.Formatter = new CustomFormatter();
+            ThumbnailsCache.Empty = new ThumbnailsCache(System.Array.Empty<LxnaThumbnail>());
         }
 
-        public static readonly int MaxImagesCount = 1024;
+        private readonly int __hashCode;
 
-        public ThumbnailInfo(ThumbnailId id, IList<ThumbnailImage> images)
+        public static readonly int MaxThumbnailsCount = 1024;
+
+        public ThumbnailsCache(LxnaThumbnail[] thumbnails)
         {
-            if (id is null) throw new ArgumentNullException("id");
-            if (images is null) throw new ArgumentNullException("images");
-            if (images.Count > 1024) throw new ArgumentOutOfRangeException("images");
-            foreach (var n in images)
+            if (thumbnails is null) throw new System.ArgumentNullException("thumbnails");
+            if (thumbnails.Length > 1024) throw new System.ArgumentOutOfRangeException("thumbnails");
+            foreach (var n in thumbnails)
             {
-                if (n is null) throw new ArgumentNullException("n");
+                if (n is null) throw new System.ArgumentNullException("n");
             }
 
-            this.Id = id;
-            this.Images = new ReadOnlyCollection<ThumbnailImage>(images);
+            this.Thumbnails = new Omnix.Collections.ReadOnlyListSlim<LxnaThumbnail>(thumbnails);
 
             {
-                var hashCode = new HashCode();
-                if (this.Id != default) hashCode.Add(this.Id.GetHashCode());
-                foreach (var n in this.Images)
+                var __h = new System.HashCode();
+                foreach (var n in this.Thumbnails)
                 {
-                    if (n != default) hashCode.Add(n.GetHashCode());
+                    if (n != default) __h.Add(n.GetHashCode());
                 }
-                _hashCode = hashCode.ToHashCode();
+                __hashCode = __h.ToHashCode();
             }
         }
 
-        public ThumbnailId Id { get; }
-        public IReadOnlyList<ThumbnailImage> Images { get; }
+        public Omnix.Collections.ReadOnlyListSlim<LxnaThumbnail> Thumbnails { get; }
 
-        public override bool Equals(ThumbnailInfo target)
+        public override bool Equals(ThumbnailsCache? target)
         {
-            if ((object)target == null) return false;
-            if (Object.ReferenceEquals(this, target)) return true;
-            if (this.Id != target.Id) return false;
-            if ((this.Images is null) != (target.Images is null)) return false;
-            if (!(this.Images is null) && !(target.Images is null) && !CollectionHelper.Equals(this.Images, target.Images)) return false;
+            if (target is null) return false;
+            if (object.ReferenceEquals(this, target)) return true;
+            if (!Omnix.Base.Helpers.CollectionHelper.Equals(this.Thumbnails, target.Thumbnails)) return false;
 
             return true;
         }
 
-        private readonly int _hashCode;
-        public override int GetHashCode() => _hashCode;
+        public override int GetHashCode() => __hashCode;
 
-        private sealed class CustomFormatter : IRocketPackFormatter<ThumbnailInfo>
+        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<ThumbnailsCache>
         {
-            public void Serialize(RocketPackWriter w, ThumbnailInfo value, int rank)
+            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, ThumbnailsCache value, int rank)
             {
-                if (rank > 256) throw new FormatException();
+                if (rank > 256) throw new System.FormatException();
 
-                // Write property count
                 {
-                    int propertyCount = 0;
-                    if (value.Id != default) propertyCount++;
-                    if (value.Images.Count != 0) propertyCount++;
-                    w.Write((ulong)propertyCount);
-                }
-
-                // Id
-                if (value.Id != default)
-                {
-                    w.Write((ulong)0);
-                    ThumbnailId.Formatter.Serialize(w, value.Id, rank + 1);
-                }
-                // Images
-                if (value.Images.Count != 0)
-                {
-                    w.Write((ulong)1);
-                    w.Write((ulong)value.Images.Count);
-                    foreach (var n in value.Images)
+                    uint propertyCount = 0;
+                    if (value.Thumbnails.Count != 0)
                     {
-                        ThumbnailImage.Formatter.Serialize(w, n, rank + 1);
+                        propertyCount++;
+                    }
+                    w.Write(propertyCount);
+                }
+
+                if (value.Thumbnails.Count != 0)
+                {
+                    w.Write((uint)0);
+                    w.Write((uint)value.Thumbnails.Count);
+                    foreach (var n in value.Thumbnails)
+                    {
+                        LxnaThumbnail.Formatter.Serialize(w, n, rank + 1);
                     }
                 }
             }
 
-            public ThumbnailInfo Deserialize(RocketPackReader r, int rank)
+            public ThumbnailsCache Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
             {
-                if (rank > 256) throw new FormatException();
+                if (rank > 256) throw new System.FormatException();
 
                 // Read property count
-                int propertyCount = (int)r.GetUInt64();
+                uint propertyCount = r.GetUInt32();
 
-                ThumbnailId p_id = default;
-                IList<ThumbnailImage> p_images = default;
+                LxnaThumbnail[] p_thumbnails = System.Array.Empty<LxnaThumbnail>();
 
                 for (; propertyCount > 0; propertyCount--)
                 {
-                    int id = (int)r.GetUInt64();
+                    uint id = r.GetUInt32();
                     switch (id)
                     {
-                        case 0: // Id
+                        case 0: // Thumbnails
                             {
-                                p_id = ThumbnailId.Formatter.Deserialize(r, rank + 1);
-                                break;
-                            }
-                        case 1: // Images
-                            {
-                                var length = (int)r.GetUInt64();
-                                p_images = new ThumbnailImage[length];
-                                for (int i = 0; i < p_images.Count; i++)
+                                var length = r.GetUInt32();
+                                p_thumbnails = new LxnaThumbnail[length];
+                                for (int i = 0; i < p_thumbnails.Length; i++)
                                 {
-                                    p_images[i] = ThumbnailImage.Formatter.Deserialize(r, rank + 1);
+                                    p_thumbnails[i] = LxnaThumbnail.Formatter.Deserialize(r, rank + 1);
                                 }
                                 break;
                             }
                     }
                 }
 
-                return new ThumbnailInfo(p_id, p_images);
+                return new ThumbnailsCache(p_thumbnails);
             }
         }
     }

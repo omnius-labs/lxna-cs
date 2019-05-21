@@ -1,7 +1,8 @@
 ﻿using System;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Logging.Serilog;
-using Lxna.Gui.Desktop.Windows;
+using Lxna.Gui.Desktop.Windows.Main;
 
 namespace Lxna.Gui.Desktop
 {
@@ -15,6 +16,8 @@ namespace Lxna.Gui.Desktop
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .UseSkia()
+                .UseDataGrid()
                 .LogToDebug();
     }
 }

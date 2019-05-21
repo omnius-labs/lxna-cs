@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Lxna.Core.Contents;
 using Lxna.Messages;
 using Lxna.Rpc;
+using Lxna.Rpc.Primitives;
 using Omnix.Base;
 using Omnix.Configuration;
 
@@ -15,36 +16,67 @@ namespace Lxna.Core
 {
     public sealed class LxnaService : ServiceBase, ILxnaService, ISettings
     {
-        private readonly string _basePath;
-
-        private readonly ContentsManager _contentsManager;
+        private readonly LxnaOptions _options;
+        private readonly ContentExplorer _contentExplorer;
 
         private ServiceStateType _state = ServiceStateType.Stopped;
 
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private volatile bool _disposed;
 
-        public LxnaService(string basePath)
+        public LxnaService(LxnaOptions options)
         {
-            _basePath = basePath;
-
-            _contentsManager = new ContentsManager(basePath);
+            _options = options;
+            _contentExplorer = new ContentExplorer(_options);
         }
 
-        public IEnumerable<FileMetadata> GetFileMetadatas(string path)
+        public IEnumerable<LxnaContentId> GetContentIds(string? path, CancellationToken token = default)
         {
-            foreach (var fileInfo in new DirectoryInfo(path).GetFiles())
+            var result = new List<LxnaContentId>();
+
+            if (path is null)
             {
-                yield return new FileMetadata(fileInfo.Name);
+                foreach (var drivePath in Directory.GetLogicalDrives())
+                {
+                    result.Add(new LxnaContentId(LxnaContentType.Directory, drivePath));
+                }
             }
+            else
+            {
+                try
+                {
+                    foreach (var directoryPath in Directory.EnumerateDirectories(path, "*", SearchOption.TopDirectoryOnly))
+                    {
+                        result.Add(new LxnaContentId(LxnaContentType.Directory, directoryPath));
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+
+                }
+
+                try
+                {
+                    foreach (var filePath in Directory.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly))
+                    {
+                        result.Add(new LxnaContentId(LxnaContentType.File, filePath));
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+
+                }
+            }
+
+            return result;
         }
 
-        public IEnumerable<ThumbnailImage> GetFileThumbnail(string path, int width, int height)
+        public IEnumerable<LxnaThumbnail> GetThumbnails(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
-            return _contentsManager.GetThumnailImages(path, width, height);
+            return _contentExplorer.GetThumnails(path, width, height, formatType, resizeType, token);
         }
 
-        public void ReadFileContent(string path, long position, Span<byte> buffer)
+        public void ReadContent(string path, long position, Span<byte> buffer, CancellationToken token = default)
         {
             using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
@@ -79,7 +111,7 @@ namespace Lxna.Core
             _state = ServiceStateType.Stopped;
         }
 
-        public override async ValueTask Start(CancellationToken token = default)
+        public override async ValueTask Start()
         {
             using (await _asyncLock.LockAsync())
             {
@@ -87,7 +119,7 @@ namespace Lxna.Core
             }
         }
 
-        public override async ValueTask Stop(CancellationToken token = default)
+        public override async ValueTask Stop()
         {
             using (await _asyncLock.LockAsync())
             {
@@ -95,7 +127,7 @@ namespace Lxna.Core
             }
         }
 
-        public override async ValueTask Restart(CancellationToken token = default)
+        public override async ValueTask Restart()
         {
             using (await _asyncLock.LockAsync())
             {
@@ -111,7 +143,7 @@ namespace Lxna.Core
 
             if (disposing)
             {
-
+                _contentExplorer.Dispose();
             }
         }
     }
