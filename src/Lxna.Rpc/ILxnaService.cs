@@ -6,13 +6,14 @@ using System.Threading;
 using Lxna.Messages;
 using Omnix.Base;
 using Omnix.Configuration;
+using Lxna.Rpc.Primitives;
 
 namespace Lxna.Rpc
 {
-    public interface ILxnaService: IService, ISettings
+    public interface ILxnaService : IService, ISettings
     {
-        IEnumerable<FileMetadata> GetFileMetadatas(string path, CancellationToken token = default);
-        IEnumerable<ThumbnailImage> GetFileThumbnail(string path, int width, int height, CancellationToken token = default);
-        void ReadFileContent(string path, long position, Span<byte> buffer, CancellationToken token = default);
+        IEnumerable<LxnaContentId> GetContentIds(string? path, CancellationToken token = default);
+        IEnumerable<LxnaThumbnail> GetThumbnails(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default);
+        void ReadContent(string path, long position, Span<byte> buffer, CancellationToken token = default);
     }
 }
