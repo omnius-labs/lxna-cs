@@ -8,11 +8,11 @@ Lxna is remote file explorer.
 
 ## Goal
 
-Make it easy to browse home server files.
+Make it easy to browse home server files from Windows, Linux, Android, and iOS.
 
 ## Features
 
-+ (WIP)
++ Lightweight thumbnail display. (WIP)
 
 ## Website
 
@@ -22,6 +22,7 @@ Make it easy to browse home server files.
 
 + [Samba](https://github.com/samba-team/)
 + [QuickPic](https://play.google.com/store/apps/details?id=com.alensw.PicFolder)
++ [Dropbox](https://www.dropbox.com/)
 
 ## License
 
