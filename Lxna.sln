@@ -56,11 +56,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Omnix.Serialization.RocketP
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Desktop", "Desktop", "{7E4F1EAB-8451-4EB3-AFCF-207D211F1F3C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lxna.Gui.Mobile.Android", "src\Lxna.Gui.Mobile\Lxna.Gui.Mobile.Android\Lxna.Gui.Mobile.Android.csproj", "{47DEDE35-9ADF-44BE-8492-BAC77ABBE2A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lxna.Gui.Mobile.Android", "src\Lxna.Gui.Mobile.Android\Lxna.Gui.Mobile.Android.csproj", "{47DEDE35-9ADF-44BE-8492-BAC77ABBE2A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lxna.Gui.Mobile.iOS", "src\Lxna.Gui.Mobile\Lxna.Gui.Mobile.iOS\Lxna.Gui.Mobile.iOS.csproj", "{19A36FCC-8F3D-47BE-BB50-0FCB0FF3934A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lxna.Gui.Mobile.iOS", "src\Lxna.Gui.Mobile.iOS\Lxna.Gui.Mobile.iOS.csproj", "{19A36FCC-8F3D-47BE-BB50-0FCB0FF3934A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Gui.Mobile", "src\Lxna.Gui.Mobile\Lxna.Gui.Mobile\Lxna.Gui.Mobile.csproj", "{13BE891D-CA48-4289-B14C-3CC735EFC4F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Gui.Mobile", "src\Lxna.Gui.Mobile\Lxna.Gui.Mobile.csproj", "{13BE891D-CA48-4289-B14C-3CC735EFC4F2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lxna.Gui.Desktop", "src\Lxna.Gui.Desktop\Lxna.Gui.Desktop.csproj", "{BC7ECA58-76EF-47C0-8149-AD18EFD91909}"
 EndProject
