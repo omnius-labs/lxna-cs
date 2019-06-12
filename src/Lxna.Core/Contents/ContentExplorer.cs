@@ -1,14 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Lxna.Core.Contents.Internal;
 using Lxna.Messages;
 using Lxna.Rpc.Primitives;
 using Omnix.Base;
-using Omnix.Configuration;
+using Omnix.Network;
 
 namespace Lxna.Core.Contents
 {
@@ -28,11 +27,76 @@ namespace Lxna.Core.Contents
             _thumbnailCacheStorage = new ThumbnailCacheStorage(_options);
         }
 
-        public override ServiceStateType StateType { get; }
-
-        public IEnumerable<LxnaThumbnail> GetThumnails(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
+        public IEnumerable<LxnaThumbnail> GetThumnails(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
-            return _thumbnailCacheStorage.GetThumnailImages(path, width, height, formatType, resizeType, token);
+            return _thumbnailCacheStorage.GetThumnailImages(address, width, height, formatType, resizeType, token);
+        }
+
+        public IEnumerable<LxnaContentId> GetContentIds(OmniAddress? baseAddress, CancellationToken token = default)
+        {
+            var result = new List<LxnaContentId>();
+
+            if (baseAddress is null)
+            {
+                foreach (var drivePath in Directory.GetLogicalDrives())
+                {
+                    if (FileSystemPathConverter.TryEncoding(drivePath, out var driveAddress))
+                    {
+                        result.Add(new LxnaContentId(LxnaContentType.Directory, driveAddress));
+                    }
+                }
+            }
+            else
+            {
+                if (FileSystemPathConverter.TryDecoding(baseAddress, out var basePath))
+                {
+                    try
+                    {
+                        foreach (var directoryPath in Directory.EnumerateDirectories(basePath, "*", SearchOption.TopDirectoryOnly))
+                        {
+                            if (FileSystemPathConverter.TryEncoding(directoryPath, out var directoryAddress))
+                            {
+                                result.Add(new LxnaContentId(LxnaContentType.Directory, directoryAddress));
+                            }
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+
+                    }
+
+                    try
+                    {
+                        foreach (var filePath in Directory.EnumerateFiles(basePath, "*", SearchOption.TopDirectoryOnly))
+                        {
+                            if (FileSystemPathConverter.TryEncoding(filePath, out var fileAddress))
+                            {
+                                result.Add(new LxnaContentId(LxnaContentType.File, fileAddress));
+                            }
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public void ReadContent(OmniAddress address, long position, Span<byte> buffer, CancellationToken token = default)
+        {
+            if (!FileSystemPathConverter.TryDecoding(address, out var path))
+            {
+                throw new ArgumentException();
+            }
+
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                fileStream.Seek(position, SeekOrigin.Begin);
+                fileStream.Read(buffer);
+            }
         }
 
         public void Load()
@@ -43,9 +107,15 @@ namespace Lxna.Core.Contents
         {
         }
 
+        public override ServiceStateType StateType { get; }
+
         internal void InternalStart()
         {
-            if (this.StateType != ServiceStateType.Stopped) return;
+            if (this.StateType != ServiceStateType.Stopped)
+            {
+                return;
+            }
+
             _state = ServiceStateType.Starting;
 
             _state = ServiceStateType.Running;
@@ -53,7 +123,11 @@ namespace Lxna.Core.Contents
 
         internal void InternalStop()
         {
-            if (this.StateType != ServiceStateType.Running) return;
+            if (this.StateType != ServiceStateType.Running)
+            {
+                return;
+            }
+
             _state = ServiceStateType.Stopping;
 
             _state = ServiceStateType.Stopped;
@@ -86,7 +160,11 @@ namespace Lxna.Core.Contents
 
         protected override void Dispose(bool disposing)
         {
-            if (_disposed) return;
+            if (_disposed)
+            {
+                return;
+            }
+
             _disposed = true;
 
             if (disposing)

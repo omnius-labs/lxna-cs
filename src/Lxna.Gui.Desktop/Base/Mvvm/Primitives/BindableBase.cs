@@ -16,7 +16,10 @@ namespace Lxna.Gui.Desktop.Base.Mvvm.Primitives
 
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
         {
-            if (object.Equals(storage, value)) return false;
+            if (object.Equals(storage, value))
+            {
+                return false;
+            }
 
             storage = value;
             this.OnPropertyChanged(propertyName);

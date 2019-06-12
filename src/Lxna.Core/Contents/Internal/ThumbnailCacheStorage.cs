@@ -1,16 +1,14 @@
-﻿using System;
-using System.Buffers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using LiteDB;
 using Lxna.Messages;
 using Omnix.Base;
 using Omnix.Cryptography;
 using Omnix.Io;
+using Omnix.Network;
 using Omnix.Serialization;
 using Omnix.Serialization.Extensions;
 using Omnix.Serialization.RocketPack;
@@ -66,9 +64,14 @@ namespace Lxna.Core.Contents.Internal
             };
         }
 
-        private LxnaThumbnail? GetPictureThumnailImage(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType)
+        private LxnaThumbnail? GetPictureThumnailImage(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType)
         {
-            if (!_pictureTypeExtensionList.Contains(Path.GetExtension(path)))
+            if (!FileSystemPathConverter.TryDecoding(address, out var path))
+            {
+                throw new ArgumentException();
+            }
+
+            if (!_pictureTypeExtensionList.Contains(Path.GetExtension(path).ToLower()))
             {
                 return null;
             }
@@ -77,7 +80,7 @@ namespace Lxna.Core.Contents.Internal
             var fileInfo = new FileInfo(fullPath);
 
             var databaseId = $"$/picture/v1_{FormatTypeToString(formatType)}_{width}x{height}_{ResizeTypeToString(resizeType)}/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/";
-            var fileId = new FileId(path, (ulong)fileInfo.Length, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc));
+            var fileId = new FileId(address, (ulong)fileInfo.Length, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc));
 
             {
                 bool changed = true;
@@ -187,9 +190,14 @@ namespace Lxna.Core.Contents.Internal
             }
         }
 
-        private IEnumerable<LxnaThumbnail>? GetVideoThumnailImage(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType)
+        private IEnumerable<LxnaThumbnail>? GetVideoThumnailImage(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType)
         {
-            if (!_videoTypeExtensionList.Contains(Path.GetExtension(path)))
+            if (!FileSystemPathConverter.TryDecoding(address, out var path))
+            {
+                throw new ArgumentException();
+            }
+
+            if (!_videoTypeExtensionList.Contains(Path.GetExtension(path).ToLower()))
             {
                 return null;
             }
@@ -198,10 +206,10 @@ namespace Lxna.Core.Contents.Internal
             return null;
         }
 
-        public IEnumerable<LxnaThumbnail> GetThumnailImages(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
+        public IEnumerable<LxnaThumbnail> GetThumnailImages(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
             {
-                var result = this.GetPictureThumnailImage(path, width, height, formatType, resizeType);
+                var result = this.GetPictureThumnailImage(address, width, height, formatType, resizeType);
 
                 if (result != null)
                 {
@@ -210,7 +218,7 @@ namespace Lxna.Core.Contents.Internal
             }
 
             {
-                var result = this.GetVideoThumnailImage(path, width, height, formatType, resizeType);
+                var result = this.GetVideoThumnailImage(address, width, height, formatType, resizeType);
 
                 if (result != null)
                 {
@@ -223,7 +231,11 @@ namespace Lxna.Core.Contents.Internal
 
         protected override void Dispose(bool disposing)
         {
-            if (_disposed) return;
+            if (_disposed)
+            {
+                return;
+            }
+
             _disposed = true;
 
             if (disposing)

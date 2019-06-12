@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Base\Omnix.Base.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Network\Omnix.Network.csproj" />
     <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Serialization.RocketPack\Omnix.Serialization.RocketPack.csproj" />
     <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Serialization\Omnix.Serialization.csproj" />
   </ItemGroup>

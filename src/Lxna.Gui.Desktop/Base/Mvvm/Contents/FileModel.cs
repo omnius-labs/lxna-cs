@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Lxna.Gui.Desktop.Base.Mvvm.Primitives;
 using Lxna.Messages;
@@ -15,7 +16,7 @@ namespace Lxna.Gui.Desktop.Models
         {
             this.ContentId = contentId;
 
-            this.Name = Path.GetFileName(this.ContentId.Path);
+            this.Name = this.ContentId.Address.Parse().Last();
         }
 
         public LxnaContentId ContentId { get; }

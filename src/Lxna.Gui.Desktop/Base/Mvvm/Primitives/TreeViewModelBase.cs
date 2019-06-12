@@ -25,7 +25,10 @@ namespace Omnix.Avalonia.ViewModels
             for (; ; )
             {
                 var parent = list.First.Value.Parent;
-                if (parent == null) break;
+                if (parent == null)
+                {
+                    break;
+                }
 
                 list.AddFirst(parent);
             }
