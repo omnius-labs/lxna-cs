@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Omnix.Base;
@@ -29,7 +27,10 @@ namespace Lxna.Rpc.Internal
 
         private void Timer()
         {
-            if (_isDisposed) return;
+            if (_isDisposed)
+            {
+                return;
+            }
 
             bool taken = false;
 
@@ -39,7 +40,10 @@ namespace Lxna.Rpc.Internal
 
                 if (taken)
                 {
-                    if (!_running) return;
+                    if (!_running)
+                    {
+                        return;
+                    }
 
                     _callback();
                 }
@@ -50,7 +54,10 @@ namespace Lxna.Rpc.Internal
             }
             finally
             {
-                if (taken) Monitor.Exit(_callbackLockObject);
+                if (taken)
+                {
+                    Monitor.Exit(_callbackLockObject);
+                }
             }
         }
 
@@ -58,7 +65,10 @@ namespace Lxna.Rpc.Internal
         {
             lock (_lockObject)
             {
-                if (!_running) return;
+                if (!_running)
+                {
+                    return;
+                }
 
                 Task.Run(() => this.Timer());
             }
@@ -123,14 +133,21 @@ namespace Lxna.Rpc.Internal
                 }
                 finally
                 {
-                    if (taken) Monitor.Exit(_callbackLockObject);
+                    if (taken)
+                    {
+                        Monitor.Exit(_callbackLockObject);
+                    }
                 }
             }
         }
 
         protected override void Dispose(bool isDisposing)
         {
-            if (_isDisposed) return;
+            if (_isDisposed)
+            {
+                return;
+            }
+
             _isDisposed = true;
 
             if (isDisposing)

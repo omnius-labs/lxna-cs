@@ -1,5 +1,7 @@
 ﻿syntax = v1;
 
+using "../refs/omnix/formats/Omnix.Network.rpf";
+
 option csharp_namespace = "Lxna.Messages";
 
 message LxnaOptions {
@@ -14,7 +16,7 @@ enum LxnaContentType : uint8 {
 
 message LxnaContentId {
     Type: LxnaContentType = 0,
-    Path: string(1024) = 1,
+    Address: OmniAddress = 1,
 }
 
 enum LxnaThumbnailResizeType : uint8 {

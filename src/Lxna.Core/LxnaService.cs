@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +11,7 @@ using Lxna.Rpc;
 using Lxna.Rpc.Primitives;
 using Omnix.Base;
 using Omnix.Configuration;
+using Omnix.Network;
 
 namespace Lxna.Core
 {
@@ -30,62 +31,20 @@ namespace Lxna.Core
             _contentExplorer = new ContentExplorer(_options);
         }
 
-        public IEnumerable<LxnaContentId> GetContentIds(string? path, CancellationToken token = default)
+        public IEnumerable<LxnaContentId> GetContentIds(OmniAddress? address, CancellationToken token = default)
         {
-            var result = new List<LxnaContentId>();
-
-            if (path is null)
-            {
-                foreach (var drivePath in Directory.GetLogicalDrives())
-                {
-                    result.Add(new LxnaContentId(LxnaContentType.Directory, drivePath));
-                }
-            }
-            else
-            {
-                try
-                {
-                    foreach (var directoryPath in Directory.EnumerateDirectories(path, "*", SearchOption.TopDirectoryOnly))
-                    {
-                        result.Add(new LxnaContentId(LxnaContentType.Directory, directoryPath));
-                    }
-                }
-                catch (UnauthorizedAccessException)
-                {
-
-                }
-
-                try
-                {
-                    foreach (var filePath in Directory.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly))
-                    {
-                        result.Add(new LxnaContentId(LxnaContentType.File, filePath));
-                    }
-                }
-                catch (UnauthorizedAccessException)
-                {
-
-                }
-            }
-
-            return result;
+            return _contentExplorer.GetContentIds(address, token);
         }
 
-        public IEnumerable<LxnaThumbnail> GetThumbnails(string path, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
+        public IEnumerable<LxnaThumbnail> GetThumbnails(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
-            return _contentExplorer.GetThumnails(path, width, height, formatType, resizeType, token);
+            return _contentExplorer.GetThumnails(address, width, height, formatType, resizeType, token);
         }
 
-        public void ReadContent(string path, long position, Span<byte> buffer, CancellationToken token = default)
+        public void ReadContent(OmniAddress address, long position, Span<byte> buffer, CancellationToken token = default)
         {
-            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                fileStream.Seek(position, SeekOrigin.Begin);
-                fileStream.Read(buffer);
-            }
+            _contentExplorer.ReadContent(address, position, buffer, token);
         }
-
-        public override ServiceStateType StateType { get; }
 
         public void Load()
         {
@@ -95,9 +54,15 @@ namespace Lxna.Core
         {
         }
 
+        public override ServiceStateType StateType { get; }
+
         internal void InternalStart()
         {
-            if (this.StateType != ServiceStateType.Stopped) return;
+            if (this.StateType != ServiceStateType.Stopped)
+            {
+                return;
+            }
+
             _state = ServiceStateType.Starting;
 
             _state = ServiceStateType.Running;
@@ -105,7 +70,11 @@ namespace Lxna.Core
 
         internal void InternalStop()
         {
-            if (this.StateType != ServiceStateType.Running) return;
+            if (this.StateType != ServiceStateType.Running)
+            {
+                return;
+            }
+
             _state = ServiceStateType.Stopping;
 
             _state = ServiceStateType.Stopped;
@@ -138,7 +107,11 @@ namespace Lxna.Core
 
         protected override void Dispose(bool disposing)
         {
-            if (_disposed) return;
+            if (_disposed)
+            {
+                return;
+            }
+
             _disposed = true;
 
             if (disposing)

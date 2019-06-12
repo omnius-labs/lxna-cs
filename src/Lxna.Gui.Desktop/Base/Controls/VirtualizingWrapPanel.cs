@@ -1,4 +1,4 @@
-﻿//https://github.com/ahopper/Avalonia.IconPacks/blob/master/VirtualizingWrapPanel.cs
+//https://github.com/ahopper/Avalonia.IconPacks/blob/master/VirtualizingWrapPanel.cs
 // Copyright (c) The Avalonia Project. All rights reserved.
 // Licensed under the MIT license. See licence.md file in the project root for full license information.
 
@@ -42,7 +42,8 @@ namespace Lxna.Gui.Desktop.Base.Controls
             }
         }
 
-        IVirtualizingController IVirtualizingPanel.Controller { get; set; }
+        public IVirtualizingController Controller { get; set; }
+
         int IVirtualizingPanel.OverflowCount => _canBeRemoved;
         Orientation IVirtualizingPanel.ScrollDirection => Orientation == Orientation.Horizontal ? Orientation.Vertical : Orientation.Horizontal;
         double IVirtualizingPanel.AverageItemSize => _averageItemSize;
@@ -84,8 +85,6 @@ namespace Lxna.Gui.Desktop.Base.Controls
                 }
             }
         }
-
-        private IVirtualizingController Controller => ((IVirtualizingPanel)this).Controller;
 
         void IVirtualizingPanel.ForceInvalidateMeasure()
         {
@@ -245,7 +244,11 @@ namespace Lxna.Gui.Desktop.Base.Controls
                 else
                 {
                     _takenLineSpace += width;
-                    if (_lineLengths.Count == 0) _lineLengths.Add(0);
+                    if (_lineLengths.Count == 0)
+                    {
+                        _lineLengths.Add(0);
+                    }
+
                     _lineLengths[_lineLengths.Count - 1] += width;
                 }
                 AddToAverageItemSize(height);

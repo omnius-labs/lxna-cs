@@ -15,13 +15,13 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
     /// <summary>
     /// Displays items inside an <see cref="ItemsControl"/>.
     /// </summary>
-    public class ItemsPresenter : ItemsPresenterBase, ILogicalScrollable
+    public class CustomItemsPresenter : ItemsPresenterBase, ILogicalScrollable
     {
         /// <summary>
         /// Defines the <see cref="VirtualizationMode"/> property.
         /// </summary>
         public static readonly StyledProperty<ItemVirtualizationMode> VirtualizationModeProperty =
-            AvaloniaProperty.Register<ItemsPresenter, ItemVirtualizationMode>(
+            AvaloniaProperty.Register<CustomItemsPresenter, ItemVirtualizationMode>(
                 nameof(VirtualizationMode),
                 defaultValue: ItemVirtualizationMode.None);
 
@@ -29,16 +29,16 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
         private bool _canVerticallyScroll;
 
         /// <summary>
-        /// Initializes static members of the <see cref="ItemsPresenter"/> class.
+        /// Initializes static members of the <see cref="CustomItemsPresenter"/> class.
         /// </summary>
-        static ItemsPresenter()
+        static CustomItemsPresenter()
         {
             KeyboardNavigation.TabNavigationProperty.OverrideDefaultValue(
-                typeof(ItemsPresenter),
+                typeof(CustomItemsPresenter),
                 KeyboardNavigationMode.Once);
 
             VirtualizationModeProperty.Changed
-                .AddClassHandler<ItemsPresenter>(x => x.VirtualizationModeChanged);
+                .AddClassHandler<CustomItemsPresenter>(x => x.VirtualizationModeChanged);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
         /// <inheritdoc/>
         Size ILogicalScrollable.PageScrollSize => new Size(0, 1);
 
-        internal ItemVirtualizer Virtualizer { get; private set; }
+        internal CustomItemVirtualizerBase Virtualizer { get; private set; }
 
         /// <inheritdoc/>
         bool ILogicalScrollable.BringIntoView(IControl target, Rect targetRect)
@@ -143,7 +143,7 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
         protected override void PanelCreated(IPanel panel)
         {
             Virtualizer?.Dispose();
-            Virtualizer = ItemVirtualizer.Create(this);
+            Virtualizer = CustomItemVirtualizerBase.Create(this);
             ((ILogicalScrollable)this).InvalidateScroll?.Invoke();
 
             KeyboardNavigation.SetTabNavigation(
@@ -167,7 +167,7 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
         private void VirtualizationModeChanged(AvaloniaPropertyChangedEventArgs e)
         {
             Virtualizer?.Dispose();
-            Virtualizer = ItemVirtualizer.Create(this);
+            Virtualizer = CustomItemVirtualizerBase.Create(this);
             ((ILogicalScrollable)this).InvalidateScroll?.Invoke();
         }
     }

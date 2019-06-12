@@ -18,16 +18,16 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
     /// <summary>
     /// Base class for classes which handle virtualization for an <see cref="ItemsPresenter"/>.
     /// </summary>
-    internal abstract class ItemVirtualizer : IVirtualizingController, IDisposable
+    internal abstract class CustomItemVirtualizerBase : IVirtualizingController, IDisposable
     {
         private double _crossAxisOffset;
         private IDisposable _subscriptions;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ItemVirtualizer"/> class.
+        /// Initializes a new instance of the <see cref="CustomItemVirtualizerBase"/> class.
         /// </summary>
         /// <param name="owner"></param>
-        public ItemVirtualizer(ItemsPresenter owner)
+        public CustomItemVirtualizerBase(CustomItemsPresenter owner)
         {
             Owner = owner;
             Items = owner.Items;
@@ -46,7 +46,7 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
         /// <summary>
         /// Gets the <see cref="ItemsPresenter"/> which owns the virtualizer.
         /// </summary>
-        public ItemsPresenter Owner { get; }
+        public CustomItemsPresenter Owner { get; }
 
         /// <summary>
         /// Gets the <see cref="IVirtualizingPanel"/> which will host the items.
@@ -157,12 +157,12 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
         }
 
         /// <summary>
-        /// Creates an <see cref="ItemVirtualizer"/> based on an item presenter's 
+        /// Creates an <see cref="CustomItemVirtualizerBase"/> based on an item presenter's 
         /// <see cref="ItemVirtualizationMode"/>.
         /// </summary>
         /// <param name="owner">The items presenter.</param>
-        /// <returns>An <see cref="ItemVirtualizer"/>.</returns>
-        public static ItemVirtualizer Create(ItemsPresenter owner)
+        /// <returns>An <see cref="CustomItemVirtualizerBase"/>.</returns>
+        public static CustomItemVirtualizerBase Create(CustomItemsPresenter owner)
         {
             if (owner.Panel == null)
             {
@@ -171,22 +171,7 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
 
             var virtualizingPanel = owner.Panel as IVirtualizingPanel;
             var scrollable = (ILogicalScrollable)owner;
-            ItemVirtualizer result = null;
-
-            if (virtualizingPanel != null && scrollable.InvalidateScroll != null)
-            {
-                switch (owner.VirtualizationMode)
-                {
-                    case ItemVirtualizationMode.Simple:
-                        result = new ItemVirtualizerSimple(owner);
-                        break;
-                }
-            }
-
-            if (result == null)
-            {
-                //result = new ItemVirtualizerNone(owner);
-            }
+            CustomItemVirtualizerBase result = new CustomItemVirtualizer(owner);
 
             if (virtualizingPanel != null)
             {

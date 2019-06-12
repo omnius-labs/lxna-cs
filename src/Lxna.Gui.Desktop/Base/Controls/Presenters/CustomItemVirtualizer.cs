@@ -1,4 +1,4 @@
-﻿// Copyright (c) The Avalonia Project. All rights reserved.
+// Copyright (c) The Avalonia Project. All rights reserved.
 // Licensed under the MIT license. See licence.md file in the project root for full license information.
 
 using System;
@@ -23,18 +23,20 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
     /// Handles virtualization in an <see cref="ItemsPresenter"/> for
     /// <see cref="ItemVirtualizationMode.Simple"/>.
     /// </summary>
-    internal class ItemVirtualizerSimple : ItemVirtualizer
+    internal class CustomItemVirtualizer : CustomItemVirtualizerBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ItemVirtualizerSimple"/> class.
+        /// Initializes a new instance of the <see cref="CustomItemVirtualizer"/> class.
         /// </summary>
         /// <param name="owner"></param>
-        public ItemVirtualizerSimple(ItemsPresenter owner)
+        public CustomItemVirtualizer(CustomItemsPresenter owner)
             : base(owner)
         {
             // Don't need to add children here as UpdateControls should be called by the panel
             // measure/arrange.
         }
+
+        public event EventHandler ChildrenChanged;
 
         private int ScrollQuantum => (VirtualizingPanel as IScrollQuantum)?.ScrollQuantum ?? 1;
 
@@ -105,6 +107,8 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
 
                         panel.PixelOffset = pixelOffset;
                     }
+
+                    this.ChildrenChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
@@ -172,6 +176,8 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
         {
             CreateAndRemoveContainers();
             InvalidateScroll();
+
+            this.ChildrenChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <inheritdoc/>
@@ -426,11 +432,11 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
 
         /// <summary>
         /// Updates the containers in the panel to make sure they are displaying the correct item
-        /// based on <see cref="ItemVirtualizer.FirstIndex"/>.
+        /// based on <see cref="CustomItemVirtualizerBase.FirstIndex"/>.
         /// </summary>
         /// <remarks>
-        /// This method requires that <see cref="ItemVirtualizer.FirstIndex"/> + the number of
-        /// materialized containers is not more than <see cref="ItemVirtualizer.ItemCount"/>.
+        /// This method requires that <see cref="CustomItemVirtualizerBase.FirstIndex"/> + the number of
+        /// materialized containers is not more than <see cref="CustomItemVirtualizerBase.ItemCount"/>.
         /// </remarks>
         private void RecycleContainers()
         {
@@ -466,7 +472,7 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
         /// example: if there are 20 items and 10 containers visible and the user scrolls 5
         /// items down, then the bottom 5 containers will be moved to the top and the top 5 will
         /// be moved to the bottom and recycled to display the newly visible item. Updates 
-        /// <see cref="ItemVirtualizer.FirstIndex"/> and <see cref="ItemVirtualizer.NextIndex"/>
+        /// <see cref="CustomItemVirtualizerBase.FirstIndex"/> and <see cref="CustomItemVirtualizerBase.NextIndex"/>
         /// with their new values.
         /// </remarks>
         private void RecycleContainersForMove(int delta)
@@ -478,7 +484,9 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
             // validate delta it should never overflow last index or generate index < 0 
             var clampedDelta = MathUtilities.Clamp(delta, -FirstIndex, ItemCount - FirstIndex - panel.Children.Count);
             if (clampedDelta == 0)
+            {
                 return;
+            }
 
             var sign = delta < 0 ? -1 : 1;
             var count = Math.Min(Math.Abs(delta), panel.Children.Count);
@@ -577,7 +585,7 @@ namespace Lxna.Gui.Desktop.Base.Controls.Presenters
 
         /// <summary>
         /// Removes the specified number of containers from the end of the panel and updates
-        /// <see cref="ItemVirtualizer.NextIndex"/>.
+        /// <see cref="CustomItemVirtualizerBase.NextIndex"/>.
         /// </summary>
         /// <param name="count">The number of containers to remove.</param>
         private void RemoveContainers(int count)

@@ -1,4 +1,5 @@
 ﻿using Lxna.Messages;
+using Omnix.Network;
 
 #nullable enable
 
@@ -9,31 +10,28 @@ namespace Lxna.Core.Contents
         static FileId()
         {
             FileId.Formatter = new CustomFormatter();
-            FileId.Empty = new FileId(string.Empty, 0, Omnix.Serialization.RocketPack.Timestamp.Zero);
+            FileId.Empty = new FileId(OmniAddress.Empty, 0, Omnix.Serialization.RocketPack.Timestamp.Zero);
         }
 
         private readonly int __hashCode;
 
-        public static readonly int MaxPathLength = 1024;
-
-        public FileId(string path, ulong length, Omnix.Serialization.RocketPack.Timestamp lastWriteTime)
+        public FileId(OmniAddress address, ulong length, Omnix.Serialization.RocketPack.Timestamp lastWriteTime)
         {
-            if (path is null) throw new System.ArgumentNullException("path");
-            if (path.Length > 1024) throw new System.ArgumentOutOfRangeException("path");
-            this.Path = path;
+            if (address is null) throw new System.ArgumentNullException("address");
+            this.Address = address;
             this.Length = length;
             this.LastWriteTime = lastWriteTime;
 
             {
                 var __h = new System.HashCode();
-                if (this.Path != default) __h.Add(this.Path.GetHashCode());
+                if (this.Address != default) __h.Add(this.Address.GetHashCode());
                 if (this.Length != default) __h.Add(this.Length.GetHashCode());
                 if (this.LastWriteTime != default) __h.Add(this.LastWriteTime.GetHashCode());
                 __hashCode = __h.ToHashCode();
             }
         }
 
-        public string Path { get; }
+        public OmniAddress Address { get; }
         public ulong Length { get; }
         public Omnix.Serialization.RocketPack.Timestamp LastWriteTime { get; }
 
@@ -41,7 +39,7 @@ namespace Lxna.Core.Contents
         {
             if (target is null) return false;
             if (object.ReferenceEquals(this, target)) return true;
-            if (this.Path != target.Path) return false;
+            if (this.Address != target.Address) return false;
             if (this.Length != target.Length) return false;
             if (this.LastWriteTime != target.LastWriteTime) return false;
 
@@ -58,7 +56,7 @@ namespace Lxna.Core.Contents
 
                 {
                     uint propertyCount = 0;
-                    if (value.Path != string.Empty)
+                    if (value.Address != OmniAddress.Empty)
                     {
                         propertyCount++;
                     }
@@ -73,10 +71,10 @@ namespace Lxna.Core.Contents
                     w.Write(propertyCount);
                 }
 
-                if (value.Path != string.Empty)
+                if (value.Address != OmniAddress.Empty)
                 {
                     w.Write((uint)0);
-                    w.Write(value.Path);
+                    OmniAddress.Formatter.Serialize(w, value.Address, rank + 1);
                 }
                 if (value.Length != 0)
                 {
@@ -97,7 +95,7 @@ namespace Lxna.Core.Contents
                 // Read property count
                 uint propertyCount = r.GetUInt32();
 
-                string p_path = string.Empty;
+                OmniAddress p_address = OmniAddress.Empty;
                 ulong p_length = 0;
                 Omnix.Serialization.RocketPack.Timestamp p_lastWriteTime = Omnix.Serialization.RocketPack.Timestamp.Zero;
 
@@ -106,9 +104,9 @@ namespace Lxna.Core.Contents
                     uint id = r.GetUInt32();
                     switch (id)
                     {
-                        case 0: // Path
+                        case 0: // Address
                             {
-                                p_path = r.GetString(1024);
+                                p_address = OmniAddress.Formatter.Deserialize(r, rank + 1);
                                 break;
                             }
                         case 1: // Length
@@ -124,7 +122,7 @@ namespace Lxna.Core.Contents
                     }
                 }
 
-                return new FileId(p_path, p_length, p_lastWriteTime);
+                return new FileId(p_address, p_length, p_lastWriteTime);
             }
         }
     }

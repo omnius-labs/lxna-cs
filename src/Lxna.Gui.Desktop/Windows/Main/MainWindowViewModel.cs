@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -46,12 +46,14 @@ namespace Lxna.Gui.Desktop.Windows.Main
 
             this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(n)).AddTo(_disposable);
             this.SelectedDirectory = new ReactiveProperty<DirectoryViewModel>().AddTo(_disposable);
-            this.SelectedDirectory.Subscribe(n => { if (n != null) this.TreeView_SelectionChanged(n); }).AddTo(_disposable);
+            this.SelectedDirectory.Subscribe(n => { if (n != null) { this.TreeView_SelectionChanged(n); } }).AddTo(_disposable);
             this.CurrentFiles = _currentFileModels.ToReadOnlyReactiveCollection(n => new FileViewModel(n, (viewModel) => _fileViewModelChannel.Writer.TryWrite(viewModel))).AddTo(_disposable);
 
             foreach (var contentMetadata in _lxnaService.GetContentIds(null))
             {
-                _rootDirectoryModels.Add(new DirectoryModel(contentMetadata));
+                var model = new DirectoryModel(contentMetadata);
+                this.RefreshTree(model);
+                _rootDirectoryModels.Add(model);
             }
         }
 
@@ -59,6 +61,7 @@ namespace Lxna.Gui.Desktop.Windows.Main
         {
             try
             {
+                /*
                 while (!token.IsCancellationRequested)
                 {
                     if (!_fileViewModelChannel.Reader.TryRead(out var viewModel))
@@ -67,8 +70,11 @@ namespace Lxna.Gui.Desktop.Windows.Main
                         continue;
                     }
 
-                    using var image = _lxnaService.GetThumbnails(viewModel.Model.ContentId.Path, 256, 256, LxnaThumbnailFormatType.Png, LxnaThumbnailResizeType.Crop).FirstOrDefault();
-                    if (image == null) continue;
+                    using var image = _lxnaService.GetThumbnails(viewModel.Model.ContentId.Path, 256, 256, LxnaThumbnailFormatType.Png, LxnaThumbnailResizeType.Pad).FirstOrDefault();
+                    if (image == null)
+                    {
+                        continue;
+                    }
 
                     using (var memoryStream = new MemoryStream())
                     {
@@ -79,6 +85,7 @@ namespace Lxna.Gui.Desktop.Windows.Main
                         viewModel.SetThumbnail(bitmap);
                     }
                 }
+                */
             }
             catch (OperationCanceledException)
             {
@@ -101,14 +108,22 @@ namespace Lxna.Gui.Desktop.Windows.Main
 
         private void TreeView_SelectionChanged(DirectoryViewModel selectedDirectory)
         {
-            selectedDirectory.Model.Children.Clear();
+            foreach (var viewModel in selectedDirectory.Children)
+            {
+                this.RefreshTree(viewModel.Model);
+            }
+        }
+
+        private void RefreshTree(DirectoryModel selectedDirectory)
+        {
+            selectedDirectory.Children.Clear();
             _currentFileModels.Clear();
 
-            foreach (var contentId in _lxnaService.GetContentIds(selectedDirectory.Model.ContentId.Path))
+            foreach (var contentId in _lxnaService.GetContentIds(selectedDirectory.ContentId.Address))
             {
                 if (contentId.Type == LxnaContentType.Directory || contentId.Type == LxnaContentType.Archive)
                 {
-                    selectedDirectory.Model.Children.Add(new DirectoryModel(contentId));
+                    selectedDirectory.Children.Add(new DirectoryModel(contentId));
                 }
                 else if (contentId.Type == LxnaContentType.File)
                 {
@@ -119,7 +134,11 @@ namespace Lxna.Gui.Desktop.Windows.Main
 
         protected override void Dispose(bool disposing)
         {
-            if (_disposed) return;
+            if (_disposed)
+            {
+                return;
+            }
+
             _disposed = true;
 
             if (disposing)

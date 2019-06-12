@@ -21,13 +21,12 @@
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
-        <ListBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 VirtualizationMode="Simple"
+        <ListBox Name="ListBox" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                  Items="{Binding CurrentFiles}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListBox.Template>
                 <ControlTemplate>
                     <ScrollViewer>
-                        <presenters:ItemsPresenter Items="{Binding $parent[ListBox].Items}"
+                        <presenters:CustomItemsPresenter Items="{Binding $parent[ListBox].Items}"
                                         ItemsPanel="{Binding $parent[ListBox].ItemsPanel}"
                                         ItemTemplate="{Binding $parent[ListBox].ItemTemplate}"
                                         Margin="{Binding $parent[ListBox].Padding}"
