@@ -115,35 +115,38 @@ namespace Lxna.Messages
         static LxnaContentId()
         {
             LxnaContentId.Formatter = new CustomFormatter();
-            LxnaContentId.Empty = new LxnaContentId((LxnaContentType)0, OmniAddress.Empty);
+            LxnaContentId.Empty = new LxnaContentId((LxnaContentType)0, string.Empty);
         }
 
         private readonly int __hashCode;
 
-        public LxnaContentId(LxnaContentType type, OmniAddress address)
+        public static readonly int MaxNameLength = 256;
+
+        public LxnaContentId(LxnaContentType type, string name)
         {
-            if (address is null) throw new System.ArgumentNullException("address");
+            if (name is null) throw new System.ArgumentNullException("name");
+            if (name.Length > 256) throw new System.ArgumentOutOfRangeException("name");
 
             this.Type = type;
-            this.Address = address;
+            this.Name = name;
 
             {
                 var __h = new System.HashCode();
                 if (this.Type != default) __h.Add(this.Type.GetHashCode());
-                if (this.Address != default) __h.Add(this.Address.GetHashCode());
+                if (this.Name != default) __h.Add(this.Name.GetHashCode());
                 __hashCode = __h.ToHashCode();
             }
         }
 
         public LxnaContentType Type { get; }
-        public OmniAddress Address { get; }
+        public string Name { get; }
 
         public override bool Equals(LxnaContentId? target)
         {
             if (target is null) return false;
             if (object.ReferenceEquals(this, target)) return true;
             if (this.Type != target.Type) return false;
-            if (this.Address != target.Address) return false;
+            if (this.Name != target.Name) return false;
 
             return true;
         }
@@ -162,7 +165,7 @@ namespace Lxna.Messages
                     {
                         propertyCount++;
                     }
-                    if (value.Address != OmniAddress.Empty)
+                    if (value.Name != string.Empty)
                     {
                         propertyCount++;
                     }
@@ -174,10 +177,10 @@ namespace Lxna.Messages
                     w.Write((uint)0);
                     w.Write((ulong)value.Type);
                 }
-                if (value.Address != OmniAddress.Empty)
+                if (value.Name != string.Empty)
                 {
                     w.Write((uint)1);
-                    OmniAddress.Formatter.Serialize(w, value.Address, rank + 1);
+                    w.Write(value.Name);
                 }
             }
 
@@ -189,7 +192,7 @@ namespace Lxna.Messages
                 uint propertyCount = r.GetUInt32();
 
                 LxnaContentType p_type = (LxnaContentType)0;
-                OmniAddress p_address = OmniAddress.Empty;
+                string p_name = string.Empty;
 
                 for (; propertyCount > 0; propertyCount--)
                 {
@@ -201,15 +204,15 @@ namespace Lxna.Messages
                                 p_type = (LxnaContentType)r.GetUInt64();
                                 break;
                             }
-                        case 1: // Address
+                        case 1: // Name
                             {
-                                p_address = OmniAddress.Formatter.Deserialize(r, rank + 1);
+                                p_name = r.GetString(256);
                                 break;
                             }
                     }
                 }
 
-                return new LxnaContentId(p_type, p_address);
+                return new LxnaContentId(p_type, p_name);
             }
         }
     }
