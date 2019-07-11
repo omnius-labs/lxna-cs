@@ -16,7 +16,7 @@ enum LxnaContentType : uint8 {
 
 message LxnaContentId {
     Type: LxnaContentType = 0,
-    Address: OmniAddress = 1,
+    Name: string(256) = 1,
 }
 
 enum LxnaThumbnailResizeType : uint8 {

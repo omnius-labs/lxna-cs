@@ -5,13 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.6.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Collections\Omnix.Collections.csproj" />
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Configuration\Omnix.Configuration.csproj" />
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Network.Connection\Omnix.Network.Connection.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Base\Omnix.Base.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Collections\Omnix.Collections.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Configuration\Omnix.Configuration.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Network.Connection\Omnix.Network.Connection.csproj" />
     <ProjectReference Include="..\Lxna.Messages\Lxna.Messages.csproj" />
   </ItemGroup>
 

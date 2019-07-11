@@ -6,19 +6,18 @@
 
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="4.1.4" />
-    <PackageReference Include="NLog" Version="4.6.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Base\Omnix.Base.csproj" />
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Collections\Omnix.Collections.csproj" />
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Configuration\Omnix.Configuration.csproj" />
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Cryptography\Omnix.Cryptography.csproj" />
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Io\Omnix.Io.csproj" />
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Network\Omnix.Network.csproj" />
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Serialization.RocketPack\Omnix.Serialization.RocketPack.csproj" />
-    <ProjectReference Include="..\..\refs\Omnix\src\Omnix.Serialization\Omnix.Serialization.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Base\Omnix.Base.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Collections\Omnix.Collections.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Configuration\Omnix.Configuration.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Cryptography\Omnix.Cryptography.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Io\Omnix.Io.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Network\Omnix.Network.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Serialization.RocketPack\Omnix.Serialization.RocketPack.csproj" />
+    <ProjectReference Include="..\..\refs\omnix\src\Omnix.Serialization\Omnix.Serialization.csproj" />
     <ProjectReference Include="..\Lxna.Messages\Lxna.Messages.csproj" />
     <ProjectReference Include="..\Lxna.Rpc\Lxna.Rpc.csproj" />
   </ItemGroup>

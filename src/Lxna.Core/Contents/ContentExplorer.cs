@@ -5,20 +5,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Lxna.Core.Contents.Internal;
 using Lxna.Messages;
-using Lxna.Rpc.Primitives;
 using Omnix.Base;
 using Omnix.Network;
 
 namespace Lxna.Core.Contents
 {
-    public sealed class ContentExplorer : ServiceBase, ISettings
+    public sealed class ContentExplorer : ServiceBase
     {
         private readonly LxnaOptions _options;
         private readonly ThumbnailCacheStorage _thumbnailCacheStorage;
 
         private ServiceStateType _state = ServiceStateType.Stopped;
 
-        private readonly AsyncLock _asyncLock = new AsyncLock();
         private volatile bool _disposed;
 
         public ContentExplorer(LxnaOptions options)
@@ -99,63 +97,18 @@ namespace Lxna.Core.Contents
             }
         }
 
-        public void Load()
+        protected override async ValueTask OnStart()
         {
-        }
-
-        public void Save()
-        {
-        }
-
-        public override ServiceStateType StateType { get; }
-
-        internal void InternalStart()
-        {
-            if (this.StateType != ServiceStateType.Stopped)
-            {
-                return;
-            }
-
             _state = ServiceStateType.Starting;
 
             _state = ServiceStateType.Running;
         }
 
-        internal void InternalStop()
+        protected override async ValueTask OnStop()
         {
-            if (this.StateType != ServiceStateType.Running)
-            {
-                return;
-            }
-
             _state = ServiceStateType.Stopping;
 
             _state = ServiceStateType.Stopped;
-        }
-
-        public override async ValueTask Start()
-        {
-            using (await _asyncLock.LockAsync())
-            {
-                this.InternalStart();
-            }
-        }
-
-        public override async ValueTask Stop()
-        {
-            using (await _asyncLock.LockAsync())
-            {
-                this.InternalStop();
-            }
-        }
-
-        public override async ValueTask Restart()
-        {
-            using (await _asyncLock.LockAsync())
-            {
-                this.InternalStop();
-                this.InternalStart();
-            }
         }
 
         protected override void Dispose(bool disposing)
