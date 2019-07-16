@@ -26,8 +26,8 @@ Make it easy to browse home server files from Windows, Linux, Android, and iOS.
 
 ## Links
 
-+ <https://github.com/omnius-labs/xeus>
-+ <https://gitlab.com/omnius-labs/xeus>
++ <https://github.com/omnius-labs/lxna>
++ <https://gitlab.com/omnius-labs/lxna>
 
 ## License
 
