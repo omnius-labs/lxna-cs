@@ -1,4 +1,4 @@
-namespace Omnix.Avalonia.ViewModels
+namespace Lxna.Gui.Desktop.Base.Mvvm.Primitives
 {
     public interface IDropable
     {

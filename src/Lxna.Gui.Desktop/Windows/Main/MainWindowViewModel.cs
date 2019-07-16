@@ -37,22 +37,20 @@ namespace Lxna.Gui.Desktop.Windows.Main
         public MainWindowViewModel()
         {
             _lxnaService = new LxnaService(this.GetLxnaOptions());
-            _lxnaService.Load();
 
             _fileViewModelChannel = Channel.CreateUnbounded<FileViewModel>();
 
             _watchTask = new TaskManager(this.WatchThread);
             _watchTask.Start();
 
-            this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(n)).AddTo(_disposable);
+            this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(null, n)).AddTo(_disposable);
             this.SelectedDirectory = new ReactiveProperty<DirectoryViewModel>().AddTo(_disposable);
             this.SelectedDirectory.Subscribe(n => { if (n != null) { this.TreeView_SelectionChanged(n); } }).AddTo(_disposable);
-            this.CurrentFiles = _currentFileModels.ToReadOnlyReactiveCollection(n => new FileViewModel(n, (viewModel) => _fileViewModelChannel.Writer.TryWrite(viewModel))).AddTo(_disposable);
+            this.CurrentFiles = _currentFileModels.ToReadOnlyReactiveCollection(n => new FileViewModel(n)).AddTo(_disposable);
 
-            foreach (var contentMetadata in _lxnaService.GetContentIds(null))
+            foreach (var contentClue in _lxnaService.GetContentClues(null))
             {
-                var model = new DirectoryModel(contentMetadata);
-                this.RefreshTree(model);
+                var model = new DirectoryModel(contentClue);
                 _rootDirectoryModels.Add(model);
             }
         }
@@ -108,22 +106,19 @@ namespace Lxna.Gui.Desktop.Windows.Main
 
         private void TreeView_SelectionChanged(DirectoryViewModel selectedDirectory)
         {
-            foreach (var viewModel in selectedDirectory.Children)
-            {
-                this.RefreshTree(viewModel.Model);
-            }
+            this.RefreshTree(selectedDirectory);
         }
 
-        private void RefreshTree(DirectoryModel selectedDirectory)
+        private void RefreshTree(DirectoryViewModel selectedDirectory)
         {
-            selectedDirectory.Children.Clear();
+            selectedDirectory.Model.Children.Clear();
             _currentFileModels.Clear();
 
-            foreach (var contentId in _lxnaService.GetContentIds(selectedDirectory.ContentId.Address))
+            foreach (var contentId in _lxnaService.GetContentClues(selectedDirectory.GetAddress()))
             {
                 if (contentId.Type == LxnaContentType.Directory || contentId.Type == LxnaContentType.Archive)
                 {
-                    selectedDirectory.Children.Add(new DirectoryModel(contentId));
+                    selectedDirectory.Model.Children.Add(new DirectoryModel(contentId));
                 }
                 else if (contentId.Type == LxnaContentType.File)
                 {

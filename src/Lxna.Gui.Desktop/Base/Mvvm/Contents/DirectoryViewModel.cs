@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Reactive.Bindings;
@@ -8,21 +8,20 @@ using System.Reactive.Linq;
 using Omnix.Base;
 using Lxna.Gui.Desktop.Models;
 using Lxna.Gui.Desktop.Base.Mvvm.Primitives;
+using Omnix.Network;
 
 namespace Lxna.Gui.Desktop.Base.Contents
 {
-    sealed class DirectoryViewModel : DisposableBase
+    sealed class DirectoryViewModel : TreeViewModelBase
     {
         private CompositeDisposable _disposable = new CompositeDisposable();
 
-        private volatile bool _disposed;
-
-        public DirectoryViewModel(DirectoryModel model)
+        public DirectoryViewModel(TreeViewModelBase? parent, DirectoryModel model) : base(parent)
         {
             this.Model = model;
 
             this.Name = this.Model.ObserveProperty(n => n.Name).ToReadOnlyReactivePropertySlim().AddTo(_disposable);
-            this.Children = this.Model.Children.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(n)).AddTo(_disposable);
+            this.Children = this.Model.Children.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(this, n)).AddTo(_disposable);
         }
 
         public DirectoryModel Model { get; }
@@ -30,15 +29,33 @@ namespace Lxna.Gui.Desktop.Base.Contents
         public ReadOnlyReactivePropertySlim<string> Name { get; }
         public ReadOnlyReactiveCollection<DirectoryViewModel> Children { get; }
 
+        public override bool TryAdd(object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool TryRemove(object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public OmniAddress GetAddress()
+        {
+            var parent = this.Parent as DirectoryViewModel;
+
+            if (parent is null)
+            {
+                return this.Model.Name;
+            }
+            else
+            {
+                var parentAddress = parent.GetAddress();
+                return OmniAddress.Combine(parentAddress, this.Model.Name);
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
-            if (_disposed)
-            {
-                return;
-            }
-
-            _disposed = true;
-
             if (disposing)
             {
                 _disposable.Dispose();

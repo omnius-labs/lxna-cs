@@ -87,7 +87,6 @@ namespace Lxna.Messages
             {
                 if (rank > 256) throw new System.FormatException();
 
-                // Read property count
                 uint propertyCount = r.GetUInt32();
 
                 string p_configDirectoryPath = string.Empty;
@@ -97,7 +96,7 @@ namespace Lxna.Messages
                     uint id = r.GetUInt32();
                     switch (id)
                     {
-                        case 0: // ConfigDirectoryPath
+                        case 0:
                             {
                                 p_configDirectoryPath = r.GetString(1024);
                                 break;
@@ -110,19 +109,19 @@ namespace Lxna.Messages
         }
     }
 
-    public sealed partial class LxnaContentId : Omnix.Serialization.RocketPack.RocketPackMessageBase<LxnaContentId>
+    public sealed partial class LxnaContentClue : Omnix.Serialization.RocketPack.RocketPackMessageBase<LxnaContentClue>
     {
-        static LxnaContentId()
+        static LxnaContentClue()
         {
-            LxnaContentId.Formatter = new CustomFormatter();
-            LxnaContentId.Empty = new LxnaContentId((LxnaContentType)0, string.Empty);
+            LxnaContentClue.Formatter = new CustomFormatter();
+            LxnaContentClue.Empty = new LxnaContentClue((LxnaContentType)0, string.Empty);
         }
 
         private readonly int __hashCode;
 
         public static readonly int MaxNameLength = 256;
 
-        public LxnaContentId(LxnaContentType type, string name)
+        public LxnaContentClue(LxnaContentType type, string name)
         {
             if (name is null) throw new System.ArgumentNullException("name");
             if (name.Length > 256) throw new System.ArgumentOutOfRangeException("name");
@@ -141,7 +140,7 @@ namespace Lxna.Messages
         public LxnaContentType Type { get; }
         public string Name { get; }
 
-        public override bool Equals(LxnaContentId? target)
+        public override bool Equals(LxnaContentClue? target)
         {
             if (target is null) return false;
             if (object.ReferenceEquals(this, target)) return true;
@@ -153,9 +152,9 @@ namespace Lxna.Messages
 
         public override int GetHashCode() => __hashCode;
 
-        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<LxnaContentId>
+        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<LxnaContentClue>
         {
-            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, LxnaContentId value, int rank)
+            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, LxnaContentClue value, int rank)
             {
                 if (rank > 256) throw new System.FormatException();
 
@@ -184,11 +183,10 @@ namespace Lxna.Messages
                 }
             }
 
-            public LxnaContentId Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
+            public LxnaContentClue Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
             {
                 if (rank > 256) throw new System.FormatException();
 
-                // Read property count
                 uint propertyCount = r.GetUInt32();
 
                 LxnaContentType p_type = (LxnaContentType)0;
@@ -199,12 +197,12 @@ namespace Lxna.Messages
                     uint id = r.GetUInt32();
                     switch (id)
                     {
-                        case 0: // Type
+                        case 0:
                             {
                                 p_type = (LxnaContentType)r.GetUInt64();
                                 break;
                             }
-                        case 1: // Name
+                        case 1:
                             {
                                 p_name = r.GetString(256);
                                 break;
@@ -212,7 +210,7 @@ namespace Lxna.Messages
                     }
                 }
 
-                return new LxnaContentId(p_type, p_name);
+                return new LxnaContentClue(p_type, p_name);
             }
         }
     }
@@ -288,7 +286,6 @@ namespace Lxna.Messages
             {
                 if (rank > 256) throw new System.FormatException();
 
-                // Read property count
                 uint propertyCount = r.GetUInt32();
 
                 System.Buffers.IMemoryOwner<byte> p_value = Omnix.Base.SimpleMemoryOwner<byte>.Empty;
@@ -298,7 +295,7 @@ namespace Lxna.Messages
                     uint id = r.GetUInt32();
                     switch (id)
                     {
-                        case 0: // Value
+                        case 0:
                             {
                                 p_value = r.GetRecyclableMemory(33554432);
                                 break;
