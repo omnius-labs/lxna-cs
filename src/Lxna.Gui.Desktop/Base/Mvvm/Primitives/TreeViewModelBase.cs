@@ -1,21 +1,22 @@
 using Avalonia.Controls;
+using Omnix.Base;
 using Reactive.Bindings;
 using System.Collections.Generic;
 
-namespace Omnix.Avalonia.ViewModels
+namespace Lxna.Gui.Desktop.Base.Mvvm.Primitives
 {
-    public abstract class TreeViewModelBase : IDropable
+    public abstract class TreeViewModelBase : DisposableBase, IDropable
     {
         public ReactiveProperty<string> Name { get; protected set; }
         public ReactiveProperty<bool> IsSelected { get; protected set; }
         public ReactiveProperty<bool> IsExpanded { get; protected set; }
 
-        public TreeViewModelBase(TreeViewModelBase parent)
+        public TreeViewModelBase(TreeViewModelBase? parent)
         {
             this.Parent = parent;
         }
 
-        public TreeViewModelBase Parent { get; private set; }
+        public TreeViewModelBase? Parent { get; private set; }
 
         public IEnumerable<TreeViewModelBase> GetAncestors()
         {

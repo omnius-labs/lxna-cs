@@ -17,31 +17,21 @@ namespace Lxna.Core.Contents
 
         private ServiceStateType _state = ServiceStateType.Stopped;
 
-        private volatile bool _disposed;
-
         public ContentExplorer(LxnaOptions options)
         {
             _options = options;
             _thumbnailCacheStorage = new ThumbnailCacheStorage(_options);
         }
 
-        public IEnumerable<LxnaThumbnail> GetThumnails(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
+        public IEnumerable<LxnaContentClue> GetContentClues(OmniAddress? baseAddress, CancellationToken token = default)
         {
-            return _thumbnailCacheStorage.GetThumnailImages(address, width, height, formatType, resizeType, token);
-        }
-
-        public IEnumerable<LxnaContentId> GetContentIds(OmniAddress? baseAddress, CancellationToken token = default)
-        {
-            var result = new List<LxnaContentId>();
+            var result = new List<LxnaContentClue>();
 
             if (baseAddress is null)
             {
                 foreach (var drivePath in Directory.GetLogicalDrives())
                 {
-                    if (FileSystemPathConverter.TryEncoding(drivePath, out var driveAddress))
-                    {
-                        result.Add(new LxnaContentId(LxnaContentType.Directory, driveAddress));
-                    }
+                    result.Add(new LxnaContentClue(LxnaContentType.Directory, drivePath[0].ToString()));
                 }
             }
             else
@@ -52,10 +42,7 @@ namespace Lxna.Core.Contents
                     {
                         foreach (var directoryPath in Directory.EnumerateDirectories(basePath, "*", SearchOption.TopDirectoryOnly))
                         {
-                            if (FileSystemPathConverter.TryEncoding(directoryPath, out var directoryAddress))
-                            {
-                                result.Add(new LxnaContentId(LxnaContentType.Directory, directoryAddress));
-                            }
+                            result.Add(new LxnaContentClue(LxnaContentType.Directory, Path.GetFileName(directoryPath)));
                         }
                     }
                     catch (UnauthorizedAccessException)
@@ -67,10 +54,7 @@ namespace Lxna.Core.Contents
                     {
                         foreach (var filePath in Directory.EnumerateFiles(basePath, "*", SearchOption.TopDirectoryOnly))
                         {
-                            if (FileSystemPathConverter.TryEncoding(filePath, out var fileAddress))
-                            {
-                                result.Add(new LxnaContentId(LxnaContentType.File, fileAddress));
-                            }
+                            result.Add(new LxnaContentClue(LxnaContentType.File, Path.GetFileName(filePath)));
                         }
                     }
                     catch (UnauthorizedAccessException)
@@ -81,6 +65,11 @@ namespace Lxna.Core.Contents
             }
 
             return result;
+        }
+
+        public IEnumerable<LxnaThumbnail> GetThumnails(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
+        {
+            return _thumbnailCacheStorage.GetThumnails(address, width, height, formatType, resizeType, token);
         }
 
         public void ReadContent(OmniAddress address, long position, Span<byte> buffer, CancellationToken token = default)
@@ -97,29 +86,27 @@ namespace Lxna.Core.Contents
             }
         }
 
-        protected override async ValueTask OnStart()
+        protected override async ValueTask OnInitializeAsync()
         {
-            _state = ServiceStateType.Starting;
 
-            _state = ServiceStateType.Running;
         }
 
-        protected override async ValueTask OnStop()
+        protected override async ValueTask OnStartAsync()
         {
-            _state = ServiceStateType.Stopping;
+            this.StateType = ServiceStateType.Starting;
 
-            _state = ServiceStateType.Stopped;
+            this.StateType = ServiceStateType.Running;
+        }
+
+        protected override async ValueTask OnStopAsync()
+        {
+            this.StateType = ServiceStateType.Stopping;
+
+            this.StateType = ServiceStateType.Stopped;
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (_disposed)
-            {
-                return;
-            }
-
-            _disposed = true;
-
             if (disposing)
             {
                

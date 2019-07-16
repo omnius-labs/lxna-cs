@@ -14,7 +14,7 @@ enum LxnaContentType : uint8 {
     File = 2,
 }
 
-message LxnaContentId {
+message LxnaContentClue {
     Type: LxnaContentType = 0,
     Name: string(256) = 1,
 }

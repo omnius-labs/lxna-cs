@@ -64,7 +64,7 @@ namespace Lxna.Core.Contents.Internal
             };
         }
 
-        private LxnaThumbnail? GetPictureThumnailImage(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType)
+        private LxnaThumbnail? GetPictureThumnail(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
             if (!FileSystemPathConverter.TryDecoding(address, out var path))
             {
@@ -190,7 +190,7 @@ namespace Lxna.Core.Contents.Internal
             }
         }
 
-        private IEnumerable<LxnaThumbnail>? GetVideoThumnailImage(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType)
+        private IEnumerable<LxnaThumbnail>? GetVideoThumnails(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
             if (!FileSystemPathConverter.TryDecoding(address, out var path))
             {
@@ -206,10 +206,10 @@ namespace Lxna.Core.Contents.Internal
             return null;
         }
 
-        public IEnumerable<LxnaThumbnail> GetThumnailImages(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
+        public IEnumerable<LxnaThumbnail> GetThumnails(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
             {
-                var result = this.GetPictureThumnailImage(address, width, height, formatType, resizeType);
+                var result = this.GetPictureThumnail(address, width, height, formatType, resizeType, token);
 
                 if (result != null)
                 {
@@ -218,7 +218,7 @@ namespace Lxna.Core.Contents.Internal
             }
 
             {
-                var result = this.GetVideoThumnailImage(address, width, height, formatType, resizeType);
+                var result = this.GetVideoThumnails(address, width, height, formatType, resizeType, token);
 
                 if (result != null)
                 {
@@ -231,13 +231,6 @@ namespace Lxna.Core.Contents.Internal
 
         protected override void Dispose(bool disposing)
         {
-            if (_disposed)
-            {
-                return;
-            }
-
-            _disposed = true;
-
             if (disposing)
             {
                 _liteDatabase.Dispose();

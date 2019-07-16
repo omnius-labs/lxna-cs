@@ -92,7 +92,6 @@ namespace Lxna.Core.Contents
             {
                 if (rank > 256) throw new System.FormatException();
 
-                // Read property count
                 uint propertyCount = r.GetUInt32();
 
                 OmniAddress p_address = OmniAddress.Empty;
@@ -104,17 +103,17 @@ namespace Lxna.Core.Contents
                     uint id = r.GetUInt32();
                     switch (id)
                     {
-                        case 0: // Address
+                        case 0:
                             {
                                 p_address = OmniAddress.Formatter.Deserialize(r, rank + 1);
                                 break;
                             }
-                        case 1: // Length
+                        case 1:
                             {
                                 p_length = r.GetUInt64();
                                 break;
                             }
-                        case 2: // LastWriteTime
+                        case 2:
                             {
                                 p_lastWriteTime = r.GetTimestamp();
                                 break;
@@ -203,7 +202,6 @@ namespace Lxna.Core.Contents
             {
                 if (rank > 256) throw new System.FormatException();
 
-                // Read property count
                 uint propertyCount = r.GetUInt32();
 
                 LxnaThumbnail[] p_thumbnails = System.Array.Empty<LxnaThumbnail>();
@@ -213,7 +211,7 @@ namespace Lxna.Core.Contents
                     uint id = r.GetUInt32();
                     switch (id)
                     {
-                        case 0: // Thumbnails
+                        case 0:
                             {
                                 var length = r.GetUInt32();
                                 p_thumbnails = new LxnaThumbnail[length];

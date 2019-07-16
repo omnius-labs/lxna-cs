@@ -11,14 +11,14 @@ namespace Lxna.Gui.Desktop.Models
 {
     public sealed class DirectoryModel : BindableBase
     {
-        public DirectoryModel(LxnaContentId contentId)
+        public DirectoryModel(LxnaContentClue contentClue)
         {
-            this.ContentId = contentId;
+            this.ContentClue = contentClue;
 
-            this.Name = this.ContentId.Address.Parse().Last();
+            this.Name = this.ContentClue.Name;
         }
 
-        public LxnaContentId ContentId { get; }
+        public LxnaContentClue ContentClue { get; }
 
         private string _name = string.Empty;
         public string Name

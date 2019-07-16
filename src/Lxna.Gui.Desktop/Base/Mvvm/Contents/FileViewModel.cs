@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Reactive.Bindings;
@@ -12,7 +12,7 @@ using Avalonia.Media.Imaging;
 
 namespace Lxna.Gui.Desktop.Base.Contents
 {
-    sealed class FileViewModel : BindableBase
+    sealed class FileViewModel : DisposableBase
     {
         private readonly Action<FileViewModel> _callback;
 
@@ -20,37 +20,25 @@ namespace Lxna.Gui.Desktop.Base.Contents
 
         private CompositeDisposable _disposable = new CompositeDisposable();
 
-        private volatile bool _disposed;
-
-        public FileViewModel(FileModel model, Action<FileViewModel> callback)
+        public FileViewModel(FileModel model)
         {
-            _callback = callback;
-
             this.Model = model;
             this.Name = this.Model.ObserveProperty(n => n.Name).ToReadOnlyReactivePropertySlim().AddTo(_disposable);
+            this.Thumbnail = new ReactiveProperty<Bitmap?>().AddTo(_disposable);
         }
 
         public FileModel Model { get; }
 
         public ReadOnlyReactivePropertySlim<string> Name { get; }
 
-        public Bitmap? Thumbnail
+        public ReactiveProperty<Bitmap?> Thumbnail { get; }
+
+        protected override void Dispose(bool disposing)
         {
-            get
+            if (disposing)
             {
-                if (_thumbnail == null)
-                {
-                    _callback?.Invoke(this);
-                }
-
-                return _thumbnail;
+                _disposable.Dispose();
             }
-        }
-
-        public void SetThumbnail(Bitmap thumbnail)
-        {
-            _thumbnail = thumbnail;
-            base.OnPropertyChanged(nameof(this.Thumbnail));
         }
     }
 }

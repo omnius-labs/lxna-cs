@@ -24,6 +24,11 @@ Make it easy to browse home server files from Windows, Linux, Android, and iOS.
 + [QuickPic](https://play.google.com/store/apps/details?id=com.alensw.PicFolder)
 + [Dropbox](https://www.dropbox.com/)
 
+## Links
+
++ <https://github.com/omnius-labs/xeus>
++ <https://gitlab.com/omnius-labs/xeus>
+
 ## License
 
 + MIT License.
