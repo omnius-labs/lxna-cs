@@ -5,7 +5,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Lxna.Core.Contents;
+using Lxna.Core.Internal;
+using Lxna.Core.Internal.Contents;
 using Lxna.Messages;
 using Lxna.Rpc;
 using Omnix.Base;
@@ -17,29 +18,29 @@ namespace Lxna.Core
     public sealed class LxnaService : ServiceBase, ILxnaService
     {
         private readonly LxnaOptions _options;
-        private readonly ContentExplorer _contentExplorer;
+        private readonly ContentsExplorer _contentsExplorer;
 
         private ServiceStateType _state = ServiceStateType.Stopped;
 
         public LxnaService(LxnaOptions options)
         {
             _options = options;
-            _contentExplorer = new ContentExplorer(_options);
+            _contentsExplorer = new ContentsExplorer(_options);
         }
 
-        public IEnumerable<LxnaContentClue> GetContentClues(OmniAddress? address, CancellationToken token = default)
+        public IEnumerable<LxnaContentId> GetContentIds(OmniAddress? address, CancellationToken token = default)
         {
-            return _contentExplorer.GetContentClues(address, token);
+            return _contentsExplorer.GetContentIds(address, token);
         }
 
         public IEnumerable<LxnaThumbnail> GetThumbnails(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
-            return _contentExplorer.GetThumnails(address, width, height, formatType, resizeType, token);
+            return _contentsExplorer.GetThumnails(address, width, height, formatType, resizeType, token);
         }
 
-        public void ReadContent(OmniAddress address, long position, Span<byte> buffer, CancellationToken token = default)
+        public int FileRead(OmniAddress address, long position, Span<byte> buffer, CancellationToken token = default)
         {
-            _contentExplorer.ReadContent(address, position, buffer, token);
+            return _contentsExplorer.FileRead(address, position, buffer, token);
         }
 
         protected override async ValueTask OnInitializeAsync()
@@ -65,7 +66,7 @@ namespace Lxna.Core
         {
             if (disposing)
             {
-                _contentExplorer.Dispose();
+                _contentsExplorer.Dispose();
             }
         }
     }

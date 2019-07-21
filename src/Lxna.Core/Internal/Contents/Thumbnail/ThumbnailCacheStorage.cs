@@ -16,7 +16,7 @@ using Omnix.Serialization.RocketPack.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
-namespace Lxna.Core.Contents.Internal
+namespace Lxna.Core.Internal.Contents.Thumbnail
 {
     public sealed class ThumbnailCacheStorage : DisposableBase
     {
@@ -66,7 +66,7 @@ namespace Lxna.Core.Contents.Internal
 
         private LxnaThumbnail? GetPictureThumnail(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
-            if (!FileSystemPathConverter.TryDecoding(address, out var path))
+            if (!OmniAddress.Windows.FileSystem.TryDecoding(address, out var path, out int _))
             {
                 throw new ArgumentException();
             }
@@ -192,7 +192,7 @@ namespace Lxna.Core.Contents.Internal
 
         private IEnumerable<LxnaThumbnail>? GetVideoThumnails(OmniAddress address, int width, int height, LxnaThumbnailFormatType formatType, LxnaThumbnailResizeType resizeType, CancellationToken token = default)
         {
-            if (!FileSystemPathConverter.TryDecoding(address, out var path))
+            if (!OmniAddress.Windows.FileSystem.TryDecoding(address, out var path, out int _))
             {
                 throw new ArgumentException();
             }

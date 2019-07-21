@@ -7,10 +7,10 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Omnix.Base;
 using Lxna.Gui.Desktop.Models;
-using Lxna.Gui.Desktop.Base.Mvvm.Primitives;
 using Omnix.Network;
+using Omnix.Avalonia.Models.Primitives;
 
-namespace Lxna.Gui.Desktop.Base.Contents
+namespace Lxna.Gui.Desktop.Core.Contents
 {
     sealed class DirectoryViewModel : TreeViewModelBase
     {

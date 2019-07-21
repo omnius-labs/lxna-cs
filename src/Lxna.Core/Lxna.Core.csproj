@@ -22,8 +22,4 @@
     <ProjectReference Include="..\Lxna.Rpc\Lxna.Rpc.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Contents\_RocketPack\" />
-  </ItemGroup>
-
 </Project>

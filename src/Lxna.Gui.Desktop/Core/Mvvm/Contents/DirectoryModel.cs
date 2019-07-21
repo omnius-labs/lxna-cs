@@ -4,21 +4,21 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Lxna.Gui.Desktop.Base.Mvvm.Primitives;
 using Lxna.Messages;
+using Omnix.Avalonia.Models.Primitives;
 
 namespace Lxna.Gui.Desktop.Models
 {
     public sealed class DirectoryModel : BindableBase
     {
-        public DirectoryModel(LxnaContentClue contentClue)
+        public DirectoryModel(LxnaContentId contentId)
         {
-            this.ContentClue = contentClue;
+            this.ContentId = contentId;
 
-            this.Name = this.ContentClue.Name;
+            this.Name = this.ContentId.Name;
         }
 
-        public LxnaContentClue ContentClue { get; }
+        public LxnaContentId ContentId { get; }
 
         private string _name = string.Empty;
         public string Name
