@@ -3,7 +3,7 @@ using Omnix.Network;
 
 #nullable enable
 
-namespace Lxna.Core.Contents
+namespace Lxna.Core.Internal
 {
     internal sealed partial class FileId : Omnix.Serialization.RocketPack.RocketPackMessageBase<FileId>
     {

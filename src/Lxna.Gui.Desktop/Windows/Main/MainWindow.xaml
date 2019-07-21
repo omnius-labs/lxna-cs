@@ -3,8 +3,8 @@
         xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
         xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
         xmlns:local="clr-namespace:Lxna.Gui.Desktop.Windows.Avalonia.Main"
-        xmlns:controls="clr-namespace:Lxna.Gui.Desktop.Base.Controls"
-        xmlns:presenters="clr-namespace:Lxna.Gui.Desktop.Base.Controls.Presenters"
+        xmlns:controls="clr-namespace:Omnix.Avalonia.Controls;assembly=Omnix.Avalonia"
+        xmlns:presenters="clr-namespace:Omnix.Avalonia.Controls.Presenters;assembly=Omnix.Avalonia"
         Title="Lxna.Gui.Desktop"
         Height="300"
         Width="500">

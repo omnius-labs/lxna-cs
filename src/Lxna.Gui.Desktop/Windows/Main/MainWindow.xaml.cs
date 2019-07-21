@@ -7,8 +7,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
-using Lxna.Gui.Desktop.Base.Controls;
-using Lxna.Gui.Desktop.Base.Controls.Presenters;
+using Omnix.Avalonia.Controls;
+using Omnix.Avalonia.Controls.Presenters;
 
 namespace Lxna.Gui.Desktop.Windows.Main
 {

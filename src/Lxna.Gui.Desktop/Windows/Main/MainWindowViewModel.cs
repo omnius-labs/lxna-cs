@@ -13,7 +13,7 @@ using Omnix.Base;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Lxna.Gui.Desktop.Models;
-using Lxna.Gui.Desktop.Base.Contents;
+using Lxna.Gui.Desktop.Core.Contents;
 using System.Threading.Channels;
 using System.Threading;
 
@@ -48,9 +48,9 @@ namespace Lxna.Gui.Desktop.Windows.Main
             this.SelectedDirectory.Subscribe(n => { if (n != null) { this.TreeView_SelectionChanged(n); } }).AddTo(_disposable);
             this.CurrentFiles = _currentFileModels.ToReadOnlyReactiveCollection(n => new FileViewModel(n)).AddTo(_disposable);
 
-            foreach (var contentClue in _lxnaService.GetContentClues(null))
+            foreach (var contentId in _lxnaService.GetContentIds(null))
             {
-                var model = new DirectoryModel(contentClue);
+                var model = new DirectoryModel(contentId);
                 _rootDirectoryModels.Add(model);
             }
         }
@@ -114,7 +114,7 @@ namespace Lxna.Gui.Desktop.Windows.Main
             selectedDirectory.Model.Children.Clear();
             _currentFileModels.Clear();
 
-            foreach (var contentId in _lxnaService.GetContentClues(selectedDirectory.GetAddress()))
+            foreach (var contentId in _lxnaService.GetContentIds(selectedDirectory.GetAddress()))
             {
                 if (contentId.Type == LxnaContentType.Directory || contentId.Type == LxnaContentType.Archive)
                 {

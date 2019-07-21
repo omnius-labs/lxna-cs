@@ -109,19 +109,19 @@ namespace Lxna.Messages
         }
     }
 
-    public sealed partial class LxnaContentClue : Omnix.Serialization.RocketPack.RocketPackMessageBase<LxnaContentClue>
+    public sealed partial class LxnaContentId : Omnix.Serialization.RocketPack.RocketPackMessageBase<LxnaContentId>
     {
-        static LxnaContentClue()
+        static LxnaContentId()
         {
-            LxnaContentClue.Formatter = new CustomFormatter();
-            LxnaContentClue.Empty = new LxnaContentClue((LxnaContentType)0, string.Empty);
+            LxnaContentId.Formatter = new CustomFormatter();
+            LxnaContentId.Empty = new LxnaContentId((LxnaContentType)0, string.Empty);
         }
 
         private readonly int __hashCode;
 
         public static readonly int MaxNameLength = 256;
 
-        public LxnaContentClue(LxnaContentType type, string name)
+        public LxnaContentId(LxnaContentType type, string name)
         {
             if (name is null) throw new System.ArgumentNullException("name");
             if (name.Length > 256) throw new System.ArgumentOutOfRangeException("name");
@@ -140,7 +140,7 @@ namespace Lxna.Messages
         public LxnaContentType Type { get; }
         public string Name { get; }
 
-        public override bool Equals(LxnaContentClue? target)
+        public override bool Equals(LxnaContentId? target)
         {
             if (target is null) return false;
             if (object.ReferenceEquals(this, target)) return true;
@@ -152,9 +152,9 @@ namespace Lxna.Messages
 
         public override int GetHashCode() => __hashCode;
 
-        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<LxnaContentClue>
+        private sealed class CustomFormatter : Omnix.Serialization.RocketPack.IRocketPackFormatter<LxnaContentId>
         {
-            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, LxnaContentClue value, int rank)
+            public void Serialize(Omnix.Serialization.RocketPack.RocketPackWriter w, LxnaContentId value, int rank)
             {
                 if (rank > 256) throw new System.FormatException();
 
@@ -183,7 +183,7 @@ namespace Lxna.Messages
                 }
             }
 
-            public LxnaContentClue Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
+            public LxnaContentId Deserialize(Omnix.Serialization.RocketPack.RocketPackReader r, int rank)
             {
                 if (rank > 256) throw new System.FormatException();
 
@@ -210,7 +210,7 @@ namespace Lxna.Messages
                     }
                 }
 
-                return new LxnaContentClue(p_type, p_name);
+                return new LxnaContentId(p_type, p_name);
             }
         }
     }
