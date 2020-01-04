@@ -1,6 +1,6 @@
 # Lxna - Remote file explorer
 
-[![Join the chat at https://gitter.im/omnius-labs/lxna](https://badges.gitter.im/omnius-labs/lxna.svg)](https://gitter.im/omnius-labs/lxna?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![](https://github.com/omnius-labs/lxna/workflows/Builds/badge.svg)](https://github.com/omnius-labs/lxna/actions)
 
 ## Website
 
