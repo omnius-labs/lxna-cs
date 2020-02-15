@@ -7,9 +7,6 @@ gen-code:
 test:
 	docker-compose run --rm devenv sh ./eng/run-test.sh
 
-update-nuget:
-	docker-compose run --rm devenv sh ./eng/update-nuget.sh
-
 update-submodule:
 	sh ./eng/update-submodule.sh
 

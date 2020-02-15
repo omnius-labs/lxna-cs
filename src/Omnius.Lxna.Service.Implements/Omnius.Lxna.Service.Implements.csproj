@@ -9,4 +9,13 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Data\Omnius.Core.Data.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Network\Omnius.Core.Network.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Serialization.RocketPack\Omnius.Core.Serialization.RocketPack.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Serialization\Omnius.Core.Serialization.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core\Omnius.Core.csproj" />
+    <ProjectReference Include="..\Omnius.Lxna.Service\Omnius.Lxna.Service.csproj" />
+  </ItemGroup>
+
 </Project>
