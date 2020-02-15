@@ -4,8 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Lxna.Messages;
-using Omnix.Avalonia.Models.Primitives;
+using Omnius.Core.Avalonia.Models.Primitives;
 
 namespace Lxna.Gui.Desktop.Models
 {

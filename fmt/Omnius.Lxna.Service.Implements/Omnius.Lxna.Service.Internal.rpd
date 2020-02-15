@@ -1,0 +1,11 @@
+﻿syntax = v1.0;
+
+using "Omnius.Lxna.Service";
+
+namespace "Omnius.Lxna.Service.Internal";
+option csharp_access_level = "internal";
+
+table ThumbnailEntity {
+    Metadata: ThumbnailMetadata = 0,
+    Contents: vector<ThumbnailContent>(capacity: 8192) = 1,
+}

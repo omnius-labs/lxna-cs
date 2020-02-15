@@ -14,16 +14,19 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.8.1" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.8.1" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.8.1" />
-    <PackageReference Include="Avalonia.Skia" Version="0.8.1" />
-    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.8.0" />
-    <PackageReference Include="Avalonia.Xaml.Interactions" Version="0.8.0" />
-    <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.8.0" />
-    <PackageReference Include="ReactiveProperty" Version="5.6.0" />
+    <PackageReference Include="Avalonia" Version="0.9.3" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.9.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.9.3" />
+    <PackageReference Include="Avalonia.Skia" Version="0.9.3" />
+    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.9.3" />
+    <PackageReference Include="Avalonia.Xaml.Interactions" Version="0.9.3" />
+    <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.3" />
+    <PackageReference Include="ReactiveProperty" Version="6.2.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Network\Omnius.Core.Network.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Ui.Avalonia\Omnius.Core.Ui.Avalonia.csproj" />
+    <ProjectReference Include="..\Omnius.Lxna.Service.Implements\Omnius.Lxna.Service.Implements.csproj" />
+    <ProjectReference Include="..\Omnius.Lxna.Service\Omnius.Lxna.Service.csproj" />
   </ItemGroup>
 </Project>
