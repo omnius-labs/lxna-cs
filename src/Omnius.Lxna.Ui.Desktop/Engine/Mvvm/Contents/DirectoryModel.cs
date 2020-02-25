@@ -5,25 +5,26 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Omnius.Core.Avalonia.Models.Primitives;
+using Omnius.Core.Network;
 
 namespace Lxna.Gui.Desktop.Models
 {
     public sealed class DirectoryModel : BindableBase
     {
-        public DirectoryModel(LxnaContentId contentId)
+        public DirectoryModel(OmniPath path)
         {
-            this.ContentId = contentId;
+            this.Path = path;
 
-            this.Name = this.ContentId.Name;
+            this.Name = this.Path.Decompose().LastOrDefault();
         }
 
-        public LxnaContentId ContentId { get; }
+        public OmniPath Path { get; }
 
         private string _name = string.Empty;
         public string Name
         {
             get => _name;
-            set => this.SetProperty(ref _name, value);
+            private set => this.SetProperty(ref _name, value);
         }
 
         public ObservableCollection<DirectoryModel> Children { get; } = new ObservableCollection<DirectoryModel>();

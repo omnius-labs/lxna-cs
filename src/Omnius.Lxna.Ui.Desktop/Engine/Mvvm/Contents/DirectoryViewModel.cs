@@ -1,14 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Reactive.Disposables;
+using Lxna.Gui.Desktop.Models;
+using Omnius.Core.Avalonia.Models.Primitives;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using Omnix.Base;
-using Lxna.Gui.Desktop.Models;
-using Omnix.Network;
-using Omnix.Avalonia.Models.Primitives;
 
 namespace Lxna.Gui.Desktop.Core.Contents
 {
@@ -24,9 +19,17 @@ namespace Lxna.Gui.Desktop.Core.Contents
             this.Children = this.Model.Children.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(this, n)).AddTo(_disposable);
         }
 
+        protected override void OnDispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _disposable.Dispose();
+            }
+        }
+
         public DirectoryModel Model { get; }
 
-        public ReadOnlyReactivePropertySlim<string> Name { get; }
+        public ReadOnlyReactivePropertySlim<string?> Name { get; }
         public ReadOnlyReactiveCollection<DirectoryViewModel> Children { get; }
 
         public override bool TryAdd(object value)
@@ -37,29 +40,6 @@ namespace Lxna.Gui.Desktop.Core.Contents
         public override bool TryRemove(object value)
         {
             throw new NotImplementedException();
-        }
-
-        public OmniAddress GetAddress()
-        {
-            var parent = this.Parent as DirectoryViewModel;
-
-            if (parent is null)
-            {
-                return this.Model.Name;
-            }
-            else
-            {
-                var parentAddress = parent.GetAddress();
-                return OmniAddress.Combine(parentAddress, this.Model.Name);
-            }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _disposable.Dispose();
-            }
         }
     }
 }

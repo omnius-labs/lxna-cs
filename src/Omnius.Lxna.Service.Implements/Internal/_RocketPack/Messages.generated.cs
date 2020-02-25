@@ -6,13 +6,13 @@ namespace Omnius.Lxna.Service.Internal
 {
     internal sealed partial class ThumbnailEntity : global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailEntity>
     {
-        public static global::Omnius.Core.Serialization.RocketPack.IRocketPackFormatter<ThumbnailEntity> Formatter { get; }
-        public static ThumbnailEntity Empty { get; }
+        public static global::Omnius.Core.Serialization.RocketPack.IRocketPackFormatter<ThumbnailEntity> Formatter => global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailEntity>.Formatter;
+        public static ThumbnailEntity Empty => global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailEntity>.Empty;
 
         static ThumbnailEntity()
         {
-            ThumbnailEntity.Formatter = new ___CustomFormatter();
-            ThumbnailEntity.Empty = new ThumbnailEntity(ThumbnailMetadata.Empty, global::System.Array.Empty<ThumbnailContent>());
+            global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailEntity>.Formatter = new ___CustomFormatter();
+            global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailEntity>.Empty = new ThumbnailEntity(ThumbnailMetadata.Empty, global::System.Array.Empty<ThumbnailContent>());
         }
 
         private readonly global::System.Lazy<int> ___hashCode;

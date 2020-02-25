@@ -1,23 +1,23 @@
-﻿using System;
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Logging.Serilog;
-using Lxna.Gui.Desktop.Windows.Main;
+using Omnius.Lxna.Ui.Desktop.Windows.Main;
 
-namespace Lxna.Gui.Desktop
+namespace Omnius.Lxna.Ui.Desktop
 {
     class Program
     {
         static void Main(string[] args)
         {
-            BuildAvaloniaApp().Start<MainWindow>();
+            var builder = BuildAvaloniaApp();
+            builder.StartWithClassicDesktopLifetime(args);
         }
 
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .UseSkia()
-                .UseDataGrid()
                 .LogToDebug();
     }
 }

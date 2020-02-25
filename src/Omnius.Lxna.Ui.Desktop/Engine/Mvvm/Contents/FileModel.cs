@@ -6,21 +6,21 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Avalonia.Media.Imaging;
-using Lxna.Messages;
-using Omnix.Avalonia.Models.Primitives;
+using Omnius.Core.Avalonia.Models.Primitives;
+using Omnius.Core.Network;
 
 namespace Lxna.Gui.Desktop.Models
 {
     sealed class FileModel : BindableBase
     {
-        public FileModel(LxnaContentId contentId)
+        public FileModel(OmniPath path)
         {
-            this.ContentId = contentId;
+            this.Path = path;
 
-            this.Name = this.ContentId.Name;
+            this.Name = this.Path.Decompose().LastOrDefault();
         }
 
-        public LxnaContentId ContentId { get; }
+        public OmniPath Path{ get; }
 
         private string _name = string.Empty;
         public string Name
