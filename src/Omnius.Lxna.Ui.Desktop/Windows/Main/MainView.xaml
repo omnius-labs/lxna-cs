@@ -5,7 +5,8 @@
         xmlns:local="clr-namespace:Lxna.Gui.Desktop.Windows.Avalonia.Main"
         xmlns:controls="clr-namespace:Omnix.Avalonia.Controls;assembly=Omnix.Avalonia"
         xmlns:presenters="clr-namespace:Omnix.Avalonia.Controls.Presenters;assembly=Omnix.Avalonia"
-        Title="Lxna.Gui.Desktop"
+        x:Class="Omnius.Lxna.Ui.Desktop.Windows.Main.MainView"
+        Title="MainView"
         Height="300"
         Width="500">
     <Grid ColumnDefinitions="Auto,*">
@@ -34,7 +35,7 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical" Width="256" Height="256" >
-                        <Image Source="{Binding Thumbnail}"/>
+                        <Image Source="{Binding Thumbnail.Value}"/>
                         <TextBlock Text="{Binding Name.Value}" />
                     </StackPanel>
                 </DataTemplate>

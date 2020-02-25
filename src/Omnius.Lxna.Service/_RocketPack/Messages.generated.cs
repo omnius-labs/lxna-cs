@@ -16,13 +16,13 @@ namespace Omnius.Lxna.Service
 
     public sealed partial class ThumbnailMetadata : global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailMetadata>
     {
-        public static global::Omnius.Core.Serialization.RocketPack.IRocketPackFormatter<ThumbnailMetadata> Formatter { get; }
-        public static ThumbnailMetadata Empty { get; }
+        public static global::Omnius.Core.Serialization.RocketPack.IRocketPackFormatter<ThumbnailMetadata> Formatter => global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailMetadata>.Formatter;
+        public static ThumbnailMetadata Empty => global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailMetadata>.Empty;
 
         static ThumbnailMetadata()
         {
-            ThumbnailMetadata.Formatter = new ___CustomFormatter();
-            ThumbnailMetadata.Empty = new ThumbnailMetadata(0, global::Omnius.Core.Serialization.RocketPack.Timestamp.Zero);
+            global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailMetadata>.Formatter = new ___CustomFormatter();
+            global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailMetadata>.Empty = new ThumbnailMetadata(0, global::Omnius.Core.Serialization.RocketPack.Timestamp.Zero);
         }
 
         private readonly global::System.Lazy<int> ___hashCode;
@@ -144,13 +144,13 @@ namespace Omnius.Lxna.Service
 
     public sealed partial class ThumbnailContent : global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>
     {
-        public static global::Omnius.Core.Serialization.RocketPack.IRocketPackFormatter<ThumbnailContent> Formatter { get; }
-        public static ThumbnailContent Empty { get; }
+        public static global::Omnius.Core.Serialization.RocketPack.IRocketPackFormatter<ThumbnailContent> Formatter => global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>.Formatter;
+        public static ThumbnailContent Empty => global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>.Empty;
 
         static ThumbnailContent()
         {
-            ThumbnailContent.Formatter = new ___CustomFormatter();
-            ThumbnailContent.Empty = new ThumbnailContent(global::System.ReadOnlyMemory<byte>.Empty);
+            global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>.Formatter = new ___CustomFormatter();
+            global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>.Empty = new ThumbnailContent(global::System.ReadOnlyMemory<byte>.Empty);
         }
 
         private readonly global::System.Lazy<int> ___hashCode;

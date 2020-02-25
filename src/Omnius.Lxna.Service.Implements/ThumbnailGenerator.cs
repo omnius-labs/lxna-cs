@@ -23,10 +23,10 @@ namespace Omnius.Lxna.Service
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly string _configPath;
-        private readonly IOmniDatabaseFactory _databaseFactory;
+        private readonly ILiteStoreFactory _storeFactory;
         private readonly IBytesPool _bytesPool;
 
-        private IOmniDatabase _database;
+        private ILiteStore _liteStore;
         private readonly static HashSet<string> _pictureTypeExtensionList = new HashSet<string>() { ".jpg", ".jpeg", ".png", ".gif" };
         private readonly static HashSet<string> _videoTypeExtensionList = new HashSet<string>() { ".mp4", ".avi" };
         private readonly static Base16 _base16 = new Base16(ConvertStringCase.Lower);
@@ -35,9 +35,9 @@ namespace Omnius.Lxna.Service
 
         internal sealed class ThumbnailGeneratorFactory : IThumbnailGeneratorFactory
         {
-            public async ValueTask<IThumbnailGenerator> CreateAsync(string configPath, IOmniDatabaseFactory databaseFactory, IBytesPool bytesPool)
+            public async ValueTask<IThumbnailGenerator> CreateAsync(string configPath, ILiteStoreFactory liteStoreFactory, IBytesPool bytesPool)
             {
-                var result = new ThumbnailGenerator(configPath, databaseFactory, bytesPool);
+                var result = new ThumbnailGenerator(configPath, liteStoreFactory, bytesPool);
                 await result.InitAsync();
 
                 return result;
@@ -46,21 +46,21 @@ namespace Omnius.Lxna.Service
 
         public static IThumbnailGeneratorFactory Factory { get; } = new ThumbnailGeneratorFactory();
 
-        internal ThumbnailGenerator(string configPath, IOmniDatabaseFactory databaseFactory, IBytesPool bytesPool)
+        internal ThumbnailGenerator(string configPath, ILiteStoreFactory storeFactory, IBytesPool bytesPool)
         {
             _configPath = configPath;
-            _databaseFactory = databaseFactory;
+            _storeFactory = storeFactory;
             _bytesPool = bytesPool;
         }
 
         internal async ValueTask InitAsync()
         {
-            _database = await _databaseFactory.CreateAsync(_configPath, _bytesPool);
+            _liteStore = await _storeFactory.CreateAsync(_configPath, _bytesPool);
         }
 
         protected override async ValueTask OnDisposeAsync()
         {
-            await _database.DisposeAsync();
+            await _liteStore.DisposeAsync();
         }
 
         private static string ResizeTypeToString(ThumbnailResizeType resizeType)
@@ -82,101 +82,100 @@ namespace Omnius.Lxna.Service
             };
         }
 
-        private async ValueTask<ThumbnailGeneratorResult> GetPictureThumnailAsync(OmniPath omniPath, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken cancellationToken = default)
+        private async ValueTask<ThumbnailGeneratorGetResult> GetPictureThumnailAsync(OmniPath omniPath, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken cancellationToken = default)
         {
             if (!OmniPath.Windows.TryDecoding(omniPath, out var path))
             {
-                return new ThumbnailGeneratorResult(ThumbnailGeneratorResultStatus.Failed);
+                return new ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus.Failed);
             }
 
             if (!_pictureTypeExtensionList.Contains(Path.GetExtension(path).ToLower()))
             {
-                return new ThumbnailGeneratorResult(ThumbnailGeneratorResultStatus.Failed);
+                return new ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus.Failed);
             }
 
             var fullPath = Path.GetFullPath(path);
             var fileInfo = new FileInfo(fullPath);
 
-            var databaseKey = $"/picture/v1_{FormatTypeToString(formatType)}_{width}x{height}_{ResizeTypeToString(resizeType)}/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/";
-            var entry = await _database.ReadAsync<ThumbnailEntity>(databaseKey, cancellationToken);
+            var storePath = $"/v1/picture/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{width}x{height}_{ResizeTypeToString(resizeType)}.{FormatTypeToString(formatType)}";
+            var entry = await _liteStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken);
 
-            bool changed = ((ulong)fileInfo.Length != entry.Metadata.FileLength
-                || Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc) != entry.Metadata.FileLastWriteTime);
-
-            if (!changed)
+            if (entry != ThumbnailEntity.Empty)
             {
-                return new ThumbnailGeneratorResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Metadata, entry.Contents);
-            }
-            else
-            {
-                try
+                if ((ulong)fileInfo.Length == entry.Metadata.FileLength
+                    && Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc) == entry.Metadata.FileLastWriteTime)
                 {
-                    using (var image = Image.Load(fullPath))
+                    return new ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus.Succeeded, entry.Metadata, entry.Contents);
+                }
+            }
+
+            try
+            {
+                using (var image = Image.Load(fullPath))
+                {
+                    image.Mutate(x =>
                     {
-                        image.Mutate(x =>
+                        var resizeOptions = new ResizeOptions();
+                        resizeOptions.Position = AnchorPositionMode.Center;
+                        resizeOptions.Size = new SixLabors.Primitives.Size(width, height);
+                        resizeOptions.Mode = resizeType switch
                         {
-                            var resizeOptions = new ResizeOptions();
-                            resizeOptions.Position = AnchorPositionMode.Center;
-                            resizeOptions.Size = new SixLabors.Primitives.Size(width, height);
-                            resizeOptions.Mode = resizeType switch
-                            {
-                                ThumbnailResizeType.Pad => ResizeMode.Pad,
-                                ThumbnailResizeType.Crop => ResizeMode.Crop,
-                                _ => throw new NotSupportedException(),
-                            };
+                            ThumbnailResizeType.Pad => ResizeMode.Pad,
+                            ThumbnailResizeType.Crop => ResizeMode.Crop,
+                            _ => throw new NotSupportedException(),
+                        };
 
-                            x.Resize(resizeOptions);
-                        });
+                        x.Resize(resizeOptions);
+                    });
 
-                        using (var stream = new RecyclableMemoryStream(_bytesPool))
+                    using (var stream = new RecyclableMemoryStream(_bytesPool))
+                    {
+                        var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
+                        image.Save(stream, encoder);
+
+                        using (var memoryOwner = stream.ToMemoryOwner())
                         {
-                            var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
-                            image.Save(stream, encoder);
+                            var metadata = new ThumbnailMetadata((ulong)fileInfo.Length, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc));
+                            var content = new ThumbnailContent(memoryOwner.Memory);
+                            entry = new ThumbnailEntity(metadata, new[] { content });
 
-                            using (var memoryOwner = stream.ToMemoryOwner())
-                            {
-                                var metadata = new ThumbnailMetadata((ulong)fileInfo.Length, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc));
-                                var content = new ThumbnailContent(memoryOwner.Memory);
-                                entry = new ThumbnailEntity(metadata, new[] { content });
-
-                                await _database.WriteAsync(databaseKey, entry, cancellationToken);
-                            }
+                            await _liteStore.WriteAsync(storePath, entry, cancellationToken);
                         }
                     }
+                }
 
-                    return new ThumbnailGeneratorResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Metadata, entry.Contents);
-                }
-                catch (NotSupportedException e)
-                {
-                    _logger.Info(e);
-                }
+                return new ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus.Succeeded, entry.Metadata, entry.Contents);
+            }
+            catch (NotSupportedException e)
+            {
+                _logger.Info(e);
             }
 
-            return new ThumbnailGeneratorResult(ThumbnailGeneratorResultStatus.Failed);
+            return new ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus.Failed);
         }
 
-        private async ValueTask<ThumbnailGeneratorResult> GetVideoThumnailAsync(OmniPath omniPath, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken cancellationToken = default)
+        private async ValueTask<ThumbnailGeneratorGetResult> GetVideoThumnailAsync(OmniPath omniPath, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken cancellationToken = default)
         {
             if (!OmniPath.Windows.TryDecoding(omniPath, out var path))
             {
-                return new ThumbnailGeneratorResult(ThumbnailGeneratorResultStatus.Failed);
+                return new ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus.Failed);
             }
 
             if (!_videoTypeExtensionList.Contains(Path.GetExtension(path).ToLower()))
             {
-                return new ThumbnailGeneratorResult(ThumbnailGeneratorResultStatus.Failed);
+                return new ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus.Failed);
             }
 
             // TODO
-            return new ThumbnailGeneratorResult(ThumbnailGeneratorResultStatus.Failed);
+            return new ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus.Failed);
         }
 
-        public async ValueTask<ThumbnailGeneratorResult> GetThumnailAsync(OmniPath omniPath, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken cancellationToken = default)
+        public async ValueTask<ThumbnailGeneratorGetResult> GetAsync(OmniPath omniPath, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken cancellationToken = default)
         {
             {
                 var result = await this.GetPictureThumnailAsync(omniPath, width, height, formatType, resizeType, cancellationToken);
 
-                if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
+                if (result.Status == ThumbnailGeneratorGetResultStatus.Succeeded)
                 {
                     return result;
                 }
@@ -185,13 +184,13 @@ namespace Omnius.Lxna.Service
             {
                 var result = await this.GetVideoThumnailAsync(omniPath, width, height, formatType, resizeType, cancellationToken);
 
-                if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
+                if (result.Status == ThumbnailGeneratorGetResultStatus.Succeeded)
                 {
                     return result;
                 }
             }
 
-            return new ThumbnailGeneratorResult(ThumbnailGeneratorResultStatus.Failed);
+            return new ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus.Failed);
         }
     }
 }

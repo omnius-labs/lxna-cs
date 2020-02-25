@@ -29,4 +29,9 @@
     <ProjectReference Include="..\Omnius.Lxna.Service.Implements\Omnius.Lxna.Service.Implements.csproj" />
     <ProjectReference Include="..\Omnius.Lxna.Service\Omnius.Lxna.Service.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Windows\Main\MainView.xaml.cs">
+      <DependentUpon>MainView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>
