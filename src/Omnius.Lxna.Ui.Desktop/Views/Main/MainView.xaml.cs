@@ -12,7 +12,7 @@ using Omnius.Core;
 using Omnius.Core.Data;
 using Omnius.Lxna.Service;
 
-namespace Omnius.Lxna.Ui.Desktop.Windows.Main
+namespace Omnius.Lxna.Ui.Desktop.Views.Main
 {
     public class MainView : Window
     {
@@ -20,7 +20,7 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Main
         {
             var configPath = Path.Combine(Directory.GetCurrentDirectory(), "config");
             Directory.CreateDirectory(configPath);
-            var thumbnailGenerator = ThumbnailGenerator.Factory.CreateAsync(configPath, LiteStore.Factory, BytesPool.Shared).Result;
+            var thumbnailGenerator = ThumbnailGenerator.Factory.CreateAsync(configPath, ObjectStore.Factory, BytesPool.Shared).Result;
             this.DataContext = new MainViewModel(thumbnailGenerator);
 
             InitializeComponent();

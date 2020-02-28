@@ -30,7 +30,7 @@
     <ProjectReference Include="..\Omnius.Lxna.Service\Omnius.Lxna.Service.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Windows\Main\MainView.xaml.cs">
+    <Compile Update="Views\Main\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>

@@ -8,12 +8,12 @@ using Omnius.Core.Serialization.RocketPack;
 
 namespace Omnius.Lxna.Service
 {
-    public interface ILiteStoreFactory
+    public interface IObjectStoreFactory
     {
-        ValueTask<ILiteStore> CreateAsync(string configPath, IBytesPool bytesPool);
+        ValueTask<IObjectStore> CreateAsync(string configPath, IBytesPool bytesPool);
     }
 
-    public interface ILiteStore : IAsyncDisposable
+    public interface IObjectStore : IAsyncDisposable
     {
         IAsyncEnumerable<string> GetKeysAsync(CancellationToken cancellationToken = default);
         ValueTask DeleteKeyAsync(string key, CancellationToken cancellationToken = default);
