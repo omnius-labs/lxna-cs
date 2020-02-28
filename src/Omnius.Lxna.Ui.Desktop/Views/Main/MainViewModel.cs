@@ -18,7 +18,7 @@ using Omnius.Lxna.Service;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Omnius.Lxna.Ui.Desktop.Windows.Main
+namespace Omnius.Lxna.Ui.Desktop.Views.Main
 {
     sealed class MainViewModel : AsyncDisposableBase
     {
@@ -71,27 +71,29 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Main
             {
                 while (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
+                    await Task.Delay(1000, _cancellationTokenSource.Token);
+
                     var list = new List<FileViewModel>();
                     list.AddRange(this.CurrentFiles);
 
                     foreach (var viewModel in list)
                     {
-                        OmniPath.Windows.TryEncoding(viewModel.Model.Path, out var omniPath);
-                        var result = await _thumbnailGenerator.GetAsync(omniPath, 256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Crop);
+                        if (viewModel.Model.ThumbnailContents != null)
+                        {
+                            await Dispatcher.UIThread.InvokeAsync(() =>
+                            {
+                                viewModel.Model.RotateThumbnail();
+                            });
 
-                        var image = result.Contents.FirstOrDefault()?.Image;
-                        if (image == null) continue;
+                            continue;
+                        }
+
+                        OmniPath.Windows.TryEncoding(viewModel.Model.Path, out var omniPath);
+                        var result = await _thumbnailGenerator.GetThumbnailAsync(omniPath, 256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Crop);
 
                         await Dispatcher.UIThread.InvokeAsync(() =>
                         {
-                            using (var memoryStream = new MemoryStream())
-                            {
-                                memoryStream.Write(image.Value.Span);
-                                memoryStream.Seek(0, SeekOrigin.Begin);
-
-                                var bitmap = new Bitmap(memoryStream);
-                                viewModel.Model.Thumbnail = bitmap;
-                            }
+                            viewModel.Model.SetThumbnailContents(result.Contents);
                         });
                     }
                 }

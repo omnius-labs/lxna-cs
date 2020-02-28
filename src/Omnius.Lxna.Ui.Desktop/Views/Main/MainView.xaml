@@ -5,7 +5,7 @@
         xmlns:local="clr-namespace:Lxna.Gui.Desktop.Windows.Avalonia.Main"
         xmlns:controls="clr-namespace:Omnix.Avalonia.Controls;assembly=Omnix.Avalonia"
         xmlns:presenters="clr-namespace:Omnix.Avalonia.Controls.Presenters;assembly=Omnix.Avalonia"
-        x:Class="Omnius.Lxna.Ui.Desktop.Windows.Main.MainView"
+        x:Class="Omnius.Lxna.Ui.Desktop.Views.Main.MainView"
         Title="MainView"
         Height="300"
         Width="500">

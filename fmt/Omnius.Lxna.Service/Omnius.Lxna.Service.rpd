@@ -18,5 +18,5 @@ table ThumbnailMetadata {
 
 table ThumbnailContent {
     [Recyclable]
-    Image: bytes(capacity: 33554432) = 0,
+    Image: bytes(capacity: 33554432, recyclable: true) = 0,
 }

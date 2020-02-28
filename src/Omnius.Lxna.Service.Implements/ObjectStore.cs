@@ -17,7 +17,7 @@ using Omnius.Core.Serialization.RocketPack.Helpers;
 
 namespace Omnius.Lxna.Service
 {
-    public class LiteStore : AsyncDisposableBase, ILiteStore
+    public class ObjectStore : AsyncDisposableBase, IObjectStore
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -28,20 +28,20 @@ namespace Omnius.Lxna.Service
 
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
-        internal sealed class LiteStoreFactory : ILiteStoreFactory
+        internal sealed class ObjectStoreFactory : IObjectStoreFactory
         {
-            public async ValueTask<ILiteStore> CreateAsync(string configPath, IBytesPool bytesPool)
+            public async ValueTask<IObjectStore> CreateAsync(string configPath, IBytesPool bytesPool)
             {
-                var result = new LiteStore(configPath, bytesPool);
+                var result = new ObjectStore(configPath, bytesPool);
                 await result.InitAsync();
 
                 return result;
             }
         }
 
-        public static ILiteStoreFactory Factory { get; } = new LiteStoreFactory();
+        public static IObjectStoreFactory Factory { get; } = new ObjectStoreFactory();
 
-        internal LiteStore(string configPath, IBytesPool bytesPool)
+        internal ObjectStore(string configPath, IBytesPool bytesPool)
         {
             _configPath = configPath;
             _bytesPool = bytesPool;

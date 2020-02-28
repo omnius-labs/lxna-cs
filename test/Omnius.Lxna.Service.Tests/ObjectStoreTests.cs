@@ -6,18 +6,18 @@ using Xunit;
 
 namespace Omnius.Lxna.Service
 {
-    public class LiteStoreTests
+    public class ObjectStoreTests
     {
         [Fact]
         public async ValueTask ReadWriteTest()
         {
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "LiteStoreTests_ReadWriteTest");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "ObjectStoreTests_ReadWriteTest");
             if (Directory.Exists(path))
             {
                 Directory.Delete(path, true);
             }
 
-            var liteStore = await LiteStore.Factory.CreateAsync(path, BytesPool.Shared);
+            var objectStore = await ObjectStore.Factory.CreateAsync(path, BytesPool.Shared);
         }
     }
 }

@@ -20,25 +20,23 @@ namespace Omnius.Lxna.Service
 
     public readonly struct ThumbnailGeneratorGetResult
     {
-        public ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus status, ThumbnailMetadata? metadata = null, IEnumerable<ThumbnailContent>? contents = null)
+        public ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus status, IEnumerable<ThumbnailContent>? contents = null)
         {
             this.Status = status;
-            this.Metadata = metadata;
             this.Contents = new ReadOnlyListSlim<ThumbnailContent>(contents?.ToArray() ?? Array.Empty<ThumbnailContent>());
         }
 
         public ThumbnailGeneratorGetResultStatus Status { get; }
-        public ThumbnailMetadata? Metadata { get; }
         public ReadOnlyListSlim<ThumbnailContent> Contents { get; }
     }
 
     public interface IThumbnailGeneratorFactory
     {
-        ValueTask<IThumbnailGenerator> CreateAsync(string configPath, ILiteStoreFactory liteStoreFactory, IBytesPool bytesPool);
+        ValueTask<IThumbnailGenerator> CreateAsync(string configPath, IObjectStoreFactory objectStoreFactory, IBytesPool bytesPool);
     }
 
     public interface IThumbnailGenerator : IAsyncDisposable
     {
-        ValueTask<ThumbnailGeneratorGetResult> GetAsync(OmniPath omniPath, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken cancellationToken = default);
+        ValueTask<ThumbnailGeneratorGetResult> GetThumbnailAsync(OmniPath omniPath, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken cancellationToken = default);
     }
 }

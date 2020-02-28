@@ -142,7 +142,7 @@ namespace Omnius.Lxna.Service
         }
     }
 
-    public sealed partial class ThumbnailContent : global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>
+    public sealed partial class ThumbnailContent : global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>, global::System.IDisposable
     {
         public static global::Omnius.Core.Serialization.RocketPack.IRocketPackFormatter<ThumbnailContent> Formatter => global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>.Formatter;
         public static ThumbnailContent Empty => global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>.Empty;
@@ -150,28 +150,30 @@ namespace Omnius.Lxna.Service
         static ThumbnailContent()
         {
             global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>.Formatter = new ___CustomFormatter();
-            global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>.Empty = new ThumbnailContent(global::System.ReadOnlyMemory<byte>.Empty);
+            global::Omnius.Core.Serialization.RocketPack.IRocketPackObject<ThumbnailContent>.Empty = new ThumbnailContent(global::Omnius.Core.SimpleMemoryOwner<byte>.Empty);
         }
 
         private readonly global::System.Lazy<int> ___hashCode;
 
         public static readonly int MaxImageLength = 33554432;
 
-        public ThumbnailContent(global::System.ReadOnlyMemory<byte> image)
+        public ThumbnailContent(global::System.Buffers.IMemoryOwner<byte> image)
         {
-            if (image.Length > 33554432) throw new global::System.ArgumentOutOfRangeException("image");
+            if (image is null) throw new global::System.ArgumentNullException("image");
+            if (image.Memory.Length > 33554432) throw new global::System.ArgumentOutOfRangeException("image");
 
-            this.Image = image;
+            _image = image;
 
             ___hashCode = new global::System.Lazy<int>(() =>
             {
                 var ___h = new global::System.HashCode();
-                if (!image.IsEmpty) ___h.Add(global::Omnius.Core.Helpers.ObjectHelper.GetHashCode(image.Span));
+                if (!image.Memory.IsEmpty) ___h.Add(global::Omnius.Core.Helpers.ObjectHelper.GetHashCode(image.Memory.Span));
                 return ___h.ToHashCode();
             });
         }
 
-        public global::System.ReadOnlyMemory<byte> Image { get; }
+        private readonly global::System.Buffers.IMemoryOwner<byte> _image;
+        public global::System.ReadOnlyMemory<byte> Image => _image.Memory;
 
         public static ThumbnailContent Import(global::System.Buffers.ReadOnlySequence<byte> sequence, global::Omnius.Core.IBytesPool bytesPool)
         {
@@ -207,6 +209,11 @@ namespace Omnius.Lxna.Service
         }
         public override int GetHashCode() => ___hashCode.Value;
 
+        public void Dispose()
+        {
+            _image?.Dispose();
+        }
+
         private sealed class ___CustomFormatter : global::Omnius.Core.Serialization.RocketPack.IRocketPackFormatter<ThumbnailContent>
         {
             public void Serialize(ref global::Omnius.Core.Serialization.RocketPack.RocketPackWriter w, in ThumbnailContent value, in int rank)
@@ -235,7 +242,7 @@ namespace Omnius.Lxna.Service
 
                 uint propertyCount = r.GetUInt32();
 
-                global::System.ReadOnlyMemory<byte> p_image = global::System.ReadOnlyMemory<byte>.Empty;
+                global::System.Buffers.IMemoryOwner<byte> p_image = global::Omnius.Core.SimpleMemoryOwner<byte>.Empty;
 
                 for (; propertyCount > 0; propertyCount--)
                 {
@@ -244,7 +251,7 @@ namespace Omnius.Lxna.Service
                     {
                         case 0:
                             {
-                                p_image = r.GetMemory(33554432);
+                                p_image = r.GetRecyclableMemory(33554432);
                                 break;
                             }
                     }
