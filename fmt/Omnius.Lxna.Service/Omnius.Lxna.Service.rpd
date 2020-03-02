@@ -11,12 +11,6 @@ enum ThumbnailFormatType : uint8 {
     Png = 0,
 }
 
-table ThumbnailMetadata {
-    FileLength: uint64 = 0,
-    FileLastWriteTime: timestamp = 1,
-}
-
 table ThumbnailContent {
-    [Recyclable]
     Image: bytes(capacity: 33554432, recyclable: true) = 0,
 }

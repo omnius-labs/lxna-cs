@@ -10,9 +10,14 @@
         Height="300"
         Width="500">
     <Grid ColumnDefinitions="Auto,*">
-        <TreeView Name="_treeView" Grid.Column="0" Width="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <TreeView Name="TreeView" Grid.Column="0" Width="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" 
                   Items="{Binding RootDirectories}" SelectedItem="{Binding SelectedDirectory.Value}" >
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}"/>
+                </Style>
+            </TreeView.Styles>
             <TreeView.ItemTemplate>
                 <TreeDataTemplate ItemsSource="{Binding Children}">
                     <StackPanel Orientation="Horizontal">
@@ -22,24 +27,20 @@
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
-        <ListBox Name="ListBox" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 Items="{Binding CurrentFiles}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                            Height="{Binding $parent[ListBox].Bounds.Height}"
-                            Width="{Binding $parent[ListBox].Bounds.Width}"
-                            Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Vertical" Width="256" Height="256" >
-                        <Image Source="{Binding Thumbnail.Value}"/>
-                        <TextBlock Text="{Binding Name.Value}" />
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <ScrollViewer Grid.Column="1"  HorizontalScrollBarVisibility="Disabled" >
+            <ItemsRepeater x:Name="ItemsRepeater" HorizontalAlignment="Stretch" Items="{Binding CurrentItems}" >
+                <ItemsRepeater.Layout>
+                    <UniformGridLayout MinItemWidth="256" MinItemHeight="256"  />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical" Width="256" Height="256" >
+                            <Image Source="{Binding Thumbnail.Value}"/>
+                            <TextBlock Text="{Binding Name.Value}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </ScrollViewer>   
     </Grid>
 </Window>
