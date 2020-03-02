@@ -16,17 +16,40 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 {
     public class MainView : Window
     {
+        private MainViewModel _viewModel;
+
+        public MainView(MainViewModel viewModel) : this()
+        {
+            _viewModel = viewModel;
+            this.DataContext = _viewModel;
+        }
+
         public MainView()
         {
-            var configPath = Path.Combine(Directory.GetCurrentDirectory(), "config");
-            Directory.CreateDirectory(configPath);
-            var thumbnailGenerator = ThumbnailGenerator.Factory.CreateAsync(configPath, ObjectStore.Factory, BytesPool.Shared).Result;
-            this.DataContext = new MainViewModel(thumbnailGenerator);
-
             InitializeComponent();
 #if DEBUG
             this.AttachDevTools();
 #endif
+            
+            var itemsRepeater = this.FindControl<ItemsRepeater>("ItemsRepeater");
+            itemsRepeater.ElementPrepared += this.ItemsRepeater_ElementPrepared;
+            itemsRepeater.ElementIndexChanged += this.ItemsRepeater_ElementIndexChanged;            
+            itemsRepeater.ElementClearing += this.ItemsRepeater_ElementClearing;
+        }
+
+        private void ItemsRepeater_ElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
+        {
+            _viewModel.NotifyItemPrepared(e.Element.DataContext, e.Index);
+        }
+
+        private void ItemsRepeater_ElementIndexChanged(object? sender, ItemsRepeaterElementIndexChangedEventArgs e)
+        {
+            _viewModel.NotifyItemIndexChanged(e.Element.DataContext, e.OldIndex, e.NewIndex);
+        }
+
+        private void ItemsRepeater_ElementClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
+        {
+            _viewModel.NotifyItemClearing(e.Element.DataContext);
         }
 
         private void InitializeComponent()

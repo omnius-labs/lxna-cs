@@ -8,7 +8,7 @@ using Reactive.Bindings.Extensions;
 
 namespace Lxna.Gui.Desktop.Core.Contents
 {
-    sealed class FileViewModel : DisposableBase
+    public  sealed class FileViewModel : DisposableBase
     {
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 

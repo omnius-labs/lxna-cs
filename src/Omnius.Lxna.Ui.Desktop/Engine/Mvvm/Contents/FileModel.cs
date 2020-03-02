@@ -5,7 +5,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using Omnius.Core.Avalonia.Models.Primitives;
 using Omnius.Core.Collections;
 using Omnius.Core.Network;
@@ -13,7 +15,7 @@ using Omnius.Lxna.Service;
 
 namespace Lxna.Gui.Desktop.Models
 {
-    sealed class FileModel : BindableBase
+    public sealed class FileModel : BindableBase, IDisposable
     {
         public FileModel(OmniPath path)
         {
@@ -23,7 +25,7 @@ namespace Lxna.Gui.Desktop.Models
         }
 
         public OmniPath Path { get; }
-        
+
         private string _name = string.Empty;
         public string Name
         {
@@ -37,37 +39,69 @@ namespace Lxna.Gui.Desktop.Models
             get => _thumbnail;
             private set => this.SetProperty(ref _thumbnail, value);
         }
-        
-        public ReadOnlyListSlim<ThumbnailContent> ThumbnailContents { get; private set; }
 
-        public void SetThumbnailContents(IEnumerable<ThumbnailContent> thumbnailContents)
+        public ReadOnlyListSlim<Bitmap> Thumbnails { get; private set; } = ReadOnlyListSlim<Bitmap>.Empty;
+
+        public async ValueTask SetThumbnailsAsync(IEnumerable<ThumbnailContent> thumbnailContents)
         {
-            this.ThumbnailContents = new ReadOnlyListSlim<ThumbnailContent>(thumbnailContents.ToArray());
+            var oldThumbnails = this.Thumbnails;
+
+            var results = new List<Bitmap>();
+
+            foreach (var content in thumbnailContents)
+            {
+                using var memoryStream = new MemoryStream();
+                memoryStream.Write(content.Image.Span);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+
+                var bitmap = new Bitmap(memoryStream);
+
+                results.Add(bitmap);
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                this.Thumbnails = new ReadOnlyListSlim<Bitmap>(results.ToArray());
+                _rotateOffset = 0;
+                this.Thumbnail = results[0];
+            });
+
+            foreach (var thumbnail in oldThumbnails)
+            {
+                thumbnail.Dispose();
+            }
         }
 
         private int _rotateOffset = 0;
 
-        public void RotateThumbnail()
+        public async ValueTask RotateThumbnailAsync()
         {
-            var tmp = _rotateOffset;
-            tmp++;
-            tmp %= this.ThumbnailContents.Count;
-
-            if(this.Thumbnail != null && tmp == _rotateOffset)
+            if (this.Thumbnails.Count <= 1)
             {
                 return;
             }
-            _rotateOffset = tmp;
 
-            this.Thumbnail?.Dispose();
-
-            using (var memoryStream = new MemoryStream())
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                memoryStream.Write(this.ThumbnailContents[_rotateOffset].Image.Span);
-                memoryStream.Seek(0, SeekOrigin.Begin);
+                var thumbnails = this.Thumbnails;
 
-                var bitmap = new Bitmap(memoryStream);
-                this.Thumbnail = bitmap;
+                var offset = _rotateOffset;
+                offset++;
+                offset %= thumbnails.Count;
+
+                if (offset != _rotateOffset)
+                {
+                    this.Thumbnail = thumbnails[offset];
+                    _rotateOffset = offset;
+                }
+            });
+        }
+
+        public void Dispose()
+        {
+            foreach (var thumbnail in this.Thumbnails)
+            {
+                thumbnail.Dispose();
             }
         }
     }
