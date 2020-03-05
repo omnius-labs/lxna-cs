@@ -8,11 +8,11 @@ using Reactive.Bindings.Extensions;
 
 namespace Lxna.Gui.Desktop.Core.Contents
 {
-    public  sealed class FileViewModel : DisposableBase
+    public  sealed class ItemViewModel : DisposableBase
     {
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
-        public FileViewModel(FileModel model)
+        public ItemViewModel(ItemModel model)
         {
             this.Model = model;
             this.Name = this.Model.ObserveProperty(n => n.Name).ToReadOnlyReactivePropertySlim().AddTo(_disposable);
@@ -27,7 +27,7 @@ namespace Lxna.Gui.Desktop.Core.Contents
             }
         }
 
-        public FileModel Model { get; }
+        public ItemModel Model { get; }
 
         public ReadOnlyReactivePropertySlim<string?> Name { get; }
         public ReadOnlyReactivePropertySlim<Bitmap?> Thumbnail { get; }

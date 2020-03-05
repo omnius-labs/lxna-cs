@@ -28,7 +28,7 @@
             </TreeView.ItemTemplate>
         </TreeView>
         <ScrollViewer Grid.Column="1"  HorizontalScrollBarVisibility="Disabled" >
-            <ItemsRepeater x:Name="ItemsRepeater" HorizontalAlignment="Stretch" Items="{Binding CurrentItems}" >
+            <ItemsRepeater x:Name="ItemsRepeater" HorizontalAlignment="Stretch" Items="{Binding CurrentItems}">
                 <ItemsRepeater.Layout>
                     <UniformGridLayout MinItemWidth="256" MinItemHeight="256"  />
                 </ItemsRepeater.Layout>

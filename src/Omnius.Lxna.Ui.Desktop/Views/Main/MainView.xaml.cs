@@ -30,11 +30,12 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 #if DEBUG
             this.AttachDevTools();
 #endif
-            
+
             var itemsRepeater = this.FindControl<ItemsRepeater>("ItemsRepeater");
             itemsRepeater.ElementPrepared += this.ItemsRepeater_ElementPrepared;
-            itemsRepeater.ElementIndexChanged += this.ItemsRepeater_ElementIndexChanged;            
+            itemsRepeater.ElementIndexChanged += this.ItemsRepeater_ElementIndexChanged;
             itemsRepeater.ElementClearing += this.ItemsRepeater_ElementClearing;
+            itemsRepeater.Tapped += this.ItemsRepeater_Tapped;
         }
 
         private void ItemsRepeater_ElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
@@ -50,6 +51,11 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
         private void ItemsRepeater_ElementClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
         {
             _viewModel.NotifyItemClearing(e.Element.DataContext);
+        }
+
+        private void ItemsRepeater_Tapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+
         }
 
         private void InitializeComponent()

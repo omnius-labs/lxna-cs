@@ -11,22 +11,40 @@ using Omnius.Core.Network;
 
 namespace Omnius.Lxna.Service
 {
-    public enum ThumbnailGeneratorGetResultStatus
+    public readonly struct ThumbnailGeneratorGetThumbnailOptions
+    {
+        public ThumbnailGeneratorGetThumbnailOptions(int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, TimeSpan interval)
+        {
+            this.Width = width;
+            this.Height = height;
+            this.FormatType = formatType;
+            this.ResizeType = resizeType;
+            this.Interval = interval;
+        }
+
+        public int Width { get; }
+        public int Height { get; }
+        public ThumbnailFormatType FormatType { get; }
+        public ThumbnailResizeType ResizeType { get; }
+        public TimeSpan Interval { get; }
+    }
+
+    public enum ThumbnailGeneratorResultStatus
     {
         Unknown,
         Succeeded,
         Failed,
     }
 
-    public readonly struct ThumbnailGeneratorGetResult
+    public readonly struct ThumbnailGeneratorGetThumbnailResult
     {
-        public ThumbnailGeneratorGetResult(ThumbnailGeneratorGetResultStatus status, IEnumerable<ThumbnailContent>? contents = null)
+        public ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus status, IEnumerable<ThumbnailContent>? contents = null)
         {
             this.Status = status;
             this.Contents = new ReadOnlyListSlim<ThumbnailContent>(contents?.ToArray() ?? Array.Empty<ThumbnailContent>());
         }
 
-        public ThumbnailGeneratorGetResultStatus Status { get; }
+        public ThumbnailGeneratorResultStatus Status { get; }
         public ReadOnlyListSlim<ThumbnailContent> Contents { get; }
     }
 
@@ -37,6 +55,6 @@ namespace Omnius.Lxna.Service
 
     public interface IThumbnailGenerator : IAsyncDisposable
     {
-        ValueTask<ThumbnailGeneratorGetResult> GetThumbnailAsync(OmniPath omniPath, int width, int height, ThumbnailFormatType formatType, ThumbnailResizeType resizeType, CancellationToken cancellationToken = default);
+        ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, CancellationToken cancellationToken = default);
     }
 }

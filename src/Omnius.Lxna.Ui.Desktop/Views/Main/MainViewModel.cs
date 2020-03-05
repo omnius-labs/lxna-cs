@@ -14,6 +14,7 @@ using Avalonia.Threading;
 using Lxna.Gui.Desktop.Core.Contents;
 using Lxna.Gui.Desktop.Models;
 using Omnius.Core;
+using Omnius.Core.Extensions;
 using Omnius.Core.Network;
 using Omnius.Lxna.Service;
 using Reactive.Bindings;
@@ -27,17 +28,17 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 
         private readonly IThumbnailGenerator _thumbnailGenerator;
 
-        private readonly Dictionary<object, int> _thumbnailLoadRequests = new Dictionary<object, int>();
-        private readonly object _thumbnailLoadRequestsLockObject = new object();
-
-        private readonly Task _loadTask;
-        private readonly Task _rotateTask;
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private Task? _loadTask;
+        private Task? _rotateTask;
+        private CancellationTokenSource? _cancellationTokenSource;
 
         private readonly ObservableCollection<DirectoryModel> _rootDirectoryModels = new ObservableCollection<DirectoryModel>();
-        private readonly ObservableCollection<FileModel> _currentFileModels = new ObservableCollection<FileModel>();
+        private readonly ObservableCollection<ItemModel> _currentItemModels = new ObservableCollection<ItemModel>();
+        private readonly ConcurrentDictionary<ItemViewModel, int> _shownItemViewModelMap = new ConcurrentDictionary<ItemViewModel, int>();
 
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
+
+        private readonly AsyncLock _asyncLock = new AsyncLock();
 
         public MainViewModel()
         {
@@ -51,13 +52,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
             this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(null, n)).AddTo(_disposable);
             this.SelectedDirectory = new ReactiveProperty<DirectoryViewModel>().AddTo(_disposable);
             this.SelectedDirectory.Subscribe(n => { if (n != null) { this.TreeView_SelectionChanged(n); } }).AddTo(_disposable);
-            this.CurrentItems = _currentFileModels.ToReadOnlyReactiveCollection(n => new FileViewModel(n)).AddTo(_disposable);
-
-            _loadTask = new Task(this.LoadThread);
-            _loadTask.Start();
-
-            _rotateTask= new Task(this.RotateThread);
-            _rotateTask.Start();
+            this.CurrentItems = _currentItemModels.ToReadOnlyReactiveCollection(n => new ItemViewModel(n)).AddTo(_disposable);
 
             // FIXME
             foreach (var drive in Directory.GetLogicalDrives())
@@ -74,88 +69,99 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 
         protected override async ValueTask OnDisposeAsync()
         {
-            _cancellationTokenSource.Cancel();
+            using (await _asyncLock.LockAsync())
+            {
+                _cancellationTokenSource?.Cancel();
+                if (_loadTask != null) await _loadTask;
+                if (_rotateTask != null) await _rotateTask;
 
-            await _loadTask;
-            await _rotateTask;
-
-            _disposable.Dispose();
+                _disposable.Dispose();
+            }
         }
 
         public ReadOnlyReactiveCollection<DirectoryViewModel> RootDirectories { get; }
         public ReactiveProperty<DirectoryViewModel> SelectedDirectory { get; }
-        public ReadOnlyReactiveCollection<FileViewModel> CurrentItems { get; }
+        public ReadOnlyReactiveCollection<ItemViewModel> CurrentItems { get; }
 
         public void NotifyItemPrepared(object item, int index)
         {
-            lock (_thumbnailLoadRequestsLockObject)
-            {
-                _thumbnailLoadRequests.Add(item, index);
-            }
+            _shownItemViewModelMap[(ItemViewModel)item] = index;
         }
 
-        internal void NotifyItemIndexChanged(object item, int oldIndex, int newIndex)
+        public void NotifyItemIndexChanged(object item, int oldIndex, int newIndex)
         {
-            lock (_thumbnailLoadRequestsLockObject)
-            {
-                _thumbnailLoadRequests[item] = newIndex;
-            }
+            _shownItemViewModelMap[(ItemViewModel)item] = newIndex;
         }
 
         public void NotifyItemClearing(object item)
         {
-            lock (_thumbnailLoadRequestsLockObject)
-            {
-                _thumbnailLoadRequests.Remove(item);
-            }
+            _shownItemViewModelMap.TryRemove((ItemViewModel)item, out var _);
         }
 
-        private async void LoadThread()
+        private async Task LoadThread(CancellationToken cancellationToken = default)
         {
             try
             {
-                while (!_cancellationTokenSource.Token.IsCancellationRequested)
+                var itemViewModels = new List<ItemViewModel>();
+
+                await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    await Task.Delay(100, _cancellationTokenSource.Token);
+                    itemViewModels.AddRange(this.CurrentItems);
+                });
 
-                    FileViewModel fileViewModel = null;
-
-                    lock (_thumbnailLoadRequestsLockObject)
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    if (itemViewModels.Count == 0)
                     {
-                        var tempList = _thumbnailLoadRequests.ToList();
-                        tempList.Sort((x, y) => x.Value.CompareTo(y.Value));
-                        fileViewModel = tempList
-                            .Select(n => n.Key)
-                            .OfType<FileViewModel>()
-                            .Where(n => n.Thumbnail.Value == null)
-                            .FirstOrDefault();
+                        return;
                     }
 
-                    if (fileViewModel != null)
+                    ItemViewModel targetItemViewModel;
+
                     {
-                        if (!OmniPath.Windows.TryEncoding(fileViewModel.Model.Path, out var omniPath))
+                        var tempMap = new Dictionary<ItemViewModel, int>();
+
+                        foreach (var (viewModel, index) in itemViewModels.Select((n, i) => (n, i)))
                         {
-                            continue;
+                            if (_shownItemViewModelMap.TryGetValue(viewModel, out int shownIndex))
+                            {
+                                tempMap[viewModel] = shownIndex;
+                            }
+
+                            tempMap[viewModel] = itemViewModels.Count + index;
                         }
 
-                        var result = await _thumbnailGenerator.GetThumbnailAsync(omniPath, 256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Pad);
-
-                        await fileViewModel.Model.SetThumbnailsAsync(result.Contents);
+                        var tempList = tempMap.ToList();
+                        tempList.Sort((x, y) => x.Value.CompareTo(y.Value));
+                        targetItemViewModel = tempList
+                            .Select(n => n.Key)
+                            .Where(n => n.Thumbnail.Value == null)
+                            .First();
                     }
+
+                    var options = new ThumbnailGeneratorGetThumbnailOptions(256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(10));
+                    var result = await _thumbnailGenerator.GetThumbnailAsync(targetItemViewModel.Model.Path, options, cancellationToken);
+
+                    if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
+                    {
+                        await targetItemViewModel.Model.SetThumbnailAsync(result.Contents);
+                    }
+
+                    itemViewModels.Remove(targetItemViewModel);
                 }
             }
             catch (OperationCanceledException)
             {
 
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _logger.Debug(e);
                 throw e;
             }
         }
 
-        private async void RotateThread()
+        private async Task RotateThread(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -163,20 +169,18 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
                 {
                     await Task.Delay(1000, _cancellationTokenSource.Token);
 
-                    FileViewModel[] viewModels;
+                    ItemViewModel[] viewModels;
 
-                    lock (_thumbnailLoadRequestsLockObject)
                     {
-                        var tempList = _thumbnailLoadRequests.ToList();
+                        var tempList = _shownItemViewModelMap.ToList();
                         tempList.Sort((x, y) => x.Value.CompareTo(y.Value));
                         viewModels = tempList
                             .Select(n => n.Key)
-                            .OfType<FileViewModel>()
-                            .Where(n=>n.Thumbnail.Value != null)
+                            .Where(n => n.Thumbnail.Value != null)
                             .ToArray();
                     }
 
-                    foreach(var viewModel in viewModels)
+                    foreach (var viewModel in viewModels)
                     {
                         await viewModel.Model.RotateThumbnailAsync();
                     }
@@ -198,15 +202,30 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
             this.RefreshTree(selectedDirectory);
         }
 
-        private void RefreshTree(DirectoryViewModel selectedDirectory)
+        private async void RefreshTree(DirectoryViewModel selectedDirectory)
         {
-            _currentFileModels.Clear();
+            _cancellationTokenSource?.Cancel();
+            if (_loadTask != null) await _loadTask;
+            if (_rotateTask != null) await _rotateTask;
 
-            OmniPath.Windows.TryDecoding(selectedDirectory.Model.Path, out var path);
-            foreach (var filePath in Directory.EnumerateFiles(path))
+            try
             {
-                _currentFileModels.Add(new FileModel(filePath));
+
+                _currentItemModels.Clear();
+
+                foreach (var filePath in Directory.EnumerateFiles(selectedDirectory.Model.Path.ToWindowsPath()))
+                {
+                    _currentItemModels.Add(new ItemModel(OmniPath.FromWindowsPath(filePath)));
+                }
             }
+            catch (UnauthorizedAccessException)
+            {
+
+            }
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            _loadTask = this.LoadThread(_cancellationTokenSource.Token);
+            _rotateTask = this.RotateThread(_cancellationTokenSource.Token);
         }
     }
 }

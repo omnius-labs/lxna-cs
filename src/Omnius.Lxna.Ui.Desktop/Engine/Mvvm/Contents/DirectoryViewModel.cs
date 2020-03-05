@@ -22,12 +22,12 @@ namespace Lxna.Gui.Desktop.Core.Contents
             this.IsExpanded = new ReactiveProperty<bool>().AddTo(_disposable);
             this.IsExpanded.Subscribe(value => this.OnIsExpanded(value)).AddTo(_disposable);
 
-            if(model.Path == "")
+            if (model.Path.Value == "")
             {
                 return;
             }
 
-            this.Model.Children.Add(new DirectoryModel(""));
+            this.Model.Children.Add(new DirectoryModel(new OmniPath("")));
         }
 
         protected override void OnDispose(bool disposing)
@@ -57,12 +57,7 @@ namespace Lxna.Gui.Desktop.Core.Contents
 
             foreach (var directoryPath in Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly))
             {
-                if(!OmniPath.Windows.TryEncoding(directoryPath, out var directoryOmniPath))
-                {
-                    continue;
-                }
-
-                this.Model.Children.Add(new DirectoryModel(directoryOmniPath));
+                this.Model.Children.Add(new DirectoryModel(OmniPath.FromWindowsPath(directoryPath)));
             }
         }
 
