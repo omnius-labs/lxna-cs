@@ -15,9 +15,9 @@ using Omnius.Lxna.Service;
 
 namespace Lxna.Gui.Desktop.Models
 {
-    public sealed class FileModel : BindableBase, IDisposable
+    public sealed class ItemModel : BindableBase, IDisposable
     {
-        public FileModel(OmniPath path)
+        public ItemModel(OmniPath path)
         {
             this.Path = path;
 
@@ -40,11 +40,11 @@ namespace Lxna.Gui.Desktop.Models
             private set => this.SetProperty(ref _thumbnail, value);
         }
 
-        public ReadOnlyListSlim<Bitmap> Thumbnails { get; private set; } = ReadOnlyListSlim<Bitmap>.Empty;
+        private ReadOnlyListSlim<Bitmap> _images { get; set; } = ReadOnlyListSlim<Bitmap>.Empty;
 
-        public async ValueTask SetThumbnailsAsync(IEnumerable<ThumbnailContent> thumbnailContents)
+        public async ValueTask SetThumbnailAsync(IEnumerable<ThumbnailContent> thumbnailContents)
         {
-            var oldThumbnails = this.Thumbnails;
+            var oldThumbnails = this._images;
 
             var results = new List<Bitmap>();
 
@@ -61,7 +61,7 @@ namespace Lxna.Gui.Desktop.Models
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                this.Thumbnails = new ReadOnlyListSlim<Bitmap>(results.ToArray());
+                this._images = new ReadOnlyListSlim<Bitmap>(results.ToArray());
                 _rotateOffset = 0;
                 this.Thumbnail = results[0];
             });
@@ -76,14 +76,14 @@ namespace Lxna.Gui.Desktop.Models
 
         public async ValueTask RotateThumbnailAsync()
         {
-            if (this.Thumbnails.Count <= 1)
+            if (this._images.Count <= 1)
             {
                 return;
             }
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                var thumbnails = this.Thumbnails;
+                var thumbnails = this._images;
 
                 var offset = _rotateOffset;
                 offset++;
@@ -99,7 +99,7 @@ namespace Lxna.Gui.Desktop.Models
 
         public void Dispose()
         {
-            foreach (var thumbnail in this.Thumbnails)
+            foreach (var thumbnail in this._images)
             {
                 thumbnail.Dispose();
             }
