@@ -1,5 +1,0 @@
-﻿syntax = v1.0;
-
-using "Lxna.Messages.rpf";
-
-option csharp_namespace = "Lxna.Rpc";
