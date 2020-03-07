@@ -139,7 +139,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
                             .First();
                     }
 
-                    var options = new ThumbnailGeneratorGetThumbnailOptions(256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 60);
+                    var options = new ThumbnailGeneratorGetThumbnailOptions(256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 10);
                     var result = await _thumbnailGenerator.GetThumbnailAsync(targetItemViewModel.Model.Path, options, cancellationToken);
 
                     if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
