@@ -30,13 +30,13 @@
         <ScrollViewer Grid.Column="1"  HorizontalScrollBarVisibility="Disabled" >
             <ItemsRepeater x:Name="ItemsRepeater" HorizontalAlignment="Stretch" Items="{Binding CurrentItems}">
                 <ItemsRepeater.Layout>
-                    <UniformGridLayout MinItemWidth="256" MinItemHeight="256"  />
+                    <UniformGridLayout MinItemWidth="256" MinItemHeight="256" MinColumnSpacing="2" MinRowSpacing="2"/>
                 </ItemsRepeater.Layout>
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Vertical" Width="256" Height="256" >
-                            <Image Source="{Binding Thumbnail.Value}"/>
-                            <TextBlock Text="{Binding Name.Value}" />
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="{Binding Thumbnail.Value}" Width="256" Height="256" />
+                            <TextBlock Text="{Binding Name.Value}" Height="16" />
                         </StackPanel>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
