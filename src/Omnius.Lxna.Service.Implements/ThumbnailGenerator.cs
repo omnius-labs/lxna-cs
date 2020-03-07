@@ -33,10 +33,8 @@ namespace Omnius.Lxna.Service
 
         private IObjectStore _objectStore;
         private readonly static HashSet<string> _pictureTypeExtensionList = new HashSet<string>() { ".jpg", ".jpeg", ".png", ".gif" };
-        private readonly static HashSet<string> _movieTypeExtensionList = new HashSet<string>() { ".mp4", ".avi" };
+        private readonly static HashSet<string> _movieTypeExtensionList = new HashSet<string>() { ".mp4", ".avi", ".wmv", ".mov", ".m4v", ".mkv", ".mpg" };
         private readonly static Base16 _base16 = new Base16(ConvertStringCase.Lower);
-
-        private readonly AsyncLock _asyncLock = new AsyncLock();
 
         internal sealed class ThumbnailGeneratorFactory : IThumbnailGeneratorFactory
         {
@@ -161,7 +159,7 @@ namespace Omnius.Lxna.Service
             }
             catch (NotSupportedException e)
             {
-                _logger.Info(e);
+                _logger.Warn(e);
             }
 
             return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
@@ -180,12 +178,11 @@ namespace Omnius.Lxna.Service
             }
 
             var duration = await this.GetMovieDurationAsync(path, cancellationToken);
-            var interval = TimeSpan.FromSeconds(Math.Max(5, duration.TotalSeconds / 30));
 
             var fullPath = Path.GetFullPath(path);
             var fileInfo = new FileInfo(fullPath);
 
-            var storePath = $"/v1/movie/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{interval.TotalSeconds}_{options.Width}x{options.Height}_{ResizeTypeToString(options.ResizeType)}_{FormatTypeToString(options.FormatType)}";
+            var storePath = $"/v1/movie/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{options.Interval.TotalSeconds}_{options.Width}x{options.Height}_{ResizeTypeToString(options.ResizeType)}_{FormatTypeToString(options.FormatType)}";
             var entry = await _objectStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken);
 
             if (entry != ThumbnailEntity.Empty)
@@ -199,7 +196,7 @@ namespace Omnius.Lxna.Service
 
             try
             {
-                var images = await GetMovieImagesAsync(fullPath, interval, options.Width, options.Height, options.ResizeType, options.FormatType, cancellationToken);
+                var images = await GetMovieImagesAsync(fullPath, (int)options.Interval.TotalSeconds, options.Width, options.Height, options.ResizeType, options.FormatType, cancellationToken);
 
                 var metadata = new ThumbnailMetadata((ulong)fileInfo.Length, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc));
                 var contents = images.Select(n => new ThumbnailContent(n)).ToArray();
@@ -209,9 +206,9 @@ namespace Omnius.Lxna.Service
 
                 return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Contents);
             }
-            catch (UnauthorizedAccessException e)
+            catch (NotSupportedException e)
             {
-                _logger.Info(e);
+                _logger.Warn(e);
             }
 
             return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
@@ -239,14 +236,14 @@ namespace Omnius.Lxna.Service
             return result;
         }
 
-        private async ValueTask<IMemoryOwner<byte>[]> GetMovieImagesAsync(string path, TimeSpan interval, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        private async ValueTask<IMemoryOwner<byte>[]> GetMovieImagesAsync(string path, int intervalSeconds, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var results = new List<IMemoryOwner<byte>>();
 
             var duration = await this.GetMovieDurationAsync(path, cancellationToken);
 
-            foreach (var seekSec in Enumerable.Range(0, (int)(duration.TotalSeconds / interval.TotalSeconds))
-                .Select(x => x * interval.TotalSeconds))
+            foreach (var seekSec in Enumerable.Range(0, (int)(duration.TotalSeconds / intervalSeconds))
+                .Select(x => x * intervalSeconds))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -279,6 +276,11 @@ namespace Omnius.Lxna.Service
                     _logger.Warn(e);
                     throw e;
                 }
+            }
+
+            if(results.Count == 0)
+            {
+                throw new NotSupportedException();
             }
 
             return results.ToArray();
