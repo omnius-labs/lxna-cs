@@ -147,6 +147,11 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
                         await targetItemViewModel.Model.SetThumbnailAsync(result.Contents);
                     }
 
+                    foreach (var content in result.Contents)
+                    {
+                        content.Dispose();
+                    }
+
                     itemViewModels.Remove(targetItemViewModel);
                 }
             }
@@ -165,22 +170,18 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
         {
             try
             {
-                while (!_cancellationTokenSource.Token.IsCancellationRequested)
+                var itemViewModels = new List<ItemViewModel>();
+
+                await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    await Task.Delay(1000, _cancellationTokenSource.Token);
+                    itemViewModels.AddRange(this.CurrentItems);
+                });
 
-                    ItemViewModel[] viewModels;
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    await Task.Delay(1000, cancellationToken);
 
-                    {
-                        var tempList = _shownItemViewModelMap.ToList();
-                        tempList.Sort((x, y) => x.Value.CompareTo(y.Value));
-                        viewModels = tempList
-                            .Select(n => n.Key)
-                            .Where(n => n.Thumbnail.Value != null)
-                            .ToArray();
-                    }
-
-                    foreach (var viewModel in viewModels)
+                    foreach (var viewModel in itemViewModels)
                     {
                         await viewModel.Model.RotateThumbnailAsync();
                     }
@@ -204,28 +205,48 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 
         private async void RefreshTree(DirectoryViewModel selectedDirectory)
         {
-            _cancellationTokenSource?.Cancel();
-            if (_loadTask != null) await _loadTask;
-            if (_rotateTask != null) await _rotateTask;
-
-            try
+            using (await _asyncLock.LockAsync())
             {
-
-                _currentItemModels.Clear();
-
-                foreach (var filePath in Directory.EnumerateFiles(selectedDirectory.Model.Path.ToWindowsPath()))
+                // 古い描画タスクを終了する
                 {
-                    _currentItemModels.Add(new ItemModel(OmniPath.FromWindowsPath(filePath)));
+                    _cancellationTokenSource?.Cancel();
+                    if (_loadTask != null) await _loadTask;
+                    if (_rotateTask != null) await _rotateTask;
+                }
+
+                try
+                {
+                    var oldModels = _currentItemModels.ToArray();
+                    _currentItemModels.Clear();
+
+                    foreach (var model in oldModels)
+                    {
+                        model.Dispose();
+                    }
+
+                    foreach (var filePath in Directory.EnumerateFiles(selectedDirectory.Model.Path.ToWindowsPath()))
+                    {
+                        _currentItemModels.Add(new ItemModel(OmniPath.FromWindowsPath(filePath)));
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+
+                }
+                catch (Exception e)
+                {
+                    _logger.Debug(e);
+                    throw e;
+                }
+
+                // 新しい描画タスクを開始する
+                {
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    _loadTask = this.LoadThread(_cancellationTokenSource.Token);
+                    _rotateTask = this.RotateThread(_cancellationTokenSource.Token);
                 }
             }
-            catch (UnauthorizedAccessException)
-            {
-
-            }
-
-            _cancellationTokenSource = new CancellationTokenSource();
-            _loadTask = this.LoadThread(_cancellationTokenSource.Token);
-            _rotateTask = this.RotateThread(_cancellationTokenSource.Token);
         }
     }
 }
+

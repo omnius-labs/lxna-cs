@@ -28,5 +28,20 @@ namespace Lxna.Gui.Desktop.Models
         }
 
         public ObservableCollection<DirectoryModel> Children { get; } = new ObservableCollection<DirectoryModel>();
+
+        public void RefreshChildren()
+        {
+            if (!OmniPath.Windows.TryDecoding(this.Path, out var path))
+            {
+                return;
+            }
+
+            this.Children.Clear();
+
+            foreach (var directoryPath in Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly))
+            {
+                this.Children.Add(new DirectoryModel(OmniPath.FromWindowsPath(directoryPath)));
+            }
+        }
     }
 }
