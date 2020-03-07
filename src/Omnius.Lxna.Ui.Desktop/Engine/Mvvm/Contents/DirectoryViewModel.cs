@@ -11,7 +11,7 @@ namespace Lxna.Gui.Desktop.Core.Contents
 {
     public sealed class DirectoryViewModel : TreeViewModelBase
     {
-        private CompositeDisposable _disposable = new CompositeDisposable();
+        private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
         public DirectoryViewModel(TreeViewModelBase? parent, DirectoryModel model) : base(parent)
         {
@@ -48,17 +48,7 @@ namespace Lxna.Gui.Desktop.Core.Contents
         {
             if (!value) return;
 
-            if(!OmniPath.Windows.TryDecoding(this.Model.Path, out var path))
-            {
-                return;
-            }
-
-            this.Model.Children.Clear();
-
-            foreach (var directoryPath in Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly))
-            {
-                this.Model.Children.Add(new DirectoryModel(OmniPath.FromWindowsPath(directoryPath)));
-            }
+            this.Model.RefreshChildren();
         }
 
         public override bool TryAdd(object value)
