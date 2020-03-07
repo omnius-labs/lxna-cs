@@ -125,23 +125,23 @@ namespace Omnius.Lxna.Service
                 return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
             }
 
-            var fullPath = Path.GetFullPath(path);
-            var fileInfo = new FileInfo(fullPath);
-
-            var storePath = $"/v1/picture/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{options.Width}x{options.Height}_{ResizeTypeToString(options.ResizeType)}_{FormatTypeToString(options.FormatType)}";
-            var entry = await _objectStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken);
-
-            if (entry != ThumbnailEntity.Empty)
-            {
-                if ((ulong)fileInfo.Length == entry.Metadata.FileLength
-                    && Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc) == entry.Metadata.FileLastWriteTime)
-                {
-                    return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Contents);
-                }
-            }
-
             try
             {
+                var fullPath = Path.GetFullPath(path);
+                var fileInfo = new FileInfo(fullPath);
+
+                var storePath = $"/v1/picture/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{options.Width}x{options.Height}_{ResizeTypeToString(options.ResizeType)}_{FormatTypeToString(options.FormatType)}";
+                var entry = await _objectStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken);
+
+                if (entry != ThumbnailEntity.Empty)
+                {
+                    if ((ulong)fileInfo.Length == entry.Metadata.FileLength
+                        && Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc) == entry.Metadata.FileLastWriteTime)
+                    {
+                        return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Contents);
+                    }
+                }
+
                 using (var inStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
                 using (var outStream = new RecyclableMemoryStream(_bytesPool))
                 {
@@ -177,26 +177,27 @@ namespace Omnius.Lxna.Service
                 return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
             }
 
-            var duration = await this.GetMovieDurationAsync(path, cancellationToken);
-
-            var fullPath = Path.GetFullPath(path);
-            var fileInfo = new FileInfo(fullPath);
-
-            var storePath = $"/v1/movie/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{options.Interval.TotalSeconds}_{options.Width}x{options.Height}_{ResizeTypeToString(options.ResizeType)}_{FormatTypeToString(options.FormatType)}";
-            var entry = await _objectStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken);
-
-            if (entry != ThumbnailEntity.Empty)
-            {
-                if ((ulong)fileInfo.Length == entry.Metadata.FileLength
-                    && Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc) == entry.Metadata.FileLastWriteTime)
-                {
-                    return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Contents);
-                }
-            }
-
             try
             {
-                var images = await GetMovieImagesAsync(fullPath, (int)options.Interval.TotalSeconds, options.Width, options.Height, options.ResizeType, options.FormatType, cancellationToken);
+                var duration = await this.GetMovieDurationAsync(path, cancellationToken);
+                var intervalSeconds = (int)Math.Max(options.MinInterval.TotalSeconds, (duration.TotalSeconds / options.MaxImageCount));
+
+                var fullPath = Path.GetFullPath(path);
+                var fileInfo = new FileInfo(fullPath);
+
+                var storePath = $"/v1/movie/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{intervalSeconds}_{options.Width}x{options.Height}_{ResizeTypeToString(options.ResizeType)}_{FormatTypeToString(options.FormatType)}";
+                var entry = await _objectStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken);
+
+                if (entry != ThumbnailEntity.Empty)
+                {
+                    if ((ulong)fileInfo.Length == entry.Metadata.FileLength
+                        && Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc) == entry.Metadata.FileLastWriteTime)
+                    {
+                        return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Contents);
+                    }
+                }
+
+                var images = await this.GetMovieImagesAsync(fullPath, intervalSeconds, options.Width, options.Height, options.ResizeType, options.FormatType, cancellationToken);
 
                 var metadata = new ThumbnailMetadata((ulong)fileInfo.Length, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc));
                 var contents = images.Select(n => new ThumbnailContent(n)).ToArray();
@@ -232,7 +233,11 @@ namespace Omnius.Lxna.Service
 
             await process.WaitForExitAsync(cancellationToken);
 
-            var result = TimeSpan.Parse(line!.Trim());
+            if (!TimeSpan.TryParse(line!.Trim(), out var result))
+            {
+                throw new NotSupportedException();
+            }
+
             return result;
         }
 
@@ -242,43 +247,41 @@ namespace Omnius.Lxna.Service
 
             var duration = await this.GetMovieDurationAsync(path, cancellationToken);
 
-            foreach (var seekSec in Enumerable.Range(0, (int)(duration.TotalSeconds / intervalSeconds))
-                .Select(x => x * intervalSeconds))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                try
+            await Enumerable.Range(0, (int)(duration.TotalSeconds / intervalSeconds)).Select(x => x * intervalSeconds)
+                .ForEachAsync(async (seekSec) =>
                 {
-                    var arguments = $"-loglevel error -ss {seekSec} -i \"{path}\" -vframes 1 -f image2 pipe:1";
-
-                    using var process = Process.Start(new ProcessStartInfo("ffmpeg", arguments)
+                    try
                     {
-                        CreateNoWindow = true,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = false,
-                    });
+                        var arguments = $"-loglevel error -ss {seekSec} -i \"{path}\" -vframes 1 -f image2 pipe:1";
 
-                    using var baseStream = process.StandardOutput.BaseStream;
-                    using var inStream = new RecyclableMemoryStream(_bytesPool);
-                    using var outStream = new RecyclableMemoryStream(_bytesPool);
+                        using var process = Process.Start(new ProcessStartInfo("ffmpeg", arguments)
+                        {
+                            CreateNoWindow = true,
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = false,
+                        });
 
-                    await baseStream.CopyToAsync(inStream);
-                    inStream.Seek(0, SeekOrigin.Begin);
-                    ConvertImage(inStream, outStream, width, height, resizeType, formatType);
+                        using var baseStream = process.StandardOutput.BaseStream;
+                        using var inStream = new RecyclableMemoryStream(_bytesPool);
+                        using var outStream = new RecyclableMemoryStream(_bytesPool);
 
-                    await process.WaitForExitAsync(cancellationToken);
+                        await baseStream.CopyToAsync(inStream);
+                        inStream.Seek(0, SeekOrigin.Begin);
+                        ConvertImage(inStream, outStream, width, height, resizeType, formatType);
 
-                    results.Add(outStream.ToMemoryOwner());
-                }
-                catch (Exception e)
-                {
-                    _logger.Warn(e);
-                    throw e;
-                }
-            }
+                        await process.WaitForExitAsync(cancellationToken);
 
-            if(results.Count == 0)
+                        results.Add(outStream.ToMemoryOwner());
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Warn(e);
+                        throw e;
+                    }
+                }, 4, cancellationToken);
+
+            if (results.Count == 0)
             {
                 throw new NotSupportedException();
             }
