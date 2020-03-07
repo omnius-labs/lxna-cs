@@ -116,28 +116,10 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
                         return;
                     }
 
-                    ItemViewModel targetItemViewModel;
-
-                    {
-                        var tempMap = new Dictionary<ItemViewModel, int>();
-
-                        foreach (var (viewModel, index) in itemViewModels.Select((n, i) => (n, i)))
-                        {
-                            if (_shownItemViewModelMap.TryGetValue(viewModel, out int shownIndex))
-                            {
-                                tempMap[viewModel] = shownIndex;
-                            }
-
-                            tempMap[viewModel] = itemViewModels.Count + index;
-                        }
-
-                        var tempList = tempMap.ToList();
-                        tempList.Sort((x, y) => x.Value.CompareTo(y.Value));
-                        targetItemViewModel = tempList
-                            .Select(n => n.Key)
-                            .Where(n => n.Thumbnail.Value == null)
-                            .First();
-                    }
+                    var targetItemViewModel = itemViewModels
+                        .OrderBy(n => _shownItemViewModelMap.ContainsKey(n) ? 0 : 1)
+                        .Where(n => n.Thumbnail.Value == null)
+                        .First();
 
                     var options = new ThumbnailGeneratorGetThumbnailOptions(256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 10);
                     var result = await _thumbnailGenerator.GetThumbnailAsync(targetItemViewModel.Model.Path, options, cancellationToken);
@@ -224,7 +206,10 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
                         model.Dispose();
                     }
 
-                    foreach (var filePath in Directory.EnumerateFiles(selectedDirectory.Model.Path.ToWindowsPath()))
+                    var tempList = Directory.GetFiles(selectedDirectory.Model.Path.ToWindowsPath()).ToList();
+                    tempList.Sort();
+
+                    foreach (var filePath in tempList)
                     {
                         _currentItemModels.Add(new ItemModel(OmniPath.FromWindowsPath(filePath)));
                     }
