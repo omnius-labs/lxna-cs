@@ -247,7 +247,7 @@ namespace Omnius.Lxna.Service
 
             var duration = await this.GetMovieDurationAsync(path, cancellationToken);
 
-            await Enumerable.Range(0, (int)(duration.TotalSeconds / intervalSeconds)).Select(x => x * intervalSeconds)
+            await Enumerable.Range(1, (int)(duration.TotalSeconds / intervalSeconds)).Select(x => x * intervalSeconds)
                 .ForEachAsync(async (seekSec) =>
                 {
                     try
