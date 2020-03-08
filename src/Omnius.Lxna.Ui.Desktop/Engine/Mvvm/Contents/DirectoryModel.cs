@@ -40,7 +40,7 @@ namespace Lxna.Gui.Desktop.Models
 
             foreach (var directoryPath in Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly))
             {
-                this.Children.Add(new DirectoryModel(OmniPath.FromWindowsPath(directoryPath)));
+                this.Children.Add(new DirectoryModel(OmniPath.FromCurrentPlatformPath(directoryPath)));
             }
         }
     }

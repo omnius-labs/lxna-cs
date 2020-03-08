@@ -2,10 +2,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -40,11 +42,6 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
-        public MainViewModel()
-        {
-
-        }
-
         public MainViewModel(IThumbnailGenerator thumbnailGenerator)
         {
             _thumbnailGenerator = thumbnailGenerator;
@@ -54,16 +51,18 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
             this.SelectedDirectory.Subscribe(n => { if (n != null) { this.TreeView_SelectionChanged(n); } }).AddTo(_disposable);
             this.CurrentItems = _currentItemModels.ToReadOnlyReactiveCollection(n => new ItemViewModel(n)).AddTo(_disposable);
 
-            // FIXME
-            foreach (var drive in Directory.GetLogicalDrives())
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                if (!OmniPath.Windows.TryEncoding(drive, out var omniPath))
+                foreach (var drive in Directory.GetLogicalDrives())
                 {
-                    continue;
-                }
+                    if (!OmniPath.Windows.TryEncoding(drive, out var omniPath))
+                    {
+                        continue;
+                    }
 
-                var model = new DirectoryModel(omniPath);
-                _rootDirectoryModels.Add(model);
+                    var model = new DirectoryModel(omniPath);
+                    _rootDirectoryModels.Add(model);
+                }
             }
         }
 
@@ -82,6 +81,16 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
         public ReadOnlyReactiveCollection<DirectoryViewModel> RootDirectories { get; }
         public ReactiveProperty<DirectoryViewModel> SelectedDirectory { get; }
         public ReadOnlyReactiveCollection<ItemViewModel> CurrentItems { get; }
+
+        public void NotifyDoubleTapped(object item)
+        {
+            var path = ((ItemViewModel)item).Model.Path.ToCurrentPlatformPath();
+
+            var process = new Process();
+            process.StartInfo.FileName = path;
+            process.StartInfo.UseShellExecute = true;
+            process.Start();
+        }
 
         public void NotifyItemPrepared(object item, int index)
         {
@@ -143,8 +152,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
             }
             catch (Exception e)
             {
-                _logger.Debug(e);
-                throw e;
+                _logger.Error(e);
             }
         }
 
@@ -175,8 +183,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
             }
             catch (Exception e)
             {
-                _logger.Debug(e);
-                throw e;
+                _logger.Error(e);
             }
         }
 
@@ -206,12 +213,12 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
                         model.Dispose();
                     }
 
-                    var tempList = Directory.GetFiles(selectedDirectory.Model.Path.ToWindowsPath()).ToList();
+                    var tempList = Directory.GetFiles(selectedDirectory.Model.Path.ToCurrentPlatformPath()).ToList();
                     tempList.Sort();
 
                     foreach (var filePath in tempList)
                     {
-                        _currentItemModels.Add(new ItemModel(OmniPath.FromWindowsPath(filePath)));
+                        _currentItemModels.Add(new ItemModel(OmniPath.FromCurrentPlatformPath(filePath)));
                     }
                 }
                 catch (UnauthorizedAccessException)

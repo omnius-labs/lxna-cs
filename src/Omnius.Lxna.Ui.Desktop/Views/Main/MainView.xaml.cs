@@ -32,10 +32,23 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 #endif
 
             var itemsRepeater = this.FindControl<ItemsRepeater>("ItemsRepeater");
+            itemsRepeater.DoubleTapped += this.ItemsRepeater_DoubleTapped;
             itemsRepeater.ElementPrepared += this.ItemsRepeater_ElementPrepared;
             itemsRepeater.ElementIndexChanged += this.ItemsRepeater_ElementIndexChanged;
             itemsRepeater.ElementClearing += this.ItemsRepeater_ElementClearing;
-            itemsRepeater.Tapped += this.ItemsRepeater_Tapped;
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+
+        private void ItemsRepeater_DoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            if (e.Source is IDataContextProvider control)
+            {
+                _viewModel.NotifyDoubleTapped(control.DataContext);
+            }
         }
 
         private void ItemsRepeater_ElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
@@ -51,16 +64,6 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
         private void ItemsRepeater_ElementClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
         {
             _viewModel.NotifyItemClearing(e.Element.DataContext);
-        }
-
-        private void ItemsRepeater_Tapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-        {
-
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
 
         protected override async void OnClosed(EventArgs e)
