@@ -130,7 +130,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
                         .Where(n => n.Thumbnail.Value == null)
                         .First();
 
-                    var options = new ThumbnailGeneratorGetThumbnailOptions(256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 10);
+                    var options = new ThumbnailGeneratorGetThumbnailOptions(256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 30);
                     var result = await _thumbnailGenerator.GetThumbnailAsync(targetItemViewModel.Model.Path, options, cancellationToken);
 
                     if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
@@ -227,8 +227,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
                 }
                 catch (Exception e)
                 {
-                    _logger.Debug(e);
-                    throw e;
+                    _logger.Error(e);
                 }
 
                 // 新しい描画タスクを開始する
