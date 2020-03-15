@@ -57,6 +57,6 @@ namespace Omnius.Lxna.Service
 
     public interface IThumbnailGenerator : IAsyncDisposable
     {
-        ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, CancellationToken cancellationToken = default);
+        ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, bool fromCache = false, CancellationToken cancellationToken = default);
     }
 }

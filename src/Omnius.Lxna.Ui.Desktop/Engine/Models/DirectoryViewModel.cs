@@ -1,13 +1,12 @@
 using System;
 using System.IO;
 using System.Reactive.Disposables;
-using Lxna.Gui.Desktop.Models;
 using Omnius.Core.Avalonia.Models.Primitives;
 using Omnius.Core.Network;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Lxna.Gui.Desktop.Core.Contents
+namespace Omnius.Lxna.Ui.Desktop.Engine.Models
 {
     public sealed class DirectoryViewModel : TreeViewModelBase
     {

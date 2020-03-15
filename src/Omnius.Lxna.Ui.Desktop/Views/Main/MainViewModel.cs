@@ -6,19 +6,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
-using Lxna.Gui.Desktop.Core.Contents;
-using Lxna.Gui.Desktop.Models;
 using Omnius.Core;
 using Omnius.Core.Extensions;
 using Omnius.Core.Network;
 using Omnius.Lxna.Service;
+using Omnius.Lxna.Ui.Desktop.Engine;
+using Omnius.Lxna.Ui.Desktop.Engine.Models;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
@@ -29,14 +26,10 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly IThumbnailGenerator _thumbnailGenerator;
-
-        private Task? _loadTask;
-        private Task? _rotateTask;
-        private CancellationTokenSource? _cancellationTokenSource;
+        private ThumbnailLoader _thumbnailLoader;
 
         private readonly ObservableCollection<DirectoryModel> _rootDirectoryModels = new ObservableCollection<DirectoryModel>();
         private readonly ObservableCollection<ItemModel> _currentItemModels = new ObservableCollection<ItemModel>();
-        private readonly ConcurrentDictionary<ItemViewModel, int> _shownItemViewModelMap = new ConcurrentDictionary<ItemViewModel, int>();
 
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
@@ -70,9 +63,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
         {
             using (await _asyncLock.LockAsync())
             {
-                _cancellationTokenSource?.Cancel();
-                if (_loadTask != null) await _loadTask;
-                if (_rotateTask != null) await _rotateTask;
+                if (_thumbnailLoader != null) await _thumbnailLoader.DisposeAsync();
 
                 _disposable.Dispose();
             }
@@ -92,98 +83,19 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
             process.Start();
         }
 
-        public void NotifyItemPrepared(object item, int index)
+        public void NotifyItemPrepared(object item)
         {
-            _shownItemViewModelMap[(ItemViewModel)item] = index;
-        }
-
-        public void NotifyItemIndexChanged(object item, int oldIndex, int newIndex)
-        {
-            _shownItemViewModelMap[(ItemViewModel)item] = newIndex;
+            if (item is ItemViewModel viewModel)
+            {
+                _thumbnailLoader?.NotifyItemPrepared(viewModel.Model);
+            }
         }
 
         public void NotifyItemClearing(object item)
         {
-            _shownItemViewModelMap.TryRemove((ItemViewModel)item, out var _);
-        }
-
-        private async Task LoadThread(CancellationToken cancellationToken = default)
-        {
-            try
+            if(item is ItemViewModel viewModel)
             {
-                var itemViewModels = new List<ItemViewModel>();
-
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    itemViewModels.AddRange(this.CurrentItems);
-                });
-
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    if (itemViewModels.Count == 0)
-                    {
-                        return;
-                    }
-
-                    var targetItemViewModel = itemViewModels
-                        .OrderBy(n => _shownItemViewModelMap.ContainsKey(n) ? 0 : 1)
-                        .Where(n => n.Thumbnail.Value == null)
-                        .First();
-
-                    var options = new ThumbnailGeneratorGetThumbnailOptions(256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 30);
-                    var result = await _thumbnailGenerator.GetThumbnailAsync(targetItemViewModel.Model.Path, options, cancellationToken);
-
-                    if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
-                    {
-                        await targetItemViewModel.Model.SetThumbnailAsync(result.Contents);
-                    }
-
-                    foreach (var content in result.Contents)
-                    {
-                        content.Dispose();
-                    }
-
-                    itemViewModels.Remove(targetItemViewModel);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
-            }
-        }
-
-        private async Task RotateThread(CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var itemViewModels = new List<ItemViewModel>();
-
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    itemViewModels.AddRange(this.CurrentItems);
-                });
-
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    await Task.Delay(1000, cancellationToken);
-
-                    foreach (var viewModel in itemViewModels)
-                    {
-                        await viewModel.Model.RotateThumbnailAsync();
-                    }
-                }
-            }
-            catch (OperationCanceledException)
-            {
-
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
+                _thumbnailLoader?.NotifyItemClearing(viewModel.Model);
             }
         }
 
@@ -198,9 +110,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
             {
                 // 古い描画タスクを終了する
                 {
-                    _cancellationTokenSource?.Cancel();
-                    if (_loadTask != null) await _loadTask;
-                    if (_rotateTask != null) await _rotateTask;
+                    if(_thumbnailLoader != null) await _thumbnailLoader.DisposeAsync();
                 }
 
                 try
@@ -232,12 +142,9 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 
                 // 新しい描画タスクを開始する
                 {
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    _loadTask = this.LoadThread(_cancellationTokenSource.Token);
-                    _rotateTask = this.RotateThread(_cancellationTokenSource.Token);
+                    _thumbnailLoader = new ThumbnailLoader(_thumbnailGenerator, _currentItemModels);
                 }
             }
         }
     }
 }
-

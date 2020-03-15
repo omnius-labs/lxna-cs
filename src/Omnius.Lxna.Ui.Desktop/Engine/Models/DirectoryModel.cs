@@ -7,10 +7,12 @@ using System.Text;
 using Omnius.Core.Avalonia.Models.Primitives;
 using Omnius.Core.Network;
 
-namespace Lxna.Gui.Desktop.Models
+namespace Omnius.Lxna.Ui.Desktop.Engine.Models
 {
     public sealed class DirectoryModel : BindableBase
     {
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public DirectoryModel(OmniPath path)
         {
             this.Path = path;
@@ -31,14 +33,9 @@ namespace Lxna.Gui.Desktop.Models
 
         public void RefreshChildren()
         {
-            if (!OmniPath.Windows.TryDecoding(this.Path, out var path))
-            {
-                return;
-            }
-
             this.Children.Clear();
 
-            foreach (var directoryPath in Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly))
+            foreach (var directoryPath in Directory.GetDirectories(this.Path.ToCurrentPlatformPath(), "*", SearchOption.TopDirectoryOnly))
             {
                 this.Children.Add(new DirectoryModel(OmniPath.FromCurrentPlatformPath(directoryPath)));
             }

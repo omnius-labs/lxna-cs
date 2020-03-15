@@ -34,7 +34,6 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
             var itemsRepeater = this.FindControl<ItemsRepeater>("ItemsRepeater");
             itemsRepeater.DoubleTapped += this.ItemsRepeater_DoubleTapped;
             itemsRepeater.ElementPrepared += this.ItemsRepeater_ElementPrepared;
-            itemsRepeater.ElementIndexChanged += this.ItemsRepeater_ElementIndexChanged;
             itemsRepeater.ElementClearing += this.ItemsRepeater_ElementClearing;
         }
 
@@ -53,12 +52,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 
         private void ItemsRepeater_ElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
         {
-            _viewModel.NotifyItemPrepared(e.Element.DataContext, e.Index);
-        }
-
-        private void ItemsRepeater_ElementIndexChanged(object? sender, ItemsRepeaterElementIndexChangedEventArgs e)
-        {
-            _viewModel.NotifyItemIndexChanged(e.Element.DataContext, e.OldIndex, e.NewIndex);
+            _viewModel.NotifyItemPrepared(e.Element.DataContext);
         }
 
         private void ItemsRepeater_ElementClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)

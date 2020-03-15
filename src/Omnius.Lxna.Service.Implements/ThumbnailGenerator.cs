@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -36,7 +37,7 @@ namespace Omnius.Lxna.Service
         private readonly static HashSet<string> _movieTypeExtensionList = new HashSet<string>() { ".mp4", ".avi", ".wmv", ".mov", ".m4v", ".mkv", ".mpg", "flv" };
         private readonly static Base16 _base16 = new Base16(ConvertStringCase.Lower);
 
-        private readonly int _concurrency = Math.Min(2, Environment.ProcessorCount / 2);
+        private readonly int _concurrency = 8;
 
         internal sealed class ThumbnailGeneratorFactory : IThumbnailGeneratorFactory
         {
@@ -133,7 +134,7 @@ namespace Omnius.Lxna.Service
             }
         }
 
-        private async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetPictureThumnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, CancellationToken cancellationToken = default)
+        private async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetPictureThumnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, bool fromCache, CancellationToken cancellationToken = default)
         {
             if (!OmniPath.Windows.TryDecoding(omniPath, out var path))
             {
@@ -160,6 +161,11 @@ namespace Omnius.Lxna.Service
                     {
                         return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Contents);
                     }
+                }
+
+                if (fromCache)
+                {
+                    return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
                 }
 
                 using (var inStream = new RecyclableMemoryStream(_bytesPool))
@@ -222,7 +228,7 @@ namespace Omnius.Lxna.Service
 
         private async ValueTask<IMemoryOwner<byte>[]> GetMovieImagesAsync(string path, TimeSpan minInterval, int maxImageCount, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var resultMap = new Dictionary<int, IMemoryOwner<byte>>();
+            var resultMap = new ConcurrentDictionary<int, IMemoryOwner<byte>>();
 
             var duration = await this.GetMovieDurationAsync(path, cancellationToken);
             int intervalSeconds = (int)Math.Max(minInterval.TotalSeconds, duration.TotalSeconds / maxImageCount);
@@ -255,7 +261,7 @@ namespace Omnius.Lxna.Service
 
                         await process.WaitForExitAsync(cancellationToken);
 
-                        resultMap.Add(seekSec, outStream.ToMemoryOwner());
+                        resultMap[seekSec] = outStream.ToMemoryOwner();
                     }
                     catch (Exception e)
                     {
@@ -277,7 +283,7 @@ namespace Omnius.Lxna.Service
             return tempList.Select(n => n.Value).ToArray();
         }
 
-        private async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetMovieThumnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, CancellationToken cancellationToken = default)
+        private async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetMovieThumnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, bool fromCache, CancellationToken cancellationToken = default)
         {
             if (!OmniPath.Windows.TryDecoding(omniPath, out var path))
             {
@@ -291,13 +297,10 @@ namespace Omnius.Lxna.Service
 
             try
             {
-                var duration = await this.GetMovieDurationAsync(path, cancellationToken);
-                var intervalSeconds = (int)Math.Max(options.MinInterval.TotalSeconds, (duration.TotalSeconds / options.MaxImageCount));
-
                 var fullPath = Path.GetFullPath(path);
                 var fileInfo = new FileInfo(fullPath);
 
-                var storePath = $"/v1/movie/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{intervalSeconds}_{options.Width}x{options.Height}_{ResizeTypeToString(options.ResizeType)}_{FormatTypeToString(options.FormatType)}";
+                var storePath = $"/v1/movie/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{(int)options.MinInterval.TotalSeconds}_{options.MaxImageCount}_{options.Width}x{options.Height}_{ResizeTypeToString(options.ResizeType)}_{FormatTypeToString(options.FormatType)}";
                 var entry = await _objectStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken);
 
                 if (entry != ThumbnailEntity.Empty)
@@ -307,6 +310,11 @@ namespace Omnius.Lxna.Service
                     {
                         return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Contents);
                     }
+                }
+
+                if (fromCache)
+                {
+                    return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
                 }
 
                 var images = await this.GetMovieImagesAsync(fullPath, options.MinInterval, options.MaxImageCount, options.Width, options.Height, options.ResizeType, options.FormatType, cancellationToken);
@@ -336,10 +344,10 @@ namespace Omnius.Lxna.Service
             return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
         }
 
-        public async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, CancellationToken cancellationToken = default)
+        public async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, bool fromCache = false, CancellationToken cancellationToken = default)
         {
             {
-                var result = await this.GetPictureThumnailAsync(omniPath, options, cancellationToken);
+                var result = await this.GetPictureThumnailAsync(omniPath, options, fromCache, cancellationToken);
 
                 if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
                 {
@@ -348,7 +356,7 @@ namespace Omnius.Lxna.Service
             }
 
             {
-                var result = await this.GetMovieThumnailAsync(omniPath, options, cancellationToken);
+                var result = await this.GetMovieThumnailAsync(omniPath, options, fromCache, cancellationToken);
 
                 if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
                 {

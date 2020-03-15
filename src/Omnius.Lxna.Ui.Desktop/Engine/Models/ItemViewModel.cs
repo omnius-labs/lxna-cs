@@ -1,14 +1,13 @@
 using System;
 using System.Reactive.Disposables;
 using Avalonia.Media.Imaging;
-using Lxna.Gui.Desktop.Models;
 using Omnius.Core;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Lxna.Gui.Desktop.Core.Contents
+namespace Omnius.Lxna.Ui.Desktop.Engine.Models
 {
-    public  sealed class ItemViewModel : DisposableBase
+    public sealed class ItemViewModel : DisposableBase
     {
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
@@ -31,5 +30,8 @@ namespace Lxna.Gui.Desktop.Core.Contents
 
         public ReadOnlyReactivePropertySlim<string?> Name { get; }
         public ReadOnlyReactivePropertySlim<Bitmap?> Thumbnail { get; }
+
+        public bool IsShown { get; set; } = false;
+        public int Index { get; set; } = -1;
     }
 }
