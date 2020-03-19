@@ -52,11 +52,35 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 
         private void ItemsRepeater_ElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
         {
+            if (_viewModel.CurrentItems.Count >= 2 )
+            {
+                if (e.Element.DataContext == _viewModel.CurrentItems[0])
+                {
+                    return;
+                }
+                else if (e.Element.DataContext == _viewModel.CurrentItems[1])
+                {
+                    _viewModel.NotifyItemPrepared(_viewModel.CurrentItems[0]);
+                }
+            }
+
             _viewModel.NotifyItemPrepared(e.Element.DataContext);
         }
 
         private void ItemsRepeater_ElementClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
         {
+            if (_viewModel.CurrentItems.Count >= 2)
+            {
+                if (e.Element.DataContext == _viewModel.CurrentItems[0])
+                {
+                    return;
+                }
+                else if (e.Element.DataContext == _viewModel.CurrentItems[1])
+                {
+                    _viewModel.NotifyItemClearing(_viewModel.CurrentItems[0]);
+                }
+            }
+
             _viewModel.NotifyItemClearing(e.Element.DataContext);
         }
 

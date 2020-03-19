@@ -23,7 +23,7 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
         private readonly object _shownModelSetLockObject = new object();
 
         private readonly EventManager _shownModelSetChangedEventManager = new EventManager();
-        private readonly AutoResetEvent _itemPreparedEvent = new AutoResetEvent(false);
+        private readonly AutoResetEvent _shownModelSetChangedEvent = new AutoResetEvent(false);
 
         private readonly Task _loadTask;
         private readonly Task _rotateTask;
@@ -50,11 +50,9 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
 
         private IEnumerable<ItemModel> GetLoadTargetItemModels()
         {
-            var result = new List<ItemModel>();
-
             lock (_shownModelSetLockObject)
             {
-                int minIndex = int.MaxValue;
+                int minIndex = _itemModels.Count;
                 int maxIndex = 0;
 
                 foreach (var (model, index) in _itemModels.Select((n, i) => (n, i)))
@@ -68,16 +66,16 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
                 minIndex = Math.Max(minIndex - 10, 0);
                 maxIndex = Math.Min(maxIndex + 10, _itemModels.Count);
 
+                var result = new List<ItemModel>();
+
                 foreach (var (model, index) in _itemModels.Select((n, i) => (n, i)))
                 {
                     if (index < minIndex || index > maxIndex) continue;
                     result.Add(model);
                 }
 
-                result.Sort((x, y) => _shownModelSet.Contains(y).CompareTo(_shownModelSet.Contains(x)));
+                return result.OrderBy(n => !_shownModelSet.Contains(n)).ToArray();
             }
-
-            return result;
         }
 
         private async Task LoadAsync(CancellationToken cancellationToken)
@@ -88,13 +86,13 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    await _itemPreparedEvent.WaitAsync(cancellationToken);
+                    await _shownModelSetChangedEvent.WaitAsync(cancellationToken);
 
                     var targetModels = new List<ItemModel>(this.GetLoadTargetItemModels());
                     var targetModelSet = new HashSet<ItemModel>(targetModels);
 
                     // Clear
-                    foreach (var model in _itemModels)
+                    foreach (var model in _itemModels.Where(n => n.Thumbnail != null))
                     {
                         if (targetModelSet.Contains(model)) continue;
 
@@ -179,7 +177,7 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
 
                     foreach (var model in targetModels)
                     {
-                        await model.RotateThumbnailAsync();
+                        await model.RotateThumbnailAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -200,7 +198,7 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
                 _shownModelSet.Add(model);
             }
 
-            _itemPreparedEvent.Set();
+            _shownModelSetChangedEvent.Set();
             _shownModelSetChangedEventManager.Invoke();
         }
 
@@ -211,6 +209,7 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
                 _shownModelSet.Remove(model);
             }
 
+            _shownModelSetChangedEvent.Set();
             _shownModelSetChangedEventManager.Invoke();
         }
 
@@ -226,7 +225,7 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
             public IDisposable Subscribe(Action action)
             {
                 _event += action;
-                return new EventCookie(this, action);
+                return new Cookie(this, action);
             }
 
             private void Unsubscribe(Action action)
@@ -234,12 +233,12 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
                 _event -= action;
             }
 
-            private sealed class EventCookie : IDisposable
+            private sealed class Cookie : IDisposable
             {
                 private readonly EventManager _eventManager;
                 private readonly Action _action;
 
-                public EventCookie(EventManager eventManager, Action action)
+                public Cookie(EventManager eventManager, Action action)
                 {
                     _eventManager = eventManager;
                     _action = action;

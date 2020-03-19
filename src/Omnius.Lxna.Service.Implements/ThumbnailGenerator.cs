@@ -152,7 +152,7 @@ namespace Omnius.Lxna.Service
                 var fileInfo = new FileInfo(fullPath);
 
                 var storePath = $"/v1/picture/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{options.Width}x{options.Height}_{ResizeTypeToString(options.ResizeType)}_{FormatTypeToString(options.FormatType)}";
-                var entry = await _objectStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken);
+                var entry = await _objectStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken).ConfigureAwait(false);
 
                 if (entry != ThumbnailEntity.Empty)
                 {
@@ -168,7 +168,7 @@ namespace Omnius.Lxna.Service
                     return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
                 }
 
-                using (var inStream = new RecyclableMemoryStream(_bytesPool))
+                using (var inStream = new FileStream(omniPath.ToCurrentPlatformPath(), FileMode.Open))
                 using (var outStream = new RecyclableMemoryStream(_bytesPool))
                 {
                     this.ConvertImage(inStream, outStream, options.Width, options.Height, options.ResizeType, options.FormatType);
@@ -178,7 +178,7 @@ namespace Omnius.Lxna.Service
                     var content = new ThumbnailContent(outStream.ToMemoryOwner());
                     entry = new ThumbnailEntity(metadata, new[] { content });
 
-                    await _objectStore.WriteAsync(storePath, entry, cancellationToken);
+                    await _objectStore.WriteAsync(storePath, entry, cancellationToken).ConfigureAwait(false);
                 }
 
                 return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Contents);
@@ -214,9 +214,9 @@ namespace Omnius.Lxna.Service
 
             using var baseStream = process.StandardOutput.BaseStream;
             using var reader = new StreamReader(baseStream);
-            var line = await reader.ReadLineAsync();
+            var line = await reader.ReadLineAsync().ConfigureAwait(false);
 
-            await process.WaitForExitAsync(cancellationToken);
+            await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
             if (line == null || !TimeSpan.TryParse(line.Trim(), out var result))
             {
@@ -230,7 +230,7 @@ namespace Omnius.Lxna.Service
         {
             var resultMap = new ConcurrentDictionary<int, IMemoryOwner<byte>>();
 
-            var duration = await this.GetMovieDurationAsync(path, cancellationToken);
+            var duration = await this.GetMovieDurationAsync(path, cancellationToken).ConfigureAwait(false);
             int intervalSeconds = (int)Math.Max(minInterval.TotalSeconds, duration.TotalSeconds / maxImageCount);
             int imageCount = (int)(duration.TotalSeconds / intervalSeconds);
 
@@ -268,7 +268,7 @@ namespace Omnius.Lxna.Service
                         _logger.Warn(e);
                         throw e;
                     }
-                }, _concurrency, cancellationToken);
+                }, _concurrency, cancellationToken).ConfigureAwait(false);
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -301,7 +301,7 @@ namespace Omnius.Lxna.Service
                 var fileInfo = new FileInfo(fullPath);
 
                 var storePath = $"/v1/movie/{_base16.BytesToString(Sha2_256.ComputeHash(fullPath))}/{(int)options.MinInterval.TotalSeconds}_{options.MaxImageCount}_{options.Width}x{options.Height}_{ResizeTypeToString(options.ResizeType)}_{FormatTypeToString(options.FormatType)}";
-                var entry = await _objectStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken);
+                var entry = await _objectStore.ReadAsync<ThumbnailEntity>(storePath, cancellationToken).ConfigureAwait(false);
 
                 if (entry != ThumbnailEntity.Empty)
                 {
@@ -317,13 +317,13 @@ namespace Omnius.Lxna.Service
                     return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
                 }
 
-                var images = await this.GetMovieImagesAsync(fullPath, options.MinInterval, options.MaxImageCount, options.Width, options.Height, options.ResizeType, options.FormatType, cancellationToken);
+                var images = await this.GetMovieImagesAsync(fullPath, options.MinInterval, options.MaxImageCount, options.Width, options.Height, options.ResizeType, options.FormatType, cancellationToken).ConfigureAwait(false);
 
                 var metadata = new ThumbnailMetadata((ulong)fileInfo.Length, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc));
                 var contents = images.Select(n => new ThumbnailContent(n)).ToArray();
                 entry = new ThumbnailEntity(metadata, contents);
 
-                await _objectStore.WriteAsync(storePath, entry, cancellationToken);
+                await _objectStore.WriteAsync(storePath, entry, cancellationToken).ConfigureAwait(false);
 
                 return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, entry.Contents);
             }
@@ -346,8 +346,10 @@ namespace Omnius.Lxna.Service
 
         public async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, bool fromCache = false, CancellationToken cancellationToken = default)
         {
+            await Task.Delay(1).ConfigureAwait(false);
+
             {
-                var result = await this.GetPictureThumnailAsync(omniPath, options, fromCache, cancellationToken);
+                var result = await this.GetPictureThumnailAsync(omniPath, options, fromCache, cancellationToken).ConfigureAwait(false);
 
                 if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
                 {
@@ -356,7 +358,7 @@ namespace Omnius.Lxna.Service
             }
 
             {
-                var result = await this.GetMovieThumnailAsync(omniPath, options, fromCache, cancellationToken);
+                var result = await this.GetMovieThumnailAsync(omniPath, options, fromCache, cancellationToken).ConfigureAwait(false);
 
                 if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
                 {

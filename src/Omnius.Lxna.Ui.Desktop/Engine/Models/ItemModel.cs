@@ -29,11 +29,16 @@ namespace Omnius.Lxna.Ui.Desktop.Engine.Models
         public void Dispose()
         {
             _thumbnail?.Dispose();
+            _thumbnail = null;
 
             foreach (var content in _thumbnailContents)
             {
                 content.Dispose();
             }
+
+            _thumbnailContents = ReadOnlyListSlim<ThumbnailContent>.Empty;
+            _currentOffset = -1;
+            _nextOffset = 0;
         }
 
         public OmniPath Path { get; }

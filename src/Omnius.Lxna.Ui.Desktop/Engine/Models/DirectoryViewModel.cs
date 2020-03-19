@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reactive.Disposables;
 using Omnius.Core.Avalonia.Models.Primitives;
 using Omnius.Core.Network;
@@ -21,7 +22,7 @@ namespace Omnius.Lxna.Ui.Desktop.Engine.Models
             this.IsExpanded = new ReactiveProperty<bool>().AddTo(_disposable);
             this.IsExpanded.Subscribe(value => this.OnIsExpanded(value)).AddTo(_disposable);
 
-            if (model.Path.Value == "")
+            if (model.Path.Value == "" || !this.ContainsSubdirectories())
             {
                 return;
             }
@@ -35,6 +36,24 @@ namespace Omnius.Lxna.Ui.Desktop.Engine.Models
             {
                 _disposable.Dispose();
             }
+        }
+
+        private bool ContainsSubdirectories()
+        {
+            try
+            {
+                return Directory.EnumerateDirectories(this.Model.Path.ToCurrentPlatformPath()).Any();
+            }
+            catch (UnauthorizedAccessException)
+            {
+
+            }
+            catch (IOException)
+            {
+         
+            }
+
+            return false;
         }
 
         public DirectoryModel Model { get; }
