@@ -1,4 +1,3 @@
-using System;
 using System.Reactive.Disposables;
 using Avalonia.Media.Imaging;
 using Omnius.Core;

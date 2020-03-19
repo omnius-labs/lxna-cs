@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Omnius.Core;
 using Omnius.Core.Extensions;
 using Omnius.Lxna.Service;
 using Omnius.Lxna.Ui.Desktop.Engine.Models;

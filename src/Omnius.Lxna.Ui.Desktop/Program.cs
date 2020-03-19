@@ -1,8 +1,5 @@
-using System;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Logging.Serilog;
-using Omnius.Lxna.Ui.Desktop.Views.Main;
 
 namespace Omnius.Lxna.Ui.Desktop
 {

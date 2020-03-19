@@ -1,17 +1,12 @@
-using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteDB;
 using Omnius.Core;
-using Omnius.Core.Cryptography;
 using Omnius.Core.Io;
-using Omnius.Core.Serialization;
 using Omnius.Core.Serialization.RocketPack;
 using Omnius.Core.Serialization.RocketPack.Helpers;
 

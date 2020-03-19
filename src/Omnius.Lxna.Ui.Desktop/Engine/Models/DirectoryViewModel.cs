@@ -50,7 +50,7 @@ namespace Omnius.Lxna.Ui.Desktop.Engine.Models
             }
             catch (IOException)
             {
-         
+
             }
 
             return false;

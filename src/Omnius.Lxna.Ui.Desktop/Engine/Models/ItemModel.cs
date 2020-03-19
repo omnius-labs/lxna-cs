@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
@@ -87,10 +84,7 @@ namespace Omnius.Lxna.Ui.Desktop.Engine.Models
 
         public async ValueTask ClearThumbnailAsync()
         {
-            if(_thumbnailContents.Count == 0)
-            {
-                return;
-            }
+            if (_thumbnailContents.Count == 0) return;
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {

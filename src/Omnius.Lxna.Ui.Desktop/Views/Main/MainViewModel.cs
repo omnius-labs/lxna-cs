@@ -1,17 +1,12 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using Omnius.Core;
-using Omnius.Core.Extensions;
 using Omnius.Core.Network;
 using Omnius.Lxna.Service;
 using Omnius.Lxna.Ui.Desktop.Engine;
@@ -93,7 +88,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 
         public void NotifyItemClearing(object item)
         {
-            if(item is ItemViewModel viewModel)
+            if (item is ItemViewModel viewModel)
             {
                 _thumbnailLoader?.NotifyItemClearing(viewModel.Model);
             }
@@ -110,7 +105,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
             {
                 // 古い描画タスクを終了する
                 {
-                    if(_thumbnailLoader != null) await _thumbnailLoader.DisposeAsync();
+                    if (_thumbnailLoader != null) await _thumbnailLoader.DisposeAsync();
                 }
 
                 try

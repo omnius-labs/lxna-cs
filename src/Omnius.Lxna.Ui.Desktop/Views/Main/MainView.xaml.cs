@@ -1,16 +1,7 @@
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Avalonia.VisualTree;
-using Omnius.Core;
-using Omnius.Core.Data;
-using Omnius.Lxna.Service;
 
 namespace Omnius.Lxna.Ui.Desktop.Views.Main
 {
@@ -52,7 +43,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
 
         private void ItemsRepeater_ElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
         {
-            if (_viewModel.CurrentItems.Count >= 2 )
+            if (_viewModel.CurrentItems.Count >= 2)
             {
                 if (e.Element.DataContext == _viewModel.CurrentItems[0])
                 {
