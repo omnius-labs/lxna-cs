@@ -16,6 +16,8 @@ namespace Omnius.Lxna.Ui.Desktop.Engine.Models
 {
     public sealed class ItemModel : BindableBase, IDisposable
     {
+        private readonly object _lockObject = new object();
+
         public ItemModel(OmniPath path)
         {
             this.Path = path;
@@ -52,28 +54,31 @@ namespace Omnius.Lxna.Ui.Desktop.Engine.Models
         {
             get
             {
-                if (_thumbnailContents.Count == 0)
+                lock (_lockObject)
                 {
-                    _thumbnail?.Dispose();
-
-                    return null;
-                }
-                else
-                {
-                    if (_currentOffset == _nextOffset)
+                    if (_thumbnailContents.Count == 0)
                     {
+                        _thumbnail?.Dispose();
+
+                        return null;
+                    }
+                    else
+                    {
+                        if (_currentOffset == _nextOffset)
+                        {
+                            return _thumbnail;
+                        }
+
+                        _thumbnail?.Dispose();
+
+                        using var memoryStream = new RecyclableMemoryStream(BytesPool.Shared);
+                        memoryStream.Write(_thumbnailContents[_nextOffset].Image.Span);
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+
+                        _thumbnail = new Bitmap(memoryStream);
+                        _currentOffset = _nextOffset;
                         return _thumbnail;
                     }
-
-                    _thumbnail?.Dispose();
-
-                    using var memoryStream = new RecyclableMemoryStream(BytesPool.Shared);
-                    memoryStream.Write(_thumbnailContents[_nextOffset].Image.Span);
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-
-                    _thumbnail = new Bitmap(memoryStream);
-                    _currentOffset = _nextOffset;
-                    return _thumbnail;
                 }
             }
         }
@@ -88,16 +93,19 @@ namespace Omnius.Lxna.Ui.Desktop.Engine.Models
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                foreach (var content in _thumbnailContents)
+                lock (_lockObject)
                 {
-                    content.Dispose();
+                    foreach (var content in _thumbnailContents)
+                    {
+                        content.Dispose();
+                    }
+
+                    _thumbnailContents = ReadOnlyListSlim<ThumbnailContent>.Empty;
+                    _currentOffset = -1;
+                    _nextOffset = 0;
+
+                    this.OnPropertyChanged(nameof(this.Thumbnail));
                 }
-
-                _thumbnailContents = ReadOnlyListSlim<ThumbnailContent>.Empty;
-                _currentOffset = -1;
-                _nextOffset = 0;
-
-                this.OnPropertyChanged(nameof(this.Thumbnail));
             });
         }
 
@@ -105,16 +113,19 @@ namespace Omnius.Lxna.Ui.Desktop.Engine.Models
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                foreach (var content in _thumbnailContents)
+                lock (_lockObject)
                 {
-                    content.Dispose();
+                    foreach (var content in _thumbnailContents)
+                    {
+                        content.Dispose();
+                    }
+
+                    _thumbnailContents = new ReadOnlyListSlim<ThumbnailContent>(thumbnailContents.ToArray());
+                    _currentOffset = -1;
+                    _nextOffset = 0;
+
+                    this.OnPropertyChanged(nameof(this.Thumbnail));
                 }
-
-                _thumbnailContents = new ReadOnlyListSlim<ThumbnailContent>(thumbnailContents.ToArray());
-                _currentOffset = -1;
-                _nextOffset = 0;
-
-                this.OnPropertyChanged(nameof(this.Thumbnail));
             });
         }
 
@@ -124,14 +135,17 @@ namespace Omnius.Lxna.Ui.Desktop.Engine.Models
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                var offset = _nextOffset;
-                offset++;
-                offset %= _thumbnailContents.Count;
-
-                if (offset != _nextOffset)
+                lock (_lockObject)
                 {
-                    _nextOffset = offset;
-                    this.OnPropertyChanged(nameof(this.Thumbnail));
+                    var offset = _nextOffset;
+                    offset++;
+                    offset %= _thumbnailContents.Count;
+
+                    if (offset != _nextOffset)
+                    {
+                        _nextOffset = offset;
+                        this.OnPropertyChanged(nameof(this.Thumbnail));
+                    }
                 }
             });
         }

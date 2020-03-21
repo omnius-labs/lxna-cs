@@ -92,6 +92,8 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
                     // Clear
                     foreach (var model in _itemModels.Where(n => n.Thumbnail != null))
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         if (targetModelSet.Contains(model)) continue;
 
                         await model.ClearThumbnailAsync().ConfigureAwait(false);
@@ -104,6 +106,8 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
 
                         foreach (var model in targetModels.Where(n => n.Thumbnail == null))
                         {
+                            cancellationToken.ThrowIfCancellationRequested();
+
                             using var cookie = _shownModelSetChangedEventManager.Subscribe(() =>
                             {
                                 linkedCancellationTokenSource.Cancel();
@@ -122,6 +126,8 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
 
                         foreach (var model in targetModels.Where(n => n.Thumbnail == null))
                         {
+                            cancellationToken.ThrowIfCancellationRequested();
+
                             using var cookie = _shownModelSetChangedEventManager.Subscribe(() =>
                             {
                                 var targetModelSet = new HashSet<ItemModel>(this.GetLoadTargetItemModels());
@@ -175,6 +181,8 @@ namespace Omnius.Lxna.Ui.Desktop.Engine
 
                     foreach (var model in targetModels)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         await model.RotateThumbnailAsync().ConfigureAwait(false);
                     }
                 }

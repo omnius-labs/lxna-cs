@@ -58,7 +58,10 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
         {
             using (await _asyncLock.LockAsync())
             {
-                if (_thumbnailLoader != null) await _thumbnailLoader.DisposeAsync();
+                if (_thumbnailLoader != null)
+                {
+                    await _thumbnailLoader.DisposeAsync();
+                }
 
                 _disposable.Dispose();
             }
@@ -104,8 +107,9 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Main
             using (await _asyncLock.LockAsync())
             {
                 // 古い描画タスクを終了する
+                if (_thumbnailLoader != null)
                 {
-                    if (_thumbnailLoader != null) await _thumbnailLoader.DisposeAsync();
+                    await _thumbnailLoader.DisposeAsync();
                 }
 
                 try
