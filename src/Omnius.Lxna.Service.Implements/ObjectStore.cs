@@ -35,7 +35,8 @@ namespace Omnius.Lxna.Service
         }
 
         public static IObjectStoreFactory Factory { get; } = new ObjectStoreFactory();
-
+        
+        // LiteDataBaseが初期化されていない。
         internal ObjectStore(string configPath, IBytesPool bytesPool)
         {
             _configPath = configPath;

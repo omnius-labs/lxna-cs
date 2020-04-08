@@ -51,7 +51,8 @@ namespace Omnius.Lxna.Service
         }
 
         public static IThumbnailGeneratorFactory Factory { get; } = new ThumbnailGeneratorFactory();
-
+        
+        // ObjectStoreが未実装。
         internal ThumbnailGenerator(string configPath, IObjectStoreFactory storeFactory, IBytesPool bytesPool)
         {
             _configPath = configPath;
