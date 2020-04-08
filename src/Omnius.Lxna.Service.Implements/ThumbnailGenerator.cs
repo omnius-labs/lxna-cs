@@ -52,10 +52,10 @@ namespace Omnius.Lxna.Service
 
         public static IThumbnailGeneratorFactory Factory { get; } = new ThumbnailGeneratorFactory();
 
-        internal ThumbnailGenerator(string configPath, IObjectStoreFactory storeFactory, IBytesPool bytesPool)
+        internal ThumbnailGenerator(string configPath, IObjectStoreFactory objectStoreFactory, IBytesPool bytesPool)
         {
             _configPath = configPath;
-            _objectStoreFactory = storeFactory;
+            _objectStoreFactory = objectStoreFactory;
             _bytesPool = bytesPool;
         }
 
