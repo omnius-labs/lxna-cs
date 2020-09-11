@@ -1,0 +1,41 @@
+name: test
+
+on: [push]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+      - name: Install dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.100-preview.8.20417.9
+      - name: Test
+        run: sh ./eng/test.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: artifact
+          path: ./pub
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+      - name: Install dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.100-preview.8.20417.9
+      - name: Test
+        run: pwsh ./eng/test.ps1
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: artifact
+          path: ./pub

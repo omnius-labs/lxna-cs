@@ -4,4 +4,4 @@
 
 ## Website
 
-+ <https://docs.omnius-labs.com/ja/projects/lxna/>
++ <https://docs.omnius-labs.com/>

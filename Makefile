@@ -5,14 +5,18 @@ gen-code:
 	sh ./eng/gen-code.sh
 
 test:
-	sh ./eng/run-test.sh
+	sh ./eng/test.sh
 
-update-submodule:
-	sh ./eng/update-submodule.sh
+update: format
+	sh ./eng/update-tools.sh
+
+format:
+	dotnet tool restore
+	dotnet tool run dotnet-format
 
 clean:
 	rm -rf ./bin
 	rm -rf ./tmp
 	rm -rf ./pub
 
-.PHONY: all test clean
+.PHONY: init-tools gen-code test update format clean

@@ -7,7 +7,7 @@ using Omnius.Core;
 using Omnius.Core.Collections;
 using Omnius.Core.Network;
 
-namespace Omnius.Lxna.Service
+namespace Omnius.Lxna.Components
 {
     public readonly struct ThumbnailGeneratorGetThumbnailOptions
     {

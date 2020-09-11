@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Omnius.Core;
 using Xunit;
 
-namespace Omnius.Lxna.Service
+namespace Omnius.Lxna.Components
 {
     public class ObjectStoreTests
     {

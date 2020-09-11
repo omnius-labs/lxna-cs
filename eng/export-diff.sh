@@ -1,2 +1,3 @@
-mkdir archive
-git diff --diff-filter=AMCR --name-only HEAD | xargs -I % cp --parents % archive
+#!/bin/bash
+
+git diff --diff-filter=AMCR HEAD | gzip -c | base64 > patch.txt

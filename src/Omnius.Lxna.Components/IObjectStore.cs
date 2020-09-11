@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Omnius.Core;
 using Omnius.Core.Serialization.RocketPack;
 
-namespace Omnius.Lxna.Service
+namespace Omnius.Lxna.Components
 {
     public interface IObjectStoreFactory
     {
