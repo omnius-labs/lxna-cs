@@ -27,8 +27,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Network\Omnius.Core.Network.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Ui.Avalonia\Omnius.Core.Ui.Avalonia.csproj" />
-    <ProjectReference Include="..\Omnius.Lxna.Service.Implements\Omnius.Lxna.Service.Implements.csproj" />
-    <ProjectReference Include="..\Omnius.Lxna.Service\Omnius.Lxna.Service.csproj" />
+    <ProjectReference Include="..\Omnius.Lxna.Components.Implements\Omnius.Lxna.Components.Implements.csproj" />
+    <ProjectReference Include="..\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\Main\MainView.xaml.cs">

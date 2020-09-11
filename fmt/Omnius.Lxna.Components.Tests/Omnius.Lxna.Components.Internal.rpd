@@ -1,0 +1,8 @@
+﻿syntax v1.0;
+
+namespace "Omnius.Lxna.Components.Tests";
+option csharp_namespace "Omnius.Lxna.Components";
+
+message TestObject {
+    Value: int32,
+}

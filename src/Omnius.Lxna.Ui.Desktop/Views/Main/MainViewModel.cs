@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Omnius.Core;
 using Omnius.Core.Network;
-using Omnius.Lxna.Service;
+using Omnius.Lxna.Components;
 using Omnius.Lxna.Ui.Desktop.Engine;
 using Omnius.Lxna.Ui.Desktop.Engine.Models;
 using Reactive.Bindings;
