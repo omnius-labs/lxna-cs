@@ -3,7 +3,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Omnius.Core;
-using Omnius.Lxna.Service;
+using Omnius.Lxna.Components;
 using Omnius.Lxna.Ui.Desktop.Views.Main;
 
 namespace Omnius.Lxna.Ui.Desktop

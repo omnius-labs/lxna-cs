@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Omnius.Core.Extensions;
-using Omnius.Lxna.Service;
+using Omnius.Lxna.Components;
 using Omnius.Lxna.Ui.Desktop.Engine.Models;
 
 namespace Omnius.Lxna.Ui.Desktop.Engine

@@ -17,11 +17,11 @@ using Omnius.Core.Network;
 using Omnius.Core.Serialization;
 using Omnius.Core.Serialization.Extensions;
 using Omnius.Core.Serialization.RocketPack;
-using Omnius.Lxna.Service.Internal;
+using Omnius.Lxna.Components.Internal;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
-namespace Omnius.Lxna.Service
+namespace Omnius.Lxna.Components
 {
     public sealed class ThumbnailGenerator : AsyncDisposableBase, IThumbnailGenerator
     {

@@ -10,7 +10,7 @@ using Omnius.Core.Avalonia.Models.Primitives;
 using Omnius.Core.Collections;
 using Omnius.Core.Io;
 using Omnius.Core.Network;
-using Omnius.Lxna.Service;
+using Omnius.Lxna.Components;
 
 namespace Omnius.Lxna.Ui.Desktop.Engine.Models
 {

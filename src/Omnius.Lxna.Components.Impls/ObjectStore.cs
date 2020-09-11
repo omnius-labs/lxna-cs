@@ -10,7 +10,7 @@ using Omnius.Core.Io;
 using Omnius.Core.Serialization.RocketPack;
 using Omnius.Core.Serialization.RocketPack.Helpers;
 
-namespace Omnius.Lxna.Service
+namespace Omnius.Lxna.Components
 {
     public class ObjectStore : AsyncDisposableBase, IObjectStore
     {

@@ -1,8 +1,0 @@
-﻿syntax = v1.0;
-
-namespace "Omnius.Lxna.Service.Tests";
-option csharp_namespace = "Omnius.Lxna.Service";
-
-table TestObject {
-    Value: int32 = 0,
-}
