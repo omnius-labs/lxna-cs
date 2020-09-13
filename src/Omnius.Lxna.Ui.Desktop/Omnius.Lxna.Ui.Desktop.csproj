@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
@@ -13,6 +14,7 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.9.12" />
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.9.3" />
@@ -21,18 +23,20 @@
     <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.9.12" />
     <PackageReference Include="Avalonia.Xaml.Interactions" Version="0.9.12" />
     <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.12" />
+    <PackageReference Include="NLog" Version="4.7.4" />
     <PackageReference Include="NLog.Config" Version="4.7.4" />
     <PackageReference Include="ReactiveProperty" Version="6.2.0" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Network\Omnius.Core.Network.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Ui.Avalonia\Omnius.Core.Ui.Avalonia.csproj" />
-    <ProjectReference Include="..\Omnius.Lxna.Components.Implements\Omnius.Lxna.Components.Implements.csproj" />
     <ProjectReference Include="..\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Update="Views\Main\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
+
 </Project>

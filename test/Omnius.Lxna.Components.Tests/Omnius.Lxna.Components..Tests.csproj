@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Omnius.Lxna.Components.Implements\Omnius.Lxna.Components.Implements.csproj" />
+    <ProjectReference Include="..\..\src\Omnius.Lxna.Components.Impls\Omnius.Lxna.Components.Impls.csproj" />
     <ProjectReference Include="..\..\src\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
   </ItemGroup>
 
