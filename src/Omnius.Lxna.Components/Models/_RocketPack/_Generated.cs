@@ -105,7 +105,7 @@ namespace Omnius.Lxna.Components.Models
 
                 global::System.Buffers.IMemoryOwner<byte> p_image = global::Omnius.Core.MemoryOwner<byte>.Empty;
 
-                for (;;)
+                for (; ; )
                 {
                     uint id = r.GetUInt32();
                     if (id == 0) break;
