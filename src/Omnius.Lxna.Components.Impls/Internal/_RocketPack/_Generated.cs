@@ -96,7 +96,7 @@ namespace Omnius.Lxna.Components.Internal
                 ulong p_fileLength = 0;
                 global::Omnius.Core.RocketPack.Timestamp p_fileLastWriteTime = global::Omnius.Core.RocketPack.Timestamp.Zero;
 
-                for (;;)
+                for (; ; )
                 {
                     uint id = r.GetUInt32();
                     if (id == 0) break;
@@ -227,7 +227,7 @@ namespace Omnius.Lxna.Components.Internal
                 ThumbnailMetadata p_metadata = ThumbnailMetadata.Empty;
                 ThumbnailContent[] p_contents = global::System.Array.Empty<ThumbnailContent>();
 
-                for (;;)
+                for (; ; )
                 {
                     uint id = r.GetUInt32();
                     if (id == 0) break;
