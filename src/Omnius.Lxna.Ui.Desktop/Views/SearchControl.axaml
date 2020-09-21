@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="Omnius.Lxna.Ui.Desktop.Views.SearchControl"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dataGrid="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.DataGrid"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+        xmlns:vm="clr-namespace:Omnius.Lxna.Ui.Desktop.ViewModels;assembly=Omnius.Lxna.Ui.Desktop"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Width="800"
+        Height="450"
+        mc:Ignorable="d"
+        d:DesignWidth="800"
+        d:DesignHeight="450">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="Auto,Auto,*">
+        <TreeView Name="TreeView" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                Items="{Binding RootDirectories}" SelectedItem="{Binding SelectedDirectory.Value}" >
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}"/>
+                </Style>
+            </TreeView.Styles>
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Children}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding Icon}" />
+                        <TextBlock Text="{Binding Name.Value}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+        <GridSplitter Grid.Column="1" />
+        <dataGrid:DataGrid Grid.Column="2">
+        </dataGrid:DataGrid>
+    </Grid>
+
+    <Grid ColumnDefinitions="Auto,*">
+        <TreeView Name="TreeView" Grid.Column="0" Width="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  Items="{Binding RootDirectories}" SelectedItem="{Binding SelectedDirectory.Value}" >
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}"/>
+                </Style>
+            </TreeView.Styles>
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Children}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding Icon}" />
+                        <TextBlock Text="{Binding Name.Value}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+        <ScrollViewer Grid.Column="1"  HorizontalScrollBarVisibility="Disabled" >
+            <ItemsRepeater x:Name="ItemsRepeater" HorizontalAlignment="Stretch" Items="{Binding CurrentItems}">
+                <ItemsRepeater.Layout>
+                    <UniformGridLayout MinItemWidth="256" MinItemHeight="272" MinColumnSpacing="2" MinRowSpacing="2"/>
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="{Binding Thumbnail.Value}" Width="256" Height="256" />
+                            <TextBlock Text="{Binding Name.Value}" Height="16" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </ScrollViewer>
+    </Grid>
+
+</UserControl>

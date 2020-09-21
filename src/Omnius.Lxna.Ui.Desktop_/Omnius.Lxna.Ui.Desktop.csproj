@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>DEBUG</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="**\*.xaml.cs">
+      <DependentUpon>%(Filename)</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="**\*.xaml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.9.12" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.9.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.9.12" />
+    <PackageReference Include="Avalonia.Skia" Version="0.9.12" />
+    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.9.12" />
+    <PackageReference Include="Avalonia.Xaml.Interactions" Version="0.9.12" />
+    <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.12" />
+    <PackageReference Include="NLog" Version="4.7.4" />
+    <PackageReference Include="NLog.Config" Version="4.7.4" />
+    <PackageReference Include="ReactiveProperty" Version="6.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Network\Omnius.Core.Network.csproj" />
+    <ProjectReference Include="..\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\Main\MainView.xaml.cs">
+      <DependentUpon>MainView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

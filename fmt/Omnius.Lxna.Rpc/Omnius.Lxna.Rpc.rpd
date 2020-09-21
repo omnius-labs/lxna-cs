@@ -1,0 +1,34 @@
+﻿syntax v1.0;
+
+using "Omnius.Core.Cryptography";
+using "Omnius.Core.Network";
+using "Omnius.Lxna.Components.Models";
+
+namespace "Omnius.Lxna.Rpc";
+
+[csharp_struct]
+struct GetFilesParam {
+    Pattern: string,
+    IgnoreCase: bool,
+}
+
+[csharp_struct]
+struct GetFilesResult {
+    Paths: vector<string>,
+}
+
+[csharp_struct]
+struct GetDirectoriesParam {
+    Pattern: string,
+    IgnoreCase: bool,
+}
+
+[csharp_struct]
+struct GetDirectoriesResult {
+    Paths: vector<string>,
+}
+
+service LxnaService {
+    GetFiles: (GetFilesParam) -> (GetFilesResult),
+    GetDirectories: (GetDirectoriesParam) -> (GetDirectoriesResult),
+}
