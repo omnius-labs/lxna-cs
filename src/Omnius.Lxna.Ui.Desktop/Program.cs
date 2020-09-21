@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
 
+
 namespace Omnius.Lxna.Ui.Desktop
 {
     class Program
