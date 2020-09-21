@@ -25,7 +25,7 @@
     <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.12" />
     <PackageReference Include="NLog" Version="4.7.4" />
     <PackageReference Include="NLog.Config" Version="4.7.4" />
-    <PackageReference Include="ReactiveProperty" Version="7.2.1" />
+    <PackageReference Include="ReactiveProperty" Version="7.4.0" />
   </ItemGroup>
 
   <ItemGroup>
