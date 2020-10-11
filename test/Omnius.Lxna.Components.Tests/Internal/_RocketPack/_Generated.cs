@@ -85,7 +85,7 @@ namespace Omnius.Lxna.Components
 
                 int p_value = 0;
 
-                for (;;)
+                for (; ; )
                 {
                     uint id = r.GetUInt32();
                     if (id == 0) break;
