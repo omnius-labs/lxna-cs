@@ -335,6 +335,8 @@ namespace Omnius.Lxna.Components
                 cache = new ThumbnailCache(fileMeta, thumbnailMeta, contents);
 
                 await _thumbnailGeneratorRepository.ThumbnailCaches.InsertAsync(cache);
+
+                return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, cache.Contents);
             }
             catch (NotSupportedException e)
             {
