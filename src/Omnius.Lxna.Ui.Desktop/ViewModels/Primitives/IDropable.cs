@@ -1,4 +1,4 @@
-namespace Omnius.Core.Avalonia.Models.Primitives
+namespace Omnius.Lxna.Ui.Desktop.Models.Primitives
 {
     public interface IDropable
     {

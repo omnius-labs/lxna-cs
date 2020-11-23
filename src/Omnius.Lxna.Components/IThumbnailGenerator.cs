@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Omnius.Core;
 using Omnius.Core.Collections;
 using Omnius.Core.Network;
+using Omnius.Lxna.Components.Models;
 
 namespace Omnius.Lxna.Components
 {
@@ -22,10 +23,15 @@ namespace Omnius.Lxna.Components
         }
 
         public int Width { get; }
+
         public int Height { get; }
+
         public ThumbnailFormatType FormatType { get; }
+
         public ThumbnailResizeType ResizeType { get; }
+
         public TimeSpan MinInterval { get; }
+
         public int MaxImageCount { get; }
     }
 
@@ -45,16 +51,17 @@ namespace Omnius.Lxna.Components
         }
 
         public ThumbnailGeneratorResultStatus Status { get; }
+
         public ReadOnlyListSlim<ThumbnailContent> Contents { get; }
     }
 
     public interface IThumbnailGeneratorFactory
     {
-        ValueTask<IThumbnailGenerator> CreateAsync(string configPath, IObjectStoreFactory objectStoreFactory, IBytesPool bytesPool);
+        ValueTask<IThumbnailGenerator> CreateAsync(string configPath, ThumbnailGeneratorOptions options, IBytesPool bytesPool);
     }
 
     public interface IThumbnailGenerator : IAsyncDisposable
     {
-        ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailAsync(OmniPath omniPath, ThumbnailGeneratorGetThumbnailOptions options, bool fromCache = false, CancellationToken cancellationToken = default);
+        ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailAsync(string filePath, ThumbnailGeneratorGetThumbnailOptions options, bool cacheOnly = false, CancellationToken cancellationToken = default);
     }
 }

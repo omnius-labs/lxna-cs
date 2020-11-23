@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Omnius.Core;
 using Reactive.Bindings;
 
-namespace Omnius.Core.Avalonia.Models.Primitives
+namespace Omnius.Lxna.Ui.Desktop.Models.Primitives
 {
     public abstract class TreeViewModelBase : DisposableBase, IDropable
     {
