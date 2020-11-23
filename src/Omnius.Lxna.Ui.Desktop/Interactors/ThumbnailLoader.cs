@@ -56,7 +56,10 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
 
                 foreach (var (model, index) in _itemModels.Select((n, i) => (n, i)))
                 {
-                    if (!_shownModelSet.Contains(model)) continue;
+                    if (!_shownModelSet.Contains(model))
+                    {
+                        continue;
+                    }
 
                     minIndex = Math.Min(minIndex, index);
                     maxIndex = Math.Max(maxIndex, index);
@@ -69,7 +72,11 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
 
                 foreach (var (model, index) in _itemModels.Select((n, i) => (n, i)))
                 {
-                    if (index < minIndex || index > maxIndex) continue;
+                    if (index < minIndex || index > maxIndex)
+                    {
+                        continue;
+                    }
+
                     result.Add(model);
                 }
 
@@ -79,7 +86,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
 
         private async Task LoadAsync(CancellationToken cancellationToken)
         {
-            await Task.Delay(1).ConfigureAwait(false);
+            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
             try
             {
@@ -95,7 +102,10 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        if (targetModelSet.Contains(model)) continue;
+                        if (targetModelSet.Contains(model))
+                        {
+                            continue;
+                        }
 
                         await model.ClearThumbnailAsync().ConfigureAwait(false);
                     }
@@ -123,7 +133,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
                             }
                         }
 
-                        bool abort = false;
+                        bool reset = false;
 
                         foreach (var model in targetModels.Where(n => n.Thumbnail == null))
                         {
@@ -138,7 +148,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
                                     linkedCancellationTokenSource.Cancel();
                                 }
 
-                                abort = true;
+                                reset = true;
                             });
 
                             var options = new ThumbnailGeneratorGetThumbnailOptions(256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 30);
@@ -149,7 +159,10 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
                                 await model.SetThumbnailAsync(result.Contents).ConfigureAwait(false);
                             }
 
-                            if (abort) break;
+                            if (reset)
+                            {
+                                break;
+                            }
                         }
                     }
                     catch (OperationCanceledException e)
