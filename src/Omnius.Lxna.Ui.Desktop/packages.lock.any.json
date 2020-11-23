@@ -117,11 +117,11 @@
       },
       "ReactiveProperty": {
         "type": "Direct",
-        "requested": "[7.4.0, )",
-        "resolved": "7.4.0",
-        "contentHash": "+kS8OAaXoOILkLxxMkFU7pg2XNs8URNHwupl70bI33K4hQZ+0qYPDveXmyPkWdNGu7PAlk27w7nK9rrNKo+htw==",
+        "requested": "[7.4.1, )",
+        "resolved": "7.4.1",
+        "contentHash": "h22iKghsm9xb1fLVjGkm9YbcTUXAcu2gSKD739euaVXIH3cs/6NScvdo9fA7QKtsWYPPSiIQ1P4sNsPfaVT3oQ==",
         "dependencies": {
-          "ReactiveProperty.Core": "7.4.0",
+          "ReactiveProperty.Core": "7.4.1",
           "System.ComponentModel.Annotations": "4.7.0",
           "System.Reactive": "4.4.1"
         }
@@ -545,8 +545,8 @@
       },
       "ReactiveProperty.Core": {
         "type": "Transitive",
-        "resolved": "7.4.0",
-        "contentHash": "22MXyavLP55OTePb139vG10pcqfkFqiS/VuK7LUM6vlXsX8rAlq9JEpXfE+nyiWGCsqa9SkKctFFG62honuDSg=="
+        "resolved": "7.4.1",
+        "contentHash": "qcFgN9wY51cneXSLG4pYpzFeocXer/6m2a1QFms1QVAFOawWUZx8PZ9+HPrUCbJ+sVD3vfbg3EwXsjeJV8Nt6g=="
       },
       "ReactiveUI": {
         "type": "Transitive",
