@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Omnius.Lxna.Components</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiteDB" Version="5.0.9" />
+    <PackageReference Include="NLog" Version="4.7.5" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.22.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Collections\Omnius.Core.Collections.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Cryptography\Omnius.Core.Cryptography.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Io\Omnius.Core.Io.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Network\Omnius.Core.Network.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.RocketPack.Remoting\Omnius.Core.RocketPack.Remoting.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.RocketPack\Omnius.Core.RocketPack.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Serialization\Omnius.Core.Serialization.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core\Omnius.Core.csproj" />
+    <ProjectReference Include="..\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
+  </ItemGroup>
+
+</Project>

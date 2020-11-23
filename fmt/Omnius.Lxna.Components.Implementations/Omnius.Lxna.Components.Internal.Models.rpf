@@ -1,0 +1,25 @@
+﻿syntax v1.0;
+
+using "Omnius.Lxna.Components.Models";
+
+namespace "Omnius.Lxna.Components.Internal.Models";
+option csharp_access_level "internal";
+
+message FileMeta {
+    Path: string,
+    Length: uint64,
+    LastWriteTime: timestamp,
+}
+
+message ThumbnailMeta {
+    ResizeType: ThumbnailResizeType,
+    FormatType: ThumbnailFormatType,
+    Width: uint32,
+    Height: uint32,
+}
+
+message ThumbnailCache {
+    FileMeta: FileMeta,
+    ThumbnailMeta: ThumbnailMeta,
+    Contents: vector<ThumbnailContent>(capacity: 8192),
+}
