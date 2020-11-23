@@ -57,55 +57,53 @@ namespace Omnius.Lxna.Components.Internal.Repositories
 
             public async Task<ThumbnailCache?> FindOneAsync(string filePath, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
             {
-                return await Task.Run(async () =>
+                await Task.Delay(1).ConfigureAwait(false);
+
+                using (await _asyncLock.LockAsync())
                 {
-                    using (await _asyncLock.LockAsync())
+                    var id = new ThumbnailCacheIdEntity()
                     {
-                        var id = new ThumbnailCacheIdEntity()
-                        {
-                            FilePath = filePath,
-                            ThumbnailWidth = width,
-                            ThumbnailHeight = height,
-                            ThumbnailResizeType = resizeType,
-                            ThumbnailFormatType = formatType,
-                        };
-                        var storage = this.GetStorage();
+                        FilePath = filePath,
+                        ThumbnailWidth = width,
+                        ThumbnailHeight = height,
+                        ThumbnailResizeType = resizeType,
+                        ThumbnailFormatType = formatType,
+                    };
+                    var storage = this.GetStorage();
 
-                        var liteFileInfo = storage.FindById(id);
-                        if (liteFileInfo is null)
-                        {
-                            return null;
-                        }
-
-                        using var inStream = liteFileInfo.OpenRead();
-                        return RocketPackHelper.StreamToMessage<ThumbnailCache>(inStream);
+                    var liteFileInfo = storage.FindById(id);
+                    if (liteFileInfo is null)
+                    {
+                        return null;
                     }
-                });
+
+                    using var inStream = liteFileInfo.OpenRead();
+                    return RocketPackHelper.StreamToMessage<ThumbnailCache>(inStream);
+                }
             }
 
             public async Task InsertAsync(ThumbnailCache entity)
             {
-                await Task.Run(async () =>
+                await Task.Delay(1).ConfigureAwait(false);
+
+                using (await _asyncLock.LockAsync())
                 {
-                    using (await _asyncLock.LockAsync())
+                    var id = new ThumbnailCacheIdEntity()
                     {
-                        var id = new ThumbnailCacheIdEntity()
-                        {
-                            FilePath = entity.FileMeta.Path,
-                            ThumbnailWidth = (int)entity.ThumbnailMeta.Width,
-                            ThumbnailHeight = (int)entity.ThumbnailMeta.Height,
-                            ThumbnailResizeType = entity.ThumbnailMeta.ResizeType,
-                            ThumbnailFormatType = entity.ThumbnailMeta.FormatType,
-                        };
-                        var storage = this.GetStorage();
+                        FilePath = entity.FileMeta.Path,
+                        ThumbnailWidth = (int)entity.ThumbnailMeta.Width,
+                        ThumbnailHeight = (int)entity.ThumbnailMeta.Height,
+                        ThumbnailResizeType = entity.ThumbnailMeta.ResizeType,
+                        ThumbnailFormatType = entity.ThumbnailMeta.FormatType,
+                    };
+                    var storage = this.GetStorage();
 
-                        using var recyclableMemoryStream = new RecyclableMemoryStream(_bytesPool);
-                        RocketPackHelper.MessageToStream(entity, recyclableMemoryStream);
-                        recyclableMemoryStream.Seek(0, SeekOrigin.Begin);
+                    using var recyclableMemoryStream = new RecyclableMemoryStream(_bytesPool);
+                    RocketPackHelper.MessageToStream(entity, recyclableMemoryStream);
+                    recyclableMemoryStream.Seek(0, SeekOrigin.Begin);
 
-                        storage.Upload(id, "-", recyclableMemoryStream);
-                    }
-                });
+                    storage.Upload(id, "-", recyclableMemoryStream);
+                }
             }
         }
     }
