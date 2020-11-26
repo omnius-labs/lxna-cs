@@ -86,10 +86,10 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
 
         private async Task LoadAsync(CancellationToken cancellationToken)
         {
-            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
-
             try
             {
+                await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     await _shownModelSetChangedEvent.WaitAsync(cancellationToken);
@@ -183,10 +183,10 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
 
         private async Task RotateAsync(CancellationToken cancellationToken)
         {
-            await Task.Delay(1).ConfigureAwait(false);
-
             try
             {
+                await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
