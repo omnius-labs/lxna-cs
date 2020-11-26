@@ -17,8 +17,8 @@
         <vm:SearchControlViewModel/>
     </Design.DataContext>
 
-    <Grid ColumnDefinitions="Auto,*">
-        <TreeView Name="TreeView" Grid.Column="0" Width="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+    <Grid ColumnDefinitions="Auto,4,*">
+        <TreeView Name="TreeView" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
                   Items="{Binding RootDirectories}" SelectedItem="{Binding SelectedDirectory.Value}" >
             <TreeView.Styles>
@@ -35,7 +35,8 @@
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
-        <ScrollViewer Grid.Column="1"  HorizontalScrollBarVisibility="Disabled" >
+        <GridSplitter Grid.Column="1" />
+        <ScrollViewer Grid.Column="2" HorizontalScrollBarVisibility="Disabled" >
             <ItemsRepeater x:Name="ItemsRepeater" HorizontalAlignment="Stretch" Items="{Binding CurrentItems}">
                 <ItemsRepeater.Layout>
                     <UniformGridLayout MinItemWidth="256" MinItemHeight="272" MinColumnSpacing="2" MinRowSpacing="2"/>
