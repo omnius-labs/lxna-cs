@@ -9,18 +9,6 @@ namespace Omnius.Lxna.Ui.Desktop.Views
 {
     public class MainWindow : Window
     {
-        private readonly MainWindowViewModel _viewModel;
-
-        public MainWindow(MainWindowViewModel viewModel)
-            : this()
-        {
-            _viewModel = viewModel;
-            this.DataContext = _viewModel;
-
-            var searchControl = this.FindControl<SearchControl>("SearchControl");
-            searchControl.ViewModel = _viewModel.SearchControlViewModel;
-        }
-
         public MainWindow()
         {
             InitializeComponent();
@@ -32,6 +20,20 @@ namespace Omnius.Lxna.Ui.Desktop.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        protected override void OnDataContextChanged(EventArgs e)
+        {
+            base.OnDataContextChanged(e);
+
+            var searchControl = this.FindControl<SearchControl>("SearchControl");
+            searchControl.ViewModel = this.ViewModel.SearchControlViewModel;
+        }
+
+        public MainWindowViewModel? ViewModel
+        {
+            get => this.DataContext as MainWindowViewModel;
+            set => this.DataContext = value;
         }
 
         protected override async void OnClosed(EventArgs e)
