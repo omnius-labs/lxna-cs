@@ -27,7 +27,7 @@ namespace Omnius.Lxna.Ui.Desktop
                 var thumbnailGenerator = ThumbnailGenerator.Factory.CreateAsync(configPath, new ThumbnailGeneratorOptions(8), BytesPool.Shared).Result;
                 var mainWindowViewModel = new MainWindowViewModel(thumbnailGenerator);
 
-                desktop.MainWindow = new MainWindow(mainWindowViewModel);
+                desktop.MainWindow = new MainWindow() { ViewModel = mainWindowViewModel };
             }
 
             base.OnFrameworkInitializationCompleted();
