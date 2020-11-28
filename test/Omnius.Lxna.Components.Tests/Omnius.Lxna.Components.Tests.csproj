@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.8.0" />
   </ItemGroup>
 
 </Project>
