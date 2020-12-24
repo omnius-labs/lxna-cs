@@ -1,15 +1,14 @@
-
 using System;
 using Omnius.Lxna.Components.Models;
 
 namespace Omnius.Lxna.Components.Internal.Repositories.Entities
 {
-    public record ThumbnailCacheIdEntity
+    public class ThumbnailCacheIdEntity
     {
-        public string? FilePath { get; set; }
-        public ThumbnailResizeType ThumbnailResizeType { get; set; }
-        public ThumbnailFormatType ThumbnailFormatType { get; set; }
-        public int ThumbnailWidth { get; set; }
-        public int ThumbnailHeight { get; set; }
+        public string? FilePath { get; init; }
+        public ThumbnailResizeType ThumbnailResizeType { get; init; }
+        public ThumbnailFormatType ThumbnailFormatType { get; init; }
+        public int ThumbnailWidth { get; init; }
+        public int ThumbnailHeight { get; init; }
     }
 }

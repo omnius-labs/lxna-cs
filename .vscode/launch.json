@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Omnius.Lxna.Ui.Desktop",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/tmp/bin/win/Omnius.Lxna.Ui.Desktop/Debug/net5.0/Omnius.Lxna.Ui.Desktop.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/tmp/bin/win/Omnius.Lxna.Ui.Desktop/Debug/net5.0",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        }
+    ]
+}

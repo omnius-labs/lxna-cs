@@ -33,7 +33,7 @@ namespace Omnius.Lxna.Components
         private readonly ThumbnailGeneratorRepository _thumbnailGeneratorRepository;
 
         private static readonly HashSet<string> _pictureTypeExtensionList = new HashSet<string>() { ".bmp", ".jpg", ".jpeg", ".png", ".gif", ".heic" };
-        private static readonly HashSet<string> _movieTypeExtensionList = new HashSet<string>() { ".mp4", ".avi", ".wmv", ".mov", ".m4v", ".mkv", ".mpg", "flv" };
+        private static readonly HashSet<string> _movieTypeExtensionList = new HashSet<string>() { ".mp4", ".avi", ".wmv", ".mov", ".m4v", ".mkv", ".mpg", ".flv" };
         private static readonly Base16 _base16 = new Base16(ConvertStringCase.Lower);
 
         internal sealed class ThumbnailGeneratorFactory : IThumbnailGeneratorFactory

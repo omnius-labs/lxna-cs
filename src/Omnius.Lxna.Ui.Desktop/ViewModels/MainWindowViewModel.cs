@@ -22,12 +22,12 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
             this.SearchControlViewModel = new SearchControlViewModel(_thumbnailGenerator);
         }
 
-        public SearchControlViewModel SearchControlViewModel { get; }
-
         protected override async ValueTask OnDisposeAsync()
         {
             _disposable.Dispose();
             await this.SearchControlViewModel.DisposeAsync();
         }
+
+        public SearchControlViewModel SearchControlViewModel { get; }
     }
 }

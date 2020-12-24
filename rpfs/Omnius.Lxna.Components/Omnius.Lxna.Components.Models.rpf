@@ -2,6 +2,10 @@
 
 namespace "Omnius.Lxna.Components.Models";
 
+message LxnaPath {
+    Values: vector<string(capacity: 8192)>(capacity: 32),
+}
+
 enum ThumbnailResizeType : uint8 {
     Pad = 0,
     Crop = 1,

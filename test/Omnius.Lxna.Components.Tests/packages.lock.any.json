@@ -315,6 +315,11 @@
         "resolved": "4.3.0",
         "contentHash": "VB5cn/7OzUfzdnC8tqAIMQciVLiq2epm2NrAm1E9OjNRyG4lVhfR61SMcLizejzQP8R8Uf/0l5qOIbUEi+RdEg=="
       },
+      "SevenZipExtractor": {
+        "type": "Transitive",
+        "resolved": "1.0.15",
+        "contentHash": "UdFBcqteOQNWqtfpChv16OJ+SCVWw4kdDAtFBeHxOYAxlvIGv6ZM7iWv/WOUyvbaU+dj9LtWpuXaVRD6x31few=="
+      },
       "SixLabors.ImageSharp": {
         "type": "Transitive",
         "resolved": "1.0.1",
@@ -1238,6 +1243,7 @@
           "Omnius.Core.RocketPack.Remoting": "0.0.1-alpha.1",
           "Omnius.Core.Serialization": "0.0.1-alpha.1",
           "Omnius.Lxna.Components": "0.0.1-alpha.1",
+          "SevenZipExtractor": "1.0.15",
           "SixLabors.ImageSharp": "1.0.1"
         }
       }
