@@ -1,5 +1,8 @@
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 {
@@ -10,15 +13,38 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
         public DirectoryModel(string path)
         {
             this.Path = path;
-
-            this.Name = System.IO.Path.GetFileName(this.Path);
-            if (string.IsNullOrWhiteSpace(this.Name))
-            {
-                this.Name = path;
-            }
         }
 
-        public string Path { get; }
+        private string _path = string.Empty;
+
+        public string Path
+        {
+            get => _path;
+            private set
+            {
+                if (value == string.Empty)
+                {
+                    this.SetProperty(ref _path, value);
+                    this.Name = value;
+                    return;
+                }
+
+                var fullPath = System.IO.Path.GetFullPath(value);
+                this.SetProperty(ref _path, fullPath);
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    if (fullPath == System.IO.Path.GetPathRoot(fullPath))
+                    {
+                        this.Name = fullPath;
+                    }
+                    else
+                    {
+                        this.Name = System.IO.Path.GetFileName(this.Path);
+                    }
+                }
+            }
+        }
 
         private string _name = string.Empty;
 
@@ -34,10 +60,29 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
         {
             this.Children.Clear();
 
-            foreach (var directoryPath in Directory.GetDirectories(this.Path, "*", SearchOption.TopDirectoryOnly))
+            var list = Directory.GetDirectories(this.Path, "*", SearchOption.TopDirectoryOnly).ToList();
+            list.Sort();
+
+            foreach (var directoryPath in list)
             {
                 this.Children.Add(new DirectoryModel(directoryPath));
             }
+        }
+
+        public bool IsContainsSubDirectories()
+        {
+            try
+            {
+                return Directory.EnumerateDirectories(this.Path).Any();
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+            catch (IOException)
+            {
+            }
+
+            return false;
         }
     }
 }

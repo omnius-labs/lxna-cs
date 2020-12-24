@@ -1,6 +1,4 @@
 using System;
-using System.IO;
-using System.Linq;
 using System.Reactive.Disposables;
 using Omnius.Lxna.Ui.Desktop.Models.Primitives;
 using Reactive.Bindings;
@@ -10,7 +8,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 {
     public sealed class DirectoryViewModel : TreeViewModelBase
     {
-        private readonly CompositeDisposable _disposable = new CompositeDisposable();
+        private readonly CompositeDisposable _disposable = new();
 
         public DirectoryViewModel(TreeViewModelBase? parent, DirectoryModel model)
             : base(parent)
@@ -22,7 +20,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
             this.IsExpanded = new ReactiveProperty<bool>().AddTo(_disposable);
             this.IsExpanded.Subscribe(value => this.OnIsExpanded(value)).AddTo(_disposable);
 
-            if (string.IsNullOrEmpty(model.Path) || !this.ContainsSubDirectories())
+            if (string.IsNullOrEmpty(model.Path))
             {
                 return;
             }
@@ -36,22 +34,6 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
             {
                 _disposable.Dispose();
             }
-        }
-
-        private bool ContainsSubDirectories()
-        {
-            try
-            {
-                return Directory.EnumerateDirectories(this.Model.Path).Any();
-            }
-            catch (UnauthorizedAccessException)
-            {
-            }
-            catch (IOException)
-            {
-            }
-
-            return false;
         }
 
         public DirectoryModel Model { get; }

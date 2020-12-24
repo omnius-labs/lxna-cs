@@ -14,6 +14,8 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 {
     public sealed class ItemModel : BindableBase, IDisposable
     {
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly object _lockObject = new object();
 
         public ItemModel(string path)
@@ -35,11 +37,32 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
             _thumbnailContents = ReadOnlyListSlim<ThumbnailContent>.Empty;
             _currentOffset = -1;
             _nextOffset = 0;
+
+            this.RaisePropertyChanged(nameof(this.Thumbnail));
         }
 
-        public string Path { get; }
+        private string _path = string.Empty;
+
+        public string Path
+        {
+            get => _path;
+            private set
+            {
+                if (value == string.Empty)
+                {
+                    this.SetProperty(ref _path, value);
+                    this.Name = value;
+                    return;
+                }
+
+                var fullPath = System.IO.Path.GetFullPath(value);
+                this.SetProperty(ref _path, fullPath);
+                this.Name = System.IO.Path.GetFileName(fullPath);
+            }
+        }
 
         private string _name = string.Empty;
+
         public string Name
         {
             get => _name;
@@ -47,6 +70,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
         }
 
         private Bitmap? _thumbnail = null;
+
         public Bitmap? Thumbnail
         {
             get
@@ -93,18 +117,25 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                lock (_lockObject)
+                try
                 {
-                    foreach (var content in _thumbnailContents)
+                    lock (_lockObject)
                     {
-                        content.Dispose();
+                        foreach (var content in _thumbnailContents)
+                        {
+                            content.Dispose();
+                        }
+
+                        _thumbnailContents = ReadOnlyListSlim<ThumbnailContent>.Empty;
+                        _currentOffset = -1;
+                        _nextOffset = 0;
+
+                        this.RaisePropertyChanged(nameof(this.Thumbnail));
                     }
-
-                    _thumbnailContents = ReadOnlyListSlim<ThumbnailContent>.Empty;
-                    _currentOffset = -1;
-                    _nextOffset = 0;
-
-                    this.RaisePropertyChanged(nameof(this.Thumbnail));
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e);
                 }
             });
         }
@@ -113,18 +144,25 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                lock (_lockObject)
+                try
                 {
-                    foreach (var content in _thumbnailContents)
+                    lock (_lockObject)
                     {
-                        content.Dispose();
+                        foreach (var content in _thumbnailContents)
+                        {
+                            content.Dispose();
+                        }
+
+                        _thumbnailContents = new ReadOnlyListSlim<ThumbnailContent>(thumbnailContents.ToArray());
+                        _currentOffset = -1;
+                        _nextOffset = 0;
+
+                        this.RaisePropertyChanged(nameof(this.Thumbnail));
                     }
-
-                    _thumbnailContents = new ReadOnlyListSlim<ThumbnailContent>(thumbnailContents.ToArray());
-                    _currentOffset = -1;
-                    _nextOffset = 0;
-
-                    this.RaisePropertyChanged(nameof(this.Thumbnail));
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e);
                 }
             });
         }
@@ -138,17 +176,24 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                lock (_lockObject)
+                try
                 {
-                    var offset = _nextOffset;
-                    offset++;
-                    offset %= _thumbnailContents.Count;
-
-                    if (offset != _nextOffset)
+                    lock (_lockObject)
                     {
-                        _nextOffset = offset;
-                        this.RaisePropertyChanged(nameof(this.Thumbnail));
+                        var offset = _nextOffset;
+                        offset++;
+                        offset %= _thumbnailContents.Count;
+
+                        if (offset != _nextOffset)
+                        {
+                            _nextOffset = offset;
+                            this.RaisePropertyChanged(nameof(this.Thumbnail));
+                        }
                     }
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e);
                 }
             });
         }

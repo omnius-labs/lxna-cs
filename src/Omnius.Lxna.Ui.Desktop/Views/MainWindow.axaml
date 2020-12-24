@@ -1,20 +1,15 @@
-﻿<Window x:Class="Omnius.Lxna.Ui.Desktop.Views.MainWindow"
+<Window x:Class="Omnius.Lxna.Ui.Desktop.Views.MainWindow"
         Title="Omnius.Lxna.Ui.Desktop"
         Icon="/Assets/avalonia-logo.ico"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:dataGrid="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.DataGrid"
         xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
         xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
         xmlns:v="clr-namespace:Omnius.Lxna.Ui.Desktop.Views;assembly=Omnius.Lxna.Ui.Desktop"
         xmlns:vm="clr-namespace:Omnius.Lxna.Ui.Desktop.ViewModels;assembly=Omnius.Lxna.Ui.Desktop"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         Width="800"
-        Height="450"
-        mc:Ignorable="d"
-        d:DesignWidth="800"
-        d:DesignHeight="450">
+        Height="500"
+        FontFamily="Meiryo UI, Lucida Grande, Ubuntu" >
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
