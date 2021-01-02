@@ -12,22 +12,22 @@ namespace Omnius.Lxna.Components.Models
     {
         Png = 0,
     }
-    public sealed partial class LxnaPath : global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.LxnaPath>
+    public sealed partial class NestedPath : global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.NestedPath>
     {
-        public static global::Omnius.Core.RocketPack.IRocketPackObjectFormatter<global::Omnius.Lxna.Components.Models.LxnaPath> Formatter => global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.LxnaPath>.Formatter;
-        public static global::Omnius.Lxna.Components.Models.LxnaPath Empty => global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.LxnaPath>.Empty;
+        public static global::Omnius.Core.RocketPack.IRocketPackObjectFormatter<global::Omnius.Lxna.Components.Models.NestedPath> Formatter => global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.NestedPath>.Formatter;
+        public static global::Omnius.Lxna.Components.Models.NestedPath Empty => global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.NestedPath>.Empty;
 
-        static LxnaPath()
+        static NestedPath()
         {
-            global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.LxnaPath>.Formatter = new ___CustomFormatter();
-            global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.LxnaPath>.Empty = new global::Omnius.Lxna.Components.Models.LxnaPath(global::System.Array.Empty<string>());
+            global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.NestedPath>.Formatter = new ___CustomFormatter();
+            global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.NestedPath>.Empty = new global::Omnius.Lxna.Components.Models.NestedPath(global::System.Array.Empty<string>());
         }
 
         private readonly global::System.Lazy<int> ___hashCode;
 
         public static readonly int MaxValuesCount = 32;
 
-        public LxnaPath(string[] values)
+        public NestedPath(string[] values)
         {
             if (values is null) throw new global::System.ArgumentNullException("values");
             if (values.Length > 32) throw new global::System.ArgumentOutOfRangeException("values");
@@ -52,7 +52,7 @@ namespace Omnius.Lxna.Components.Models
 
         public global::Omnius.Core.Collections.ReadOnlyListSlim<string> Values { get; }
 
-        public static global::Omnius.Lxna.Components.Models.LxnaPath Import(global::System.Buffers.ReadOnlySequence<byte> sequence, global::Omnius.Core.IBytesPool bytesPool)
+        public static global::Omnius.Lxna.Components.Models.NestedPath Import(global::System.Buffers.ReadOnlySequence<byte> sequence, global::Omnius.Core.IBytesPool bytesPool)
         {
             var reader = new global::Omnius.Core.RocketPack.RocketPackObjectReader(sequence, bytesPool);
             return Formatter.Deserialize(ref reader, 0);
@@ -63,20 +63,20 @@ namespace Omnius.Lxna.Components.Models
             Formatter.Serialize(ref writer, this, 0);
         }
 
-        public static bool operator ==(global::Omnius.Lxna.Components.Models.LxnaPath? left, global::Omnius.Lxna.Components.Models.LxnaPath? right)
+        public static bool operator ==(global::Omnius.Lxna.Components.Models.NestedPath? left, global::Omnius.Lxna.Components.Models.NestedPath? right)
         {
             return (right is null) ? (left is null) : right.Equals(left);
         }
-        public static bool operator !=(global::Omnius.Lxna.Components.Models.LxnaPath? left, global::Omnius.Lxna.Components.Models.LxnaPath? right)
+        public static bool operator !=(global::Omnius.Lxna.Components.Models.NestedPath? left, global::Omnius.Lxna.Components.Models.NestedPath? right)
         {
             return !(left == right);
         }
         public override bool Equals(object? other)
         {
-            if (!(other is global::Omnius.Lxna.Components.Models.LxnaPath)) return false;
-            return this.Equals((global::Omnius.Lxna.Components.Models.LxnaPath)other);
+            if (!(other is global::Omnius.Lxna.Components.Models.NestedPath)) return false;
+            return this.Equals((global::Omnius.Lxna.Components.Models.NestedPath)other);
         }
-        public bool Equals(global::Omnius.Lxna.Components.Models.LxnaPath? target)
+        public bool Equals(global::Omnius.Lxna.Components.Models.NestedPath? target)
         {
             if (target is null) return false;
             if (object.ReferenceEquals(this, target)) return true;
@@ -86,9 +86,9 @@ namespace Omnius.Lxna.Components.Models
         }
         public override int GetHashCode() => ___hashCode.Value;
 
-        private sealed class ___CustomFormatter : global::Omnius.Core.RocketPack.IRocketPackObjectFormatter<global::Omnius.Lxna.Components.Models.LxnaPath>
+        private sealed class ___CustomFormatter : global::Omnius.Core.RocketPack.IRocketPackObjectFormatter<global::Omnius.Lxna.Components.Models.NestedPath>
         {
-            public void Serialize(ref global::Omnius.Core.RocketPack.RocketPackObjectWriter w, in global::Omnius.Lxna.Components.Models.LxnaPath value, in int rank)
+            public void Serialize(ref global::Omnius.Core.RocketPack.RocketPackObjectWriter w, in global::Omnius.Lxna.Components.Models.NestedPath value, in int rank)
             {
                 if (rank > 256) throw new global::System.FormatException();
 
@@ -103,7 +103,7 @@ namespace Omnius.Lxna.Components.Models
                 }
                 w.Write((uint)0);
             }
-            public global::Omnius.Lxna.Components.Models.LxnaPath Deserialize(ref global::Omnius.Core.RocketPack.RocketPackObjectReader r, in int rank)
+            public global::Omnius.Lxna.Components.Models.NestedPath Deserialize(ref global::Omnius.Core.RocketPack.RocketPackObjectReader r, in int rank)
             {
                 if (rank > 256) throw new global::System.FormatException();
 
@@ -128,7 +128,7 @@ namespace Omnius.Lxna.Components.Models
                     }
                 }
 
-                return new global::Omnius.Lxna.Components.Models.LxnaPath(p_values);
+                return new global::Omnius.Lxna.Components.Models.NestedPath(p_values);
             }
         }
     }

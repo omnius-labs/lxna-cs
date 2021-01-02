@@ -27,7 +27,8 @@ namespace Omnius.Lxna.Components
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly string _configPath;
-        private readonly ThumbnailGeneratorOptions _options;
+        private readonly uint _concurrency;
+        private readonly IFileSystem _fileSystem;
         private readonly IBytesPool _bytesPool;
 
         private readonly ThumbnailGeneratorRepository _thumbnailGeneratorRepository;
@@ -38,9 +39,9 @@ namespace Omnius.Lxna.Components
 
         internal sealed class ThumbnailGeneratorFactory : IThumbnailGeneratorFactory
         {
-            public async ValueTask<IThumbnailGenerator> CreateAsync(string configPath, ThumbnailGeneratorOptions options, IBytesPool bytesPool)
+            public async ValueTask<IThumbnailGenerator> CreateAsync(ThumbnailGeneratorOptions options)
             {
-                var result = new ThumbnailGenerator(configPath, options, bytesPool);
+                var result = new ThumbnailGenerator(options);
                 await result.InitAsync();
 
                 return result;
@@ -49,11 +50,12 @@ namespace Omnius.Lxna.Components
 
         public static IThumbnailGeneratorFactory Factory { get; } = new ThumbnailGeneratorFactory();
 
-        internal ThumbnailGenerator(string configPath, ThumbnailGeneratorOptions options, IBytesPool bytesPool)
+        internal ThumbnailGenerator(ThumbnailGeneratorOptions options)
         {
-            _configPath = configPath;
-            _options = options;
-            _bytesPool = bytesPool;
+            _configPath = options.ConfigPath ?? throw new ArgumentNullException(nameof(options.ConfigPath));
+            _concurrency = options.Concurrency;
+            _fileSystem = options.FileSystem ?? throw new ArgumentNullException(nameof(options.FileSystem));
+            _bytesPool = options.BytesPool ?? BytesPool.Shared;
 
             _thumbnailGeneratorRepository = new ThumbnailGeneratorRepository(Path.Combine(_configPath, "thumbnails.db"), _bytesPool);
         }
@@ -68,13 +70,33 @@ namespace Omnius.Lxna.Components
             _thumbnailGeneratorRepository.Dispose();
         }
 
-        public async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailAsync(string filePath, ThumbnailGeneratorGetThumbnailOptions options, bool cacheOnly = false, CancellationToken cancellationToken = default)
+        public async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailAsync(NestedPath filePath, ThumbnailGeneratorGetThumbnailOptions options, bool cacheOnly = false, CancellationToken cancellationToken = default)
         {
             await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
+            if (!await _fileSystem.ExistsFileAsync(filePath, cancellationToken))
+            {
+                return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
+            }
+
+            // Cache
+            {
+                var result = await this.GetThumbnailFromCacheAsync(filePath, options, cancellationToken).ConfigureAwait(false);
+
+                if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
+                {
+                    return result;
+                }
+            }
+
+            if (cacheOnly)
+            {
+                return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
+            }
+
             // Picture
             {
-                var result = await this.GetPictureThumbnailAsync(filePath, options, cacheOnly, cancellationToken).ConfigureAwait(false);
+                var result = await this.GetPictureThumbnailAsync(filePath, options, cancellationToken).ConfigureAwait(false);
 
                 if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
                 {
@@ -84,7 +106,7 @@ namespace Omnius.Lxna.Components
 
             // Movie
             {
-                var result = await this.GetMovieThumbnailAsync(filePath, options, cacheOnly, cancellationToken).ConfigureAwait(false);
+                var result = await this.GetMovieThumbnailAsync(filePath, options, cancellationToken).ConfigureAwait(false);
 
                 if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
                 {
@@ -95,101 +117,92 @@ namespace Omnius.Lxna.Components
             return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
         }
 
-        private void ConvertImage(Stream inStream, Stream outStream, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
+        private async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetThumbnailFromCacheAsync(NestedPath filePath, ThumbnailGeneratorGetThumbnailOptions options, CancellationToken cancellationToken = default)
         {
-            using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
-            {
-                try
-                {
-                    using (var magickImage = new ImageMagick.MagickImage(inStream, ImageMagick.MagickFormat.Unknown))
-                    {
-                        magickImage.Format = ImageMagick.MagickFormat.Bmp;
-                        magickImage.Write(bitmapStream);
-                    }
+            var cache = await _thumbnailGeneratorRepository.ThumbnailCaches.FindOneAsync(filePath, options.Width, options.Height, options.ResizeType, options.FormatType);
 
-                    bitmapStream.Seek(0, SeekOrigin.Begin);
-                }
-                catch (Exception e)
-                {
-                    // MagickImageはExceptionを返すことがある
-                    throw new NotSupportedException(e.GetType().ToString(), e);
-                }
-
-                var image = SixLabors.ImageSharp.Image.Load(bitmapStream);
-                image.Mutate(x =>
-                {
-                    var resizeOptions = new ResizeOptions
-                    {
-                        Position = AnchorPositionMode.Center,
-                        Size = new SixLabors.ImageSharp.Size(width, height),
-                        Mode = resizeType switch
-                        {
-                            ThumbnailResizeType.Pad => ResizeMode.Pad,
-                            ThumbnailResizeType.Crop => ResizeMode.Crop,
-                            _ => throw new NotSupportedException(),
-                        },
-                    };
-
-                    x.Resize(resizeOptions);
-                });
-
-                if (formatType == ThumbnailFormatType.Png)
-                {
-                    var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
-                    image.Save(outStream, encoder);
-                    return;
-                }
-
-                throw new NotSupportedException();
-            }
-        }
-
-        private async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetPictureThumbnailAsync(string filePath, ThumbnailGeneratorGetThumbnailOptions options, bool cacheOnly, CancellationToken cancellationToken = default)
-        {
-            if (!File.Exists(filePath))
+            if (cache is null)
             {
                 return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
             }
 
-            if (!_pictureTypeExtensionList.Contains(Path.GetExtension(filePath).ToLower()))
+            var fileLength = await _fileSystem.GetFileSizeAsync(filePath, cancellationToken);
+            var fileLastWriteTime = await _fileSystem.GetFileLastWriteTimeAsync(filePath, cancellationToken);
+
+            if ((ulong)fileLength != cache.FileMeta.Length
+                    && Timestamp.FromDateTime(fileLastWriteTime) != cache.FileMeta.LastWriteTime)
+            {
+                return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
+            }
+
+            return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, cache.Contents);
+        }
+
+        private async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetPictureThumbnailAsync(NestedPath filePath, ThumbnailGeneratorGetThumbnailOptions options, CancellationToken cancellationToken = default)
+        {
+            if (!_pictureTypeExtensionList.Contains(filePath.GetExtension().ToLower()))
             {
                 return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
             }
 
             try
             {
-                var fullPath = Path.GetFullPath(filePath);
-                var fileInfo = new FileInfo(fullPath);
+                var fileLength = await _fileSystem.GetFileSizeAsync(filePath, cancellationToken);
+                var fileLastWriteTime = await _fileSystem.GetFileLastWriteTimeAsync(filePath, cancellationToken);
 
-                var cache = await _thumbnailGeneratorRepository.ThumbnailCaches.FindOneAsync(fullPath, options.Width, options.Height, options.ResizeType, options.FormatType);
-
-                if (cache is not null)
-                {
-                    if ((ulong)fileInfo.Length == cache.FileMeta.Length
-                        && Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc) == cache.FileMeta.LastWriteTime)
-                    {
-                        return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, cache.Contents);
-                    }
-                }
-
-                if (cacheOnly)
-                {
-                    return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
-                }
-
-                using (var inStream = new FileStream(fullPath, FileMode.Open))
+                using (var inStream = await _fileSystem.GetFileStreamAsync(filePath, cancellationToken))
                 using (var outStream = new RecyclableMemoryStream(_bytesPool))
                 {
                     this.ConvertImage(inStream, outStream, options.Width, options.Height, options.ResizeType, options.FormatType);
                     outStream.Seek(0, SeekOrigin.Begin);
 
-                    var fileMeta = new FileMeta(fullPath, (ulong)fileInfo.Length, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc));
+                    var fileMeta = new FileMeta(filePath, (ulong)fileLength, Timestamp.FromDateTime(fileLastWriteTime));
                     var thumbnailMeta = new ThumbnailMeta(options.ResizeType, options.FormatType, (uint)options.Width, (uint)options.Height);
                     var content = new ThumbnailContent(outStream.ToMemoryOwner());
-                    cache = new ThumbnailCache(fileMeta, thumbnailMeta, new[] { content });
+                    var cache = new ThumbnailCache(fileMeta, thumbnailMeta, new[] { content });
 
                     await _thumbnailGeneratorRepository.ThumbnailCaches.InsertAsync(cache);
+
+                    return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, cache.Contents);
                 }
+            }
+            catch (NotSupportedException e)
+            {
+                _logger.Warn(e);
+            }
+            catch (OperationCanceledException e)
+            {
+                _logger.Debug(e);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+                throw;
+            }
+
+            return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
+        }
+
+        private async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetMovieThumbnailAsync(NestedPath filePath, ThumbnailGeneratorGetThumbnailOptions options, CancellationToken cancellationToken = default)
+        {
+            if (!_movieTypeExtensionList.Contains(filePath.GetExtension().ToLower()))
+            {
+                return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
+            }
+
+            try
+            {
+                var fileLength = await _fileSystem.GetFileSizeAsync(filePath, cancellationToken);
+                var fileLastWriteTime = await _fileSystem.GetFileLastWriteTimeAsync(filePath, cancellationToken);
+
+                var images = await this.GetMovieImagesAsync(filePath, options.MinInterval, options.MaxImageCount, options.Width, options.Height, options.ResizeType, options.FormatType, cancellationToken).ConfigureAwait(false);
+
+                var fileMeta = new FileMeta(filePath, (ulong)fileLength, Timestamp.FromDateTime(fileLastWriteTime));
+                var thumbnailMeta = new ThumbnailMeta(options.ResizeType, options.FormatType, (uint)options.Width, (uint)options.Height);
+                var contents = images.Select(n => new ThumbnailContent(n)).ToArray();
+                var cache = new ThumbnailCache(fileMeta, thumbnailMeta, contents);
+
+                await _thumbnailGeneratorRepository.ThumbnailCaches.InsertAsync(cache);
 
                 return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, cache.Contents);
             }
@@ -208,6 +221,66 @@ namespace Omnius.Lxna.Components
             }
 
             return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
+        }
+
+        private async ValueTask<IMemoryOwner<byte>[]> GetMovieImagesAsync(NestedPath filePath, TimeSpan minInterval, int maxImageCount, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, CancellationToken cancellationToken = default)
+        {
+            var resultMap = new ConcurrentDictionary<int, IMemoryOwner<byte>>();
+
+            using var extractedFileOwner = await _fileSystem.ExtractFileAsync(filePath, cancellationToken);
+
+            var duration = await GetMovieDurationAsync(extractedFileOwner.Path, cancellationToken).ConfigureAwait(false);
+            int intervalSeconds = (int)Math.Max(minInterval.TotalSeconds, duration.TotalSeconds / maxImageCount);
+            int imageCount = (int)(duration.TotalSeconds / intervalSeconds);
+
+            await Enumerable.Range(1, imageCount)
+                .Select(x => x * intervalSeconds)
+                .Where(seekSec => (duration.TotalSeconds - seekSec) > 1) // 残り1秒以下の場合は除外
+                .ForEachAsync(
+                    async (seekSec) =>
+                    {
+                        try
+                        {
+                            var arguments = $"-loglevel error -ss {seekSec} -i \"{extractedFileOwner.Path}\" -vframes 1 -f image2 pipe:1";
+
+                            using var process = Process.Start(new ProcessStartInfo("ffmpeg", arguments)
+                            {
+                                CreateNoWindow = true,
+                                UseShellExecute = false,
+                                RedirectStandardOutput = true,
+                                RedirectStandardError = false,
+                            });
+
+                            using var baseStream = process!.StandardOutput.BaseStream;
+                            using var inStream = new RecyclableMemoryStream(_bytesPool);
+                            using var outStream = new RecyclableMemoryStream(_bytesPool);
+
+                            await baseStream.CopyToAsync(inStream, cancellationToken);
+                            inStream.Seek(0, SeekOrigin.Begin);
+                            this.ConvertImage(inStream, outStream, width, height, resizeType, formatType);
+
+                            await process.WaitForExitAsync(cancellationToken);
+
+                            resultMap[seekSec] = outStream.ToMemoryOwner();
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.Warn(e);
+                            throw;
+                        }
+                    }, (int)_concurrency, cancellationToken).ConfigureAwait(false);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (resultMap.IsEmpty)
+            {
+                throw new NotSupportedException();
+            }
+
+            var tempList = resultMap.ToList();
+            tempList.Sort((x, y) => x.Key.CompareTo(y.Key));
+
+            return tempList.Select(n => n.Value).ToArray();
         }
 
         private static async ValueTask<TimeSpan> GetMovieDurationAsync(string path, CancellationToken cancellationToken = default)
@@ -236,123 +309,34 @@ namespace Omnius.Lxna.Components
             return result;
         }
 
-        private async ValueTask<IMemoryOwner<byte>[]> GetMovieImagesAsync(string path, TimeSpan minInterval, int maxImageCount, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        private void ConvertImage(Stream inStream, Stream outStream, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
         {
-            var resultMap = new ConcurrentDictionary<int, IMemoryOwner<byte>>();
-
-            var duration = await GetMovieDurationAsync(path, cancellationToken).ConfigureAwait(false);
-            int intervalSeconds = (int)Math.Max(minInterval.TotalSeconds, duration.TotalSeconds / maxImageCount);
-            int imageCount = (int)(duration.TotalSeconds / intervalSeconds);
-
-            await Enumerable.Range(1, imageCount)
-                .Select(x => x * intervalSeconds)
-                .Where(seekSec => (duration.TotalSeconds - seekSec) > 1) // 残り1秒以下の場合は除外
-                .ForEachAsync(
-                    async (seekSec) =>
-                    {
-                        try
-                        {
-                            var arguments = $"-loglevel error -ss {seekSec} -i \"{path}\" -vframes 1 -f image2 pipe:1";
-
-                            using var process = Process.Start(new ProcessStartInfo("ffmpeg", arguments)
-                            {
-                                CreateNoWindow = true,
-                                UseShellExecute = false,
-                                RedirectStandardOutput = true,
-                                RedirectStandardError = false,
-                            });
-
-                            using var baseStream = process!.StandardOutput.BaseStream;
-                            using var inStream = new RecyclableMemoryStream(_bytesPool);
-                            using var outStream = new RecyclableMemoryStream(_bytesPool);
-
-                            await baseStream.CopyToAsync(inStream, cancellationToken);
-                            inStream.Seek(0, SeekOrigin.Begin);
-                            this.ConvertImage(inStream, outStream, width, height, resizeType, formatType);
-
-                            await process.WaitForExitAsync(cancellationToken);
-
-                            resultMap[seekSec] = outStream.ToMemoryOwner();
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.Warn(e);
-                            throw;
-                        }
-                    }, (int)_options.Concurrency, cancellationToken).ConfigureAwait(false);
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (resultMap.IsEmpty)
+            var image = SixLabors.ImageSharp.Image.Load(inStream);
+            image.Mutate(x =>
             {
-                throw new NotSupportedException();
-            }
-
-            var tempList = resultMap.ToList();
-            tempList.Sort((x, y) => x.Key.CompareTo(y.Key));
-
-            return tempList.Select(n => n.Value).ToArray();
-        }
-
-        private async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetMovieThumbnailAsync(string filePath, ThumbnailGeneratorGetThumbnailOptions options, bool cacheOnly, CancellationToken cancellationToken = default)
-        {
-            if (!File.Exists(filePath))
-            {
-                return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
-            }
-
-            if (!_movieTypeExtensionList.Contains(Path.GetExtension(filePath).ToLower()))
-            {
-                return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
-            }
-
-            try
-            {
-                var fullPath = Path.GetFullPath(filePath);
-                var fileInfo = new FileInfo(fullPath);
-
-                var cache = await _thumbnailGeneratorRepository.ThumbnailCaches.FindOneAsync(fullPath, options.Width, options.Height, options.ResizeType, options.FormatType);
-
-                if (cache is not null)
+                var resizeOptions = new ResizeOptions
                 {
-                    if ((ulong)fileInfo.Length == cache.FileMeta.Length
-                        && Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc) == cache.FileMeta.LastWriteTime)
+                    Position = AnchorPositionMode.Center,
+                    Size = new SixLabors.ImageSharp.Size(width, height),
+                    Mode = resizeType switch
                     {
-                        return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, cache.Contents);
-                    }
-                }
+                        ThumbnailResizeType.Pad => ResizeMode.Pad,
+                        ThumbnailResizeType.Crop => ResizeMode.Crop,
+                        _ => throw new NotSupportedException(),
+                    },
+                };
 
-                if (cacheOnly)
-                {
-                    return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
-                }
+                x.Resize(resizeOptions);
+            });
 
-                var images = await this.GetMovieImagesAsync(fullPath, options.MinInterval, options.MaxImageCount, options.Width, options.Height, options.ResizeType, options.FormatType, cancellationToken).ConfigureAwait(false);
-
-                var fileMeta = new FileMeta(fullPath, (ulong)fileInfo.Length, Timestamp.FromDateTime(fileInfo.LastWriteTimeUtc));
-                var thumbnailMeta = new ThumbnailMeta(options.ResizeType, options.FormatType, (uint)options.Width, (uint)options.Height);
-                var contents = images.Select(n => new ThumbnailContent(n)).ToArray();
-                cache = new ThumbnailCache(fileMeta, thumbnailMeta, contents);
-
-                await _thumbnailGeneratorRepository.ThumbnailCaches.InsertAsync(cache);
-
-                return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Succeeded, cache.Contents);
-            }
-            catch (NotSupportedException e)
+            if (formatType == ThumbnailFormatType.Png)
             {
-                _logger.Warn(e);
-            }
-            catch (OperationCanceledException e)
-            {
-                _logger.Debug(e);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
-                throw;
+                var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
+                image.Save(outStream, encoder);
+                return;
             }
 
-            return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
+            throw new NotSupportedException();
         }
     }
 }

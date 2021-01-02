@@ -9,16 +9,18 @@ namespace Omnius.Lxna.Components.Internal.Helpers
 {
     internal static unsafe class FileHelper
     {
+        private static readonly Lazy<Base16> _base16 = new(() => new Base16(), true);
+
         public static async ValueTask<FileStream> GenTempFileStreamAsync(string destinationDirectoryPath, Random random, CancellationToken cancellationToken = default)
         {
             var buffer = new byte[32];
-            var base16 = new Base16();
 
             for (; ; )
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
                 random.NextBytes(buffer);
-                var randomText = base16.BytesToString(buffer);
+                var randomText = _base16.Value.BytesToString(buffer);
                 var tempFilePath = Path.Combine(destinationDirectoryPath, randomText);
 
                 try
