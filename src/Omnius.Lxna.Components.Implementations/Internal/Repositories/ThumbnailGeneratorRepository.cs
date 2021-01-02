@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteDB;
@@ -55,7 +52,7 @@ namespace Omnius.Lxna.Components.Internal.Repositories
 
             public ILiteStorage<ThumbnailCacheIdEntity> GetStorage() => _database.GetStorage<ThumbnailCacheIdEntity>("_thumbnail_cache_files", "_thumbnail_cache_chunks");
 
-            public async Task<ThumbnailCache?> FindOneAsync(string filePath, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
+            public async Task<ThumbnailCache?> FindOneAsync(NestedPath filePath, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
             {
                 await Task.Delay(1).ConfigureAwait(false);
 
@@ -63,7 +60,7 @@ namespace Omnius.Lxna.Components.Internal.Repositories
                 {
                     var id = new ThumbnailCacheIdEntity()
                     {
-                        FilePath = filePath,
+                        FilePath = NestedPathEntity.Import(filePath),
                         ThumbnailWidth = width,
                         ThumbnailHeight = height,
                         ThumbnailResizeType = resizeType,
@@ -90,7 +87,7 @@ namespace Omnius.Lxna.Components.Internal.Repositories
                 {
                     var id = new ThumbnailCacheIdEntity()
                     {
-                        FilePath = entity.FileMeta.Path,
+                        FilePath = NestedPathEntity.Import(entity.FileMeta.Path),
                         ThumbnailWidth = (int)entity.ThumbnailMeta.Width,
                         ThumbnailHeight = (int)entity.ThumbnailMeta.Height,
                         ThumbnailResizeType = entity.ThumbnailMeta.ResizeType,

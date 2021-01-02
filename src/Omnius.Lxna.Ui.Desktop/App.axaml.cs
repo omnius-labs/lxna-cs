@@ -21,13 +21,7 @@ namespace Omnius.Lxna.Ui.Desktop
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var configPath = Path.Combine(Directory.GetCurrentDirectory(), "../config");
-                Directory.CreateDirectory(configPath);
-
-                var thumbnailGenerator = ThumbnailGenerator.Factory.CreateAsync(configPath, new ThumbnailGeneratorOptions(8), BytesPool.Shared).Result;
-                var mainWindowViewModel = new MainWindowViewModel(thumbnailGenerator);
-
-                desktop.MainWindow = new MainWindow() { ViewModel = mainWindowViewModel };
+                desktop.MainWindow = new MainWindow();
             }
 
             base.OnFrameworkInitializationCompleted();

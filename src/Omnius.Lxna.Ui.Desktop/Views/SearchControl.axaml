@@ -1,26 +1,25 @@
 <UserControl x:Class="Omnius.Lxna.Ui.Desktop.Views.SearchControl"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:dataGrid="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.DataGrid"
         xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
         xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
         xmlns:vm="clr-namespace:Omnius.Lxna.Ui.Desktop.ViewModels;assembly=Omnius.Lxna.Ui.Desktop"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         Width="800"
-        Height="450"
-        mc:Ignorable="d"
-        d:DesignWidth="800"
-        d:DesignHeight="450">
+        Height="500" >
 
     <Design.DataContext>
         <vm:SearchControlViewModel/>
     </Design.DataContext>
 
-    <Grid ColumnDefinitions="Auto,4,*">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding TreeViewWidth.Value}" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         <TreeView Name="TreeView" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                  Items="{Binding RootDirectories}" SelectedItem="{Binding SelectedDirectory.Value}" >
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                Items="{Binding RootDirectories}" SelectedItem="{Binding SelectedDirectory.Value}">
             <TreeView.Styles>
                 <Style Selector="TreeViewItem">
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}"/>
@@ -39,18 +38,17 @@
         <ScrollViewer Grid.Column="2" HorizontalScrollBarVisibility="Disabled" >
             <ItemsRepeater x:Name="ItemsRepeater" HorizontalAlignment="Stretch" Items="{Binding CurrentItems}">
                 <ItemsRepeater.Layout>
-                    <UniformGridLayout MinItemWidth="256" MinItemHeight="272" MinColumnSpacing="2" MinRowSpacing="2"/>
+                    <UniformGridLayout MinItemWidth="256" MinItemHeight="256" MinColumnSpacing="2" MinRowSpacing="2"/>
                 </ItemsRepeater.Layout>
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Vertical">
-                            <Image Source="{Binding Thumbnail.Value}" Width="256" Height="256" />
-                            <TextBlock Text="{Binding Name.Value}" Height="16" />
-                        </StackPanel>
+                        <Grid Width="256" Height="256" RowDefinitions="*,Auto">
+                            <Image Grid.Row="0" Source="{Binding Thumbnail.Value}" />
+                            <TextBlock Grid.Row="1" Text="{Binding Name.Value}" TextWrapping="Wrap" />
+                        </Grid>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
         </ScrollViewer>
     </Grid>
-
 </UserControl>

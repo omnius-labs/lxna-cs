@@ -1,24 +1,43 @@
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using Omnius.Core.Helpers;
+using Omnius.Lxna.Components;
+using Omnius.Lxna.Components.Models;
 
 namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 {
     public sealed class DirectoryModel : BindableBase
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly IFileSystem _fileSystem;
 
-        public DirectoryModel(string path)
+        public DirectoryModel(NestedPath path, IFileSystem fileSystem)
         {
             this.Path = path;
-
-            this.Name = System.IO.Path.GetFileName(this.Path);
-            if (string.IsNullOrWhiteSpace(this.Name))
-            {
-                this.Name = path;
-            }
+            _fileSystem = fileSystem;
         }
 
-        public string Path { get; }
+        private NestedPath _path = NestedPath.Empty;
+
+        public NestedPath Path
+        {
+            get => _path;
+            private set
+            {
+                if (value == NestedPath.Empty)
+                {
+                    this.SetProperty(ref _path, value);
+                    this.Name = string.Empty;
+                    return;
+                }
+
+                this.SetProperty(ref _path, value);
+                this.Name = value.GetName();
+            }
+        }
 
         private string _name = string.Empty;
 
@@ -30,13 +49,16 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 
         public ObservableCollection<DirectoryModel> Children { get; } = new ObservableCollection<DirectoryModel>();
 
-        public void RefreshChildren()
+        public async void RefreshChildren()
         {
             this.Children.Clear();
 
-            foreach (var directoryPath in Directory.GetDirectories(this.Path, "*", SearchOption.TopDirectoryOnly))
+            var directories = await _fileSystem.FindDirectoriesAsync(this.Path);
+            var archiveFiles = await _fileSystem.FindArchiveFilesAsync(this.Path);
+
+            foreach (var directoryPath in CollectionHelper.Unite(directories, archiveFiles))
             {
-                this.Children.Add(new DirectoryModel(directoryPath));
+                this.Children.Add(new DirectoryModel(directoryPath, _fileSystem));
             }
         }
     }

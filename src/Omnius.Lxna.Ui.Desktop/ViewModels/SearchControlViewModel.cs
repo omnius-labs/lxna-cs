@@ -6,10 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
-using System.Text;
+using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Omnius.Core;
 using Omnius.Lxna.Components;
+using Omnius.Lxna.Components.Models;
 using Omnius.Lxna.Ui.Desktop.Interactors;
 using Omnius.Lxna.Ui.Desktop.Interactors.Models;
 using Reactive.Bindings;
@@ -21,46 +23,66 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
+        private readonly IFileSystem _fileSystem;
         private readonly IThumbnailGenerator _thumbnailGenerator;
-        private ThumbnailLoader _thumbnailLoader;
+        private readonly ThumbnailLoader _thumbnailLoader;
+
+        private TaskStatus? _refreshCurrentItemModelsTaskStatus = null;
+        private readonly AsyncLock _refreshCurrentItemModelsTaskAsyncLock = new AsyncLock();
 
         private readonly ObservableCollection<DirectoryModel> _rootDirectoryModels = new ObservableCollection<DirectoryModel>();
         private readonly ObservableCollection<ItemModel> _currentItemModels = new ObservableCollection<ItemModel>();
 
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
-        private readonly AsyncLock _asyncLock = new AsyncLock();
-
-        public SearchControlViewModel(IThumbnailGenerator thumbnailGenerator)
+        public SearchControlViewModel(IFileSystem fileSystem, IThumbnailGenerator thumbnailGenerator)
         {
+            _fileSystem = fileSystem;
             _thumbnailGenerator = thumbnailGenerator;
+            _thumbnailLoader = new ThumbnailLoader(_thumbnailGenerator);
 
-            this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(null, n)).AddTo(_disposable);
+            this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(null, n, _fileSystem)).AddTo(_disposable);
             this.SelectedDirectory = new ReactiveProperty<DirectoryViewModel>().AddTo(_disposable);
-            this.SelectedDirectory.Subscribe(n => { if (n != null) { this.TreeView_SelectionChanged(n); } }).AddTo(_disposable);
+            this.SelectedDirectory.Subscribe(n =>
+            {
+                if (n != null)
+                {
+                    this.TreeView_SelectionChanged(n);
+                }
+            }).AddTo(_disposable);
             this.CurrentItems = _currentItemModels.ToReadOnlyReactiveCollection(n => new ItemViewModel(n)).AddTo(_disposable);
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            this.Init();
+        }
+
+        private async void Init()
+        {
+            foreach (var drive in await _fileSystem.FindDirectoriesAsync())
             {
-                foreach (var drive in Directory.GetLogicalDrives())
-                {
-                    var model = new DirectoryModel(drive);
-                    _rootDirectoryModels.Add(model);
-                }
+                var model = new DirectoryModel(drive, _fileSystem);
+                _rootDirectoryModels.Add(model);
             }
         }
 
         protected override async ValueTask OnDisposeAsync()
         {
-            using (await _asyncLock.LockAsync())
-            {
-                if (_thumbnailLoader != null)
-                {
-                    await _thumbnailLoader.DisposeAsync();
-                }
+            _disposable.Dispose();
+            _cancellationTokenSource.Cancel();
 
-                _disposable.Dispose();
+            using (await _refreshCurrentItemModelsTaskAsyncLock.LockAsync())
+            {
+                if (_refreshCurrentItemModelsTaskStatus is not null)
+                {
+                    _refreshCurrentItemModelsTaskStatus.CancellationTokenSource.Cancel();
+                    await _refreshCurrentItemModelsTaskStatus.Task;
+                    _refreshCurrentItemModelsTaskStatus.CancellationTokenSource.Dispose();
+                }
             }
+
+            await _thumbnailLoader.DisposeAsync();
+
+            _cancellationTokenSource.Dispose();
         }
 
         public ReadOnlyReactiveCollection<DirectoryViewModel> RootDirectories { get; }
@@ -69,21 +91,31 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
 
         public ReadOnlyReactiveCollection<ItemViewModel> CurrentItems { get; }
 
-        public void NotifyDoubleTapped(object item)
+        public async void NotifyDoubleTapped(object item)
         {
             var path = ((ItemViewModel)item).Model.Path;
-
-            var process = new Process();
-            process.StartInfo.FileName = path;
-            process.StartInfo.UseShellExecute = true;
-            process.Start();
+            if (await _fileSystem.ExistsDirectoryAsync(path))
+            {
+                var directoryViewModel = this.SelectedDirectory.Value.Children.FirstOrDefault(n => n.Model.Path == path);
+                if (directoryViewModel is not null)
+                {
+                    this.SelectedDirectory.Value.IsExpanded.Value = true;
+                    //  this.SelectedDirectory.Value = directoryViewModel;
+                }
+            }
+            else if (await _fileSystem.ExistsFileAsync(path))
+            {
+                // var process = new Process();
+                // process.StartInfo.UseShellExecute = true;
+                // process.Start();
+            }
         }
 
         public void NotifyItemPrepared(object item)
         {
             if (item is ItemViewModel viewModel)
             {
-                _thumbnailLoader?.NotifyItemPrepared(viewModel.Model);
+                _thumbnailLoader.NotifyItemPrepared(viewModel.Model);
             }
         }
 
@@ -91,57 +123,99 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
         {
             if (item is ItemViewModel viewModel)
             {
-                _thumbnailLoader?.NotifyItemClearing(viewModel.Model);
+                _thumbnailLoader.NotifyItemClearing(viewModel.Model);
             }
         }
 
-        private void TreeView_SelectionChanged(DirectoryViewModel selectedDirectory)
+        private async void TreeView_SelectionChanged(DirectoryViewModel selectedDirectory)
         {
-            this.RefreshTree(selectedDirectory);
+            await this.RefreshCurrentItemModelsAsync(selectedDirectory);
         }
 
-        private async void RefreshTree(DirectoryViewModel selectedDirectory)
+        private async Task RefreshCurrentItemModelsAsync(DirectoryViewModel selectedDirectory)
         {
-            using (await _asyncLock.LockAsync())
+            await Task.Delay(1).ConfigureAwait(false);
+
+            using (await _refreshCurrentItemModelsTaskAsyncLock.LockAsync())
             {
-                // 古い描画タスクを終了する
-                if (_thumbnailLoader != null)
+                // 古い再描画タスクを終了する
+                if (_refreshCurrentItemModelsTaskStatus is not null)
                 {
-                    await _thumbnailLoader.DisposeAsync();
+                    _refreshCurrentItemModelsTaskStatus.CancellationTokenSource.Cancel();
+                    await _refreshCurrentItemModelsTaskStatus.Task;
+                    _refreshCurrentItemModelsTaskStatus.CancellationTokenSource.Dispose();
                 }
 
-                try
-                {
-                    var oldModels = _currentItemModels.ToArray();
-                    _currentItemModels.Clear();
+                var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token);
+                var task = this.RefreshCurrentItemModelsAsync(selectedDirectory.Model.Path, cancellationTokenSource.Token);
 
-                    foreach (var model in oldModels)
+                _refreshCurrentItemModelsTaskStatus = new TaskStatus(task, cancellationTokenSource);
+            }
+        }
+
+        private async Task RefreshCurrentItemModelsAsync(NestedPath path, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
+                await _thumbnailLoader.StopAsync();
+
+                await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    foreach (var model in _currentItemModels.ToArray())
                     {
                         model.Dispose();
                     }
 
-                    var tempList = Directory.GetFiles(selectedDirectory.Model.Path).ToList();
-                    tempList.Sort();
+                    _currentItemModels.Clear();
+                });
 
-                    foreach (var filePath in tempList)
-                    {
-                        _currentItemModels.Add(new ItemModel(filePath));
-                    }
-                }
-                catch (UnauthorizedAccessException)
+                var tempList = new List<NestedPath>();
+
+                try
                 {
-
+                    tempList.AddRange(await _fileSystem.FindFilesAsync(path, cancellationToken));
+                    tempList.AddRange(await _fileSystem.FindDirectoriesAsync(path, cancellationToken));
                 }
-                catch (Exception e)
+                catch (UnauthorizedAccessException e)
                 {
                     _logger.Error(e);
                 }
 
-                // 新しい描画タスクを開始する
+                tempList.Sort();
+
+                await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    _thumbnailLoader = new ThumbnailLoader(_thumbnailGenerator, _currentItemModels);
-                }
+                    foreach (var filePath in tempList)
+                    {
+                        _currentItemModels.Add(new ItemModel(filePath));
+                    }
+                });
+
+                _thumbnailLoader.Start(_currentItemModels);
             }
+            catch (OperationCanceledException e)
+            {
+                _logger.Debug(e);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+            }
+        }
+
+        private class TaskStatus
+        {
+            public TaskStatus(Task task, CancellationTokenSource cancellationTokenSource)
+            {
+                this.Task = task;
+                this.CancellationTokenSource = cancellationTokenSource;
+            }
+
+            public Task Task { get; }
+
+            public CancellationTokenSource CancellationTokenSource { get; }
         }
     }
 }

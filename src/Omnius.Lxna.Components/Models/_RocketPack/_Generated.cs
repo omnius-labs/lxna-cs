@@ -12,6 +12,126 @@ namespace Omnius.Lxna.Components.Models
     {
         Png = 0,
     }
+    public sealed partial class NestedPath : global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.NestedPath>
+    {
+        public static global::Omnius.Core.RocketPack.IRocketPackObjectFormatter<global::Omnius.Lxna.Components.Models.NestedPath> Formatter => global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.NestedPath>.Formatter;
+        public static global::Omnius.Lxna.Components.Models.NestedPath Empty => global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.NestedPath>.Empty;
+
+        static NestedPath()
+        {
+            global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.NestedPath>.Formatter = new ___CustomFormatter();
+            global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.NestedPath>.Empty = new global::Omnius.Lxna.Components.Models.NestedPath(global::System.Array.Empty<string>());
+        }
+
+        private readonly global::System.Lazy<int> ___hashCode;
+
+        public static readonly int MaxValuesCount = 32;
+
+        public NestedPath(string[] values)
+        {
+            if (values is null) throw new global::System.ArgumentNullException("values");
+            if (values.Length > 32) throw new global::System.ArgumentOutOfRangeException("values");
+            foreach (var n in values)
+            {
+                if (n is null) throw new global::System.ArgumentNullException("n");
+                if (n.Length > 8192) throw new global::System.ArgumentOutOfRangeException("n");
+            }
+
+            this.Values = new global::Omnius.Core.Collections.ReadOnlyListSlim<string>(values);
+
+            ___hashCode = new global::System.Lazy<int>(() =>
+            {
+                var ___h = new global::System.HashCode();
+                foreach (var n in values)
+                {
+                    if (n != default) ___h.Add(n.GetHashCode());
+                }
+                return ___h.ToHashCode();
+            });
+        }
+
+        public global::Omnius.Core.Collections.ReadOnlyListSlim<string> Values { get; }
+
+        public static global::Omnius.Lxna.Components.Models.NestedPath Import(global::System.Buffers.ReadOnlySequence<byte> sequence, global::Omnius.Core.IBytesPool bytesPool)
+        {
+            var reader = new global::Omnius.Core.RocketPack.RocketPackObjectReader(sequence, bytesPool);
+            return Formatter.Deserialize(ref reader, 0);
+        }
+        public void Export(global::System.Buffers.IBufferWriter<byte> bufferWriter, global::Omnius.Core.IBytesPool bytesPool)
+        {
+            var writer = new global::Omnius.Core.RocketPack.RocketPackObjectWriter(bufferWriter, bytesPool);
+            Formatter.Serialize(ref writer, this, 0);
+        }
+
+        public static bool operator ==(global::Omnius.Lxna.Components.Models.NestedPath? left, global::Omnius.Lxna.Components.Models.NestedPath? right)
+        {
+            return (right is null) ? (left is null) : right.Equals(left);
+        }
+        public static bool operator !=(global::Omnius.Lxna.Components.Models.NestedPath? left, global::Omnius.Lxna.Components.Models.NestedPath? right)
+        {
+            return !(left == right);
+        }
+        public override bool Equals(object? other)
+        {
+            if (!(other is global::Omnius.Lxna.Components.Models.NestedPath)) return false;
+            return this.Equals((global::Omnius.Lxna.Components.Models.NestedPath)other);
+        }
+        public bool Equals(global::Omnius.Lxna.Components.Models.NestedPath? target)
+        {
+            if (target is null) return false;
+            if (object.ReferenceEquals(this, target)) return true;
+            if (!global::Omnius.Core.Helpers.CollectionHelper.Equals(this.Values, target.Values)) return false;
+
+            return true;
+        }
+        public override int GetHashCode() => ___hashCode.Value;
+
+        private sealed class ___CustomFormatter : global::Omnius.Core.RocketPack.IRocketPackObjectFormatter<global::Omnius.Lxna.Components.Models.NestedPath>
+        {
+            public void Serialize(ref global::Omnius.Core.RocketPack.RocketPackObjectWriter w, in global::Omnius.Lxna.Components.Models.NestedPath value, in int rank)
+            {
+                if (rank > 256) throw new global::System.FormatException();
+
+                if (value.Values.Count != 0)
+                {
+                    w.Write((uint)1);
+                    w.Write((uint)value.Values.Count);
+                    foreach (var n in value.Values)
+                    {
+                        w.Write(n);
+                    }
+                }
+                w.Write((uint)0);
+            }
+            public global::Omnius.Lxna.Components.Models.NestedPath Deserialize(ref global::Omnius.Core.RocketPack.RocketPackObjectReader r, in int rank)
+            {
+                if (rank > 256) throw new global::System.FormatException();
+
+                string[] p_values = global::System.Array.Empty<string>();
+
+                for (; ; )
+                {
+                    uint id = r.GetUInt32();
+                    if (id == 0) break;
+                    switch (id)
+                    {
+                        case 1:
+                            {
+                                var length = r.GetUInt32();
+                                p_values = new string[length];
+                                for (int i = 0; i < p_values.Length; i++)
+                                {
+                                    p_values[i] = r.GetString(8192);
+                                }
+                                break;
+                            }
+                    }
+                }
+
+                return new global::Omnius.Lxna.Components.Models.NestedPath(p_values);
+            }
+        }
+    }
     public sealed partial class ThumbnailContent : global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.ThumbnailContent>, global::System.IDisposable
     {
         public static global::Omnius.Core.RocketPack.IRocketPackObjectFormatter<global::Omnius.Lxna.Components.Models.ThumbnailContent> Formatter => global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Models.ThumbnailContent>.Formatter;
