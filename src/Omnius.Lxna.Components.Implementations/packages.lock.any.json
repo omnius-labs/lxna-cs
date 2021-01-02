@@ -10,11 +10,11 @@
       },
       "Magick.NET-Q16-AnyCPU": {
         "type": "Direct",
-        "requested": "[7.22.0, )",
-        "resolved": "7.22.0",
-        "contentHash": "5H6IGEDWUT9mJIeA08bHywVIAVRwKwsbF8PQfjznC/Mzz3UspVtEG7zquXkM2oL2C/ra3R2pbmFJUn0mO7Fidg==",
+        "requested": "[7.22.2.1, )",
+        "resolved": "7.22.2.1",
+        "contentHash": "wt0K+iAV3uq7vIH08eQGfhoOQC8dz+JXf4ngLYO3IAyjMC1RIOBN/UOTi0R8v6yXWW7QWdklHh5fg6BQ4r3O8g==",
         "dependencies": {
-          "Magick.NET.Core": "5.0.0"
+          "Magick.NET.Core": "5.2.1"
         }
       },
       "NLog": {
@@ -31,9 +31,9 @@
       },
       "SixLabors.ImageSharp": {
         "type": "Direct",
-        "requested": "[1.0.1, )",
-        "resolved": "1.0.1",
-        "contentHash": "DjLoFNdUfsDP7RhPpr5hcUhl1XiejqBML9uDWuOUwCkc0Y+sG9IJLLbqSOi9XeoWqPviwdcDm1F8nKdF0qTYIQ=="
+        "requested": "[1.0.2, )",
+        "resolved": "1.0.2",
+        "contentHash": "iZJ37Iss3pUkFl961x1aka85QuvgY9oNZabHijzVnHs4QTz6EMNx3zjJDyvK/0+Ryj6JPv/PC7GVIJXLHtu2nQ=="
       },
       "StyleCop.Analyzers": {
         "type": "Direct",
@@ -43,8 +43,8 @@
       },
       "Magick.NET.Core": {
         "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "w43b+Wk1Il8+Xe1//SRZMsGgXJRzVB0ZwcbQimfx4bUzzBhrHHJ45dgYg1izWxaWV34sJp6N26j0viwwCQsGtA=="
+        "resolved": "5.2.1",
+        "contentHash": "dAVffCAKiCdZjF/5YJejpGKSOSir/8lX0H4RhNt+mlhlXCsrmEqY947bIKIWvXZ1adHCQyYmGauT/KNMMNZIZw=="
       },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
