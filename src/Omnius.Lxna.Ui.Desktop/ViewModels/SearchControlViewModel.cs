@@ -11,6 +11,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Omnius.Core;
 using Omnius.Lxna.Components;
+using Omnius.Lxna.Components.Models;
 using Omnius.Lxna.Ui.Desktop.Interactors;
 using Omnius.Lxna.Ui.Desktop.Interactors.Models;
 using Reactive.Bindings;
@@ -22,6 +23,7 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
+        private readonly IFileSystem _fileSystem;
         private readonly IThumbnailGenerator _thumbnailGenerator;
         private readonly ThumbnailLoader _thumbnailLoader;
 
@@ -34,23 +36,32 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
-        public SearchControlViewModel(IThumbnailGenerator thumbnailGenerator)
+        public SearchControlViewModel(IFileSystem fileSystem, IThumbnailGenerator thumbnailGenerator)
         {
+            _fileSystem = fileSystem;
             _thumbnailGenerator = thumbnailGenerator;
             _thumbnailLoader = new ThumbnailLoader(_thumbnailGenerator);
 
-            this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(null, n)).AddTo(_disposable);
+            this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(null, n, _fileSystem)).AddTo(_disposable);
             this.SelectedDirectory = new ReactiveProperty<DirectoryViewModel>().AddTo(_disposable);
-            this.SelectedDirectory.Subscribe(n => { if (n != null) { this.TreeView_SelectionChanged(n); } }).AddTo(_disposable);
+            this.SelectedDirectory.Subscribe(n =>
+            {
+                if (n != null)
+                {
+                    this.TreeView_SelectionChanged(n);
+                }
+            }).AddTo(_disposable);
             this.CurrentItems = _currentItemModels.ToReadOnlyReactiveCollection(n => new ItemViewModel(n)).AddTo(_disposable);
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            this.Init();
+        }
+
+        private async void Init()
+        {
+            foreach (var drive in await _fileSystem.FindDirectoriesAsync())
             {
-                foreach (var drive in Directory.GetLogicalDrives())
-                {
-                    var model = new DirectoryModel(drive);
-                    _rootDirectoryModels.Add(model);
-                }
+                var model = new DirectoryModel(drive, _fileSystem);
+                _rootDirectoryModels.Add(model);
             }
         }
 
@@ -80,10 +91,10 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
 
         public ReadOnlyReactiveCollection<ItemViewModel> CurrentItems { get; }
 
-        public void NotifyDoubleTapped(object item)
+        public async void NotifyDoubleTapped(object item)
         {
             var path = ((ItemViewModel)item).Model.Path;
-            if (Directory.Exists(path))
+            if (await _fileSystem.ExistsDirectoryAsync(path))
             {
                 var directoryViewModel = this.SelectedDirectory.Value.Children.FirstOrDefault(n => n.Model.Path == path);
                 if (directoryViewModel is not null)
@@ -92,12 +103,11 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
                     //  this.SelectedDirectory.Value = directoryViewModel;
                 }
             }
-            else if (File.Exists(path))
+            else if (await _fileSystem.ExistsFileAsync(path))
             {
-                var process = new Process();
-                process.StartInfo.FileName = path;
-                process.StartInfo.UseShellExecute = true;
-                process.Start();
+                // var process = new Process();
+                // process.StartInfo.UseShellExecute = true;
+                // process.Start();
             }
         }
 
@@ -143,7 +153,7 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
             }
         }
 
-        private async Task RefreshCurrentItemModelsAsync(string path, CancellationToken cancellationToken = default)
+        private async Task RefreshCurrentItemModelsAsync(NestedPath path, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -161,12 +171,12 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
                     _currentItemModels.Clear();
                 });
 
-                var tempList = new List<string>();
+                var tempList = new List<NestedPath>();
 
                 try
                 {
-                    tempList.AddRange(Directory.GetFiles(path));
-                    tempList.AddRange(Directory.GetDirectories(path));
+                    tempList.AddRange(await _fileSystem.FindFilesAsync(path, cancellationToken));
+                    tempList.AddRange(await _fileSystem.FindDirectoriesAsync(path, cancellationToken));
                 }
                 catch (UnauthorizedAccessException e)
                 {

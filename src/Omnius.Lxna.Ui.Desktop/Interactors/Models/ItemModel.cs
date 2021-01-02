@@ -18,10 +18,9 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 
         private readonly object _lockObject = new object();
 
-        public ItemModel(string path)
+        public ItemModel(NestedPath path)
         {
             this.Path = path;
-            this.Name = System.IO.Path.GetFileName(this.Path);
         }
 
         public void Dispose()
@@ -41,23 +40,22 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
             this.RaisePropertyChanged(nameof(this.Thumbnail));
         }
 
-        private string _path = string.Empty;
+        private NestedPath _path = NestedPath.Empty;
 
-        public string Path
+        public NestedPath Path
         {
             get => _path;
             private set
             {
-                if (value == string.Empty)
+                if (value == NestedPath.Empty)
                 {
                     this.SetProperty(ref _path, value);
-                    this.Name = value;
+                    this.Name = string.Empty;
                     return;
                 }
 
-                var fullPath = System.IO.Path.GetFullPath(value);
-                this.SetProperty(ref _path, fullPath);
-                this.Name = System.IO.Path.GetFileName(fullPath);
+                this.SetProperty(ref _path, value);
+                this.Name = value.GetName();
             }
         }
 

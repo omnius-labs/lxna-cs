@@ -1,16 +1,12 @@
-
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Omnius.Core;
 using Omnius.Core.Io;
 using Omnius.Lxna.Components.Internal.Helpers;
-using Omnius.Lxna.Components.Models;
 using SevenZipExtractor;
 
 namespace Omnius.Lxna.Components
@@ -51,45 +47,64 @@ namespace Omnius.Lxna.Components
         {
         }
 
-        private static string NormalizeDirectoryPath(string path)
+        public async ValueTask<bool> ExistsFileAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
         {
-            return path.TrimEnd('/', '\\') + "/";
+            using var archiveFile = new ArchiveFile(archiveFilePath);
+            return archiveFile.Entries
+                .Where(n => !n.IsFolder)
+                .Select(n => PathHelper.Normalize(n.FileName))
+                .Any(n => n == path);
         }
 
-        public async ValueTask<IEnumerable<string>> FindDirectoriesAsync(string archiveFilePath, string? path, CancellationToken cancellationToken = default)
+        public async ValueTask<bool> ExistsDirectoryAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
         {
-            path = NormalizeDirectoryPath(path ?? "");
+            using var archiveFile = new ArchiveFile(archiveFilePath);
+            return archiveFile.Entries
+                .Where(n => n.IsFolder)
+                .Select(n => PathHelper.Normalize(n.FileName))
+                .Any(n => n == path);
+        }
 
+        public async ValueTask<DateTime> GetFileLastWriteTimeAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
+        {
+            using var archiveFile = new ArchiveFile(archiveFilePath);
+            var entry = archiveFile.Entries
+                .Where(n => !n.IsFolder)
+                .FirstOrDefault(n => PathHelper.Normalize(n.FileName) == path);
+
+            if (entry is null)
+            {
+                throw new FileNotFoundException();
+            }
+
+            return entry.LastWriteTime.ToUniversalTime();
+        }
+
+        public async ValueTask<IEnumerable<string>> FindDirectoriesAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
+        {
             var results = new List<string>();
 
             using var archiveFile = new ArchiveFile(archiveFilePath);
             foreach (var entry in archiveFile.Entries)
             {
-                var fileName = entry.FileName;
-
                 if (!entry.IsFolder)
                 {
                     continue;
                 }
 
-                string relativePath = "";
-
-                if (path is not null)
+                var filePath = PathHelper.Normalize(entry.FileName);
+                if (filePath == path || !filePath.StartsWith(path))
                 {
-                    if (fileName == path || !fileName.StartsWith(path))
-                    {
-                        continue;
-                    }
-
-                    relativePath = fileName.Remove(0, path.Length);
+                    continue;
                 }
 
+                string relativePath = filePath.Remove(0, path.Length).TrimStart('/');
                 if (relativePath.Contains('/'))
                 {
                     continue;
                 }
 
-                results.Add(path + relativePath);
+                results.Add(filePath);
             }
 
             return results;
@@ -97,119 +112,67 @@ namespace Omnius.Lxna.Components
 
         public async ValueTask<IEnumerable<string>> FindFilesAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
         {
-            path = NormalizeDirectoryPath(path ?? "");
-
             var results = new List<string>();
 
             using var archiveFile = new ArchiveFile(archiveFilePath);
             foreach (var entry in archiveFile.Entries)
             {
-                var fileName = entry.FileName;
-
                 if (entry.IsFolder)
                 {
                     continue;
                 }
 
-                string relativePath = "";
-
-                if (path is not null)
+                var filePath = PathHelper.Normalize(entry.FileName);
+                if (filePath == path || !filePath.StartsWith(path))
                 {
-                    if (!fileName.StartsWith(path))
-                    {
-                        continue;
-                    }
-
-                    relativePath = fileName.Remove(0, path.Length);
+                    continue;
                 }
 
+                string relativePath = filePath.Remove(0, path.Length).TrimStart('/');
                 if (relativePath.Contains('/'))
                 {
                     continue;
                 }
 
-                results.Add(path + relativePath);
+                results.Add(filePath);
             }
 
             return results;
         }
 
-        public async ValueTask<IMemoryOwner<byte>> ReadFileBytesAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
+        public async ValueTask<Stream> GetPhysicalFileStreamAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
         {
             using var archiveFile = new ArchiveFile(archiveFilePath);
-            var entry = archiveFile.Entries.FirstOrDefault(n => n.FileName == path);
+            var entry = archiveFile.Entries
+                .Where(n => !n.IsFolder)
+                .FirstOrDefault(n => PathHelper.Normalize(n.FileName) == path);
+
             var memoryStream = new RecyclableMemoryStream(_bytesPool);
             entry.Extract(memoryStream);
-            return memoryStream.ToMemoryOwner();
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            return memoryStream;
         }
 
         public async ValueTask<long> GetFileSizeAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
         {
             using var archiveFile = new ArchiveFile(archiveFilePath);
-            var entry = archiveFile.Entries.FirstOrDefault(n => n.FileName == path);
+            var entry = archiveFile.Entries
+                .Where(n => !n.IsFolder)
+                .FirstOrDefault(n => PathHelper.Normalize(n.FileName) == path);
+
             return (long)entry.Size;
         }
 
         public async ValueTask<IFileOwner> ExtractFileAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
         {
             using var archiveFile = new ArchiveFile(archiveFilePath);
-            var entry = archiveFile.Entries.FirstOrDefault(n => n.FileName == path);
+            var entry = archiveFile.Entries
+                .Where(n => !n.IsFolder)
+                .FirstOrDefault(n => PathHelper.Normalize(n.FileName) == path);
+
             var tempFileStream = await FileHelper.GenTempFileStreamAsync(_tempPath, _random, cancellationToken);
             entry.Extract(tempFileStream);
             return new ExtractedFileOwner(tempFileStream.Name);
-        }
-
-        public async ValueTask<IFileOwner> ExtractFileAsync(IEnumerable<string> pathList, CancellationToken cancellationToken = default)
-        {
-            var values = pathList.ToList();
-
-            if (values.Count == 0)
-            {
-                throw new ArgumentOutOfRangeException($"{nameof(pathList)} is empty");
-            }
-
-            if (values.Count == 1)
-            {
-                return new PhysicalFileOwner(values[0]);
-            }
-
-            var extractedFileOwners = new List<IFileOwner>();
-
-            try
-            {
-                while (values.Count >= 2)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var fileOwner = await this.ExtractFileAsync(values[0], values[1], cancellationToken);
-                    extractedFileOwners.Add(fileOwner);
-                    values.RemoveAt(0);
-                    values[0] = fileOwner.Path;
-                }
-
-                return extractedFileOwners[^1];
-            }
-            finally
-            {
-                foreach (var fileOwner in extractedFileOwners.ToArray()[..^1])
-                {
-                    fileOwner.Dispose();
-                }
-            }
-        }
-
-        private class PhysicalFileOwner : IFileOwner
-        {
-            public PhysicalFileOwner(string path)
-            {
-                this.Path = path;
-            }
-
-            public string Path { get; }
-
-            public void Dispose()
-            {
-            }
         }
 
         private class ExtractedFileOwner : IFileOwner

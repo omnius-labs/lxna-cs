@@ -11,17 +11,14 @@ namespace Omnius.Lxna.Components.Internal.Models
         static FileMeta()
         {
             global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Internal.Models.FileMeta>.Formatter = new ___CustomFormatter();
-            global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Internal.Models.FileMeta>.Empty = new global::Omnius.Lxna.Components.Internal.Models.FileMeta(string.Empty, 0, global::Omnius.Core.RocketPack.Timestamp.Zero);
+            global::Omnius.Core.RocketPack.IRocketPackObject<global::Omnius.Lxna.Components.Internal.Models.FileMeta>.Empty = new global::Omnius.Lxna.Components.Internal.Models.FileMeta(global::Omnius.Lxna.Components.Models.NestedPath.Empty, 0, global::Omnius.Core.RocketPack.Timestamp.Zero);
         }
 
         private readonly global::System.Lazy<int> ___hashCode;
 
-        public static readonly int MaxPathLength = 2147483647;
-
-        public FileMeta(string path, ulong length, global::Omnius.Core.RocketPack.Timestamp lastWriteTime)
+        public FileMeta(global::Omnius.Lxna.Components.Models.NestedPath path, ulong length, global::Omnius.Core.RocketPack.Timestamp lastWriteTime)
         {
             if (path is null) throw new global::System.ArgumentNullException("path");
-            if (path.Length > 2147483647) throw new global::System.ArgumentOutOfRangeException("path");
             this.Path = path;
             this.Length = length;
             this.LastWriteTime = lastWriteTime;
@@ -36,7 +33,7 @@ namespace Omnius.Lxna.Components.Internal.Models
             });
         }
 
-        public string Path { get; }
+        public global::Omnius.Lxna.Components.Models.NestedPath Path { get; }
         public ulong Length { get; }
         public global::Omnius.Core.RocketPack.Timestamp LastWriteTime { get; }
 
@@ -82,10 +79,10 @@ namespace Omnius.Lxna.Components.Internal.Models
             {
                 if (rank > 256) throw new global::System.FormatException();
 
-                if (value.Path != string.Empty)
+                if (value.Path != global::Omnius.Lxna.Components.Models.NestedPath.Empty)
                 {
                     w.Write((uint)1);
-                    w.Write(value.Path);
+                    global::Omnius.Lxna.Components.Models.NestedPath.Formatter.Serialize(ref w, value.Path, rank + 1);
                 }
                 if (value.Length != 0)
                 {
@@ -103,7 +100,7 @@ namespace Omnius.Lxna.Components.Internal.Models
             {
                 if (rank > 256) throw new global::System.FormatException();
 
-                string p_path = string.Empty;
+                global::Omnius.Lxna.Components.Models.NestedPath p_path = global::Omnius.Lxna.Components.Models.NestedPath.Empty;
                 ulong p_length = 0;
                 global::Omnius.Core.RocketPack.Timestamp p_lastWriteTime = global::Omnius.Core.RocketPack.Timestamp.Zero;
 
@@ -115,7 +112,7 @@ namespace Omnius.Lxna.Components.Internal.Models
                     {
                         case 1:
                             {
-                                p_path = r.GetString(2147483647);
+                                p_path = global::Omnius.Lxna.Components.Models.NestedPath.Formatter.Deserialize(ref r, rank + 1);
                                 break;
                             }
                         case 2:

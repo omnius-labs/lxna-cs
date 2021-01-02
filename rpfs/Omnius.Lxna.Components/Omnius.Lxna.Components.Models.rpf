@@ -2,7 +2,7 @@
 
 namespace "Omnius.Lxna.Components.Models";
 
-message LxnaPath {
+message NestedPath {
     Values: vector<string(capacity: 8192)>(capacity: 32),
 }
 
