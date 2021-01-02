@@ -117,11 +117,11 @@
       },
       "ReactiveProperty": {
         "type": "Direct",
-        "requested": "[7.4.1, )",
-        "resolved": "7.4.1",
-        "contentHash": "h22iKghsm9xb1fLVjGkm9YbcTUXAcu2gSKD739euaVXIH3cs/6NScvdo9fA7QKtsWYPPSiIQ1P4sNsPfaVT3oQ==",
+        "requested": "[7.5.1, )",
+        "resolved": "7.5.1",
+        "contentHash": "lUhqmM35wXPvrG8C2FU6PE9T5/MkgWcZ3nm0Nn/TItWekf9tJtmuN11mzFzbmlcZXitk9rBnSPw+3ZJA0ti43Q==",
         "dependencies": {
-          "ReactiveProperty.Core": "7.4.1",
+          "ReactiveProperty.Core": "7.5.1",
           "System.ComponentModel.Annotations": "4.7.0",
           "System.Reactive": "4.4.1"
         }
@@ -229,16 +229,16 @@
       },
       "Magick.NET-Q16-AnyCPU": {
         "type": "Transitive",
-        "resolved": "7.22.0",
-        "contentHash": "5H6IGEDWUT9mJIeA08bHywVIAVRwKwsbF8PQfjznC/Mzz3UspVtEG7zquXkM2oL2C/ra3R2pbmFJUn0mO7Fidg==",
+        "resolved": "7.22.2.1",
+        "contentHash": "wt0K+iAV3uq7vIH08eQGfhoOQC8dz+JXf4ngLYO3IAyjMC1RIOBN/UOTi0R8v6yXWW7QWdklHh5fg6BQ4r3O8g==",
         "dependencies": {
-          "Magick.NET.Core": "5.0.0"
+          "Magick.NET.Core": "5.2.1"
         }
       },
       "Magick.NET.Core": {
         "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "w43b+Wk1Il8+Xe1//SRZMsGgXJRzVB0ZwcbQimfx4bUzzBhrHHJ45dgYg1izWxaWV34sJp6N26j0viwwCQsGtA=="
+        "resolved": "5.2.1",
+        "contentHash": "dAVffCAKiCdZjF/5YJejpGKSOSir/8lX0H4RhNt+mlhlXCsrmEqY947bIKIWvXZ1adHCQyYmGauT/KNMMNZIZw=="
       },
       "Microsoft.CodeAnalysis.Analyzers": {
         "type": "Transitive",
@@ -545,8 +545,8 @@
       },
       "ReactiveProperty.Core": {
         "type": "Transitive",
-        "resolved": "7.4.1",
-        "contentHash": "qcFgN9wY51cneXSLG4pYpzFeocXer/6m2a1QFms1QVAFOawWUZx8PZ9+HPrUCbJ+sVD3vfbg3EwXsjeJV8Nt6g=="
+        "resolved": "7.5.1",
+        "contentHash": "ITSm7WRRxEIRKCiR+Ykma+26psgxyxM1YRZjMblwX1XpNnMealoVWHnk+QoW2kudpFbODy5C6uY+93RCLMGvAg=="
       },
       "ReactiveUI": {
         "type": "Transitive",
@@ -784,8 +784,8 @@
       },
       "SixLabors.ImageSharp": {
         "type": "Transitive",
-        "resolved": "1.0.1",
-        "contentHash": "DjLoFNdUfsDP7RhPpr5hcUhl1XiejqBML9uDWuOUwCkc0Y+sG9IJLLbqSOi9XeoWqPviwdcDm1F8nKdF0qTYIQ=="
+        "resolved": "1.0.2",
+        "contentHash": "iZJ37Iss3pUkFl961x1aka85QuvgY9oNZabHijzVnHs4QTz6EMNx3zjJDyvK/0+Ryj6JPv/PC7GVIJXLHtu2nQ=="
       },
       "SkiaSharp": {
         "type": "Transitive",
@@ -2218,7 +2218,7 @@
         "type": "Project",
         "dependencies": {
           "LiteDB": "5.0.9",
-          "Magick.NET-Q16-AnyCPU": "7.22.0",
+          "Magick.NET-Q16-AnyCPU": "7.22.2.1",
           "NLog": "4.7.5",
           "Omnius.Core": "0.0.1-alpha.1",
           "Omnius.Core.Collections": "0.0.1-alpha.1",
@@ -2230,7 +2230,7 @@
           "Omnius.Core.Serialization": "0.0.1-alpha.1",
           "Omnius.Lxna.Components": "0.0.1-alpha.1",
           "SevenZipExtractor": "1.0.15",
-          "SixLabors.ImageSharp": "1.0.1"
+          "SixLabors.ImageSharp": "1.0.2"
         }
       }
     }

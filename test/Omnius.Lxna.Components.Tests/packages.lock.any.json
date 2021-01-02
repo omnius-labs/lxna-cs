@@ -10,12 +10,12 @@
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
-        "requested": "[16.7.1, )",
-        "resolved": "16.7.1",
-        "contentHash": "7T3XYuLT2CRMZXwlp8p4cEEf6y7VifxTdKwYNzCYp31CN4iyrcDKneIJvNTo0YVnTxJn+CSlGVlUnZHUlAwt9A==",
+        "requested": "[16.8.0, )",
+        "resolved": "16.8.0",
+        "contentHash": "fc8VoTlD9+en13XWT9SW86M9jn4Y0Vns/uHRUJ2B6fevnuYmkilBLL+bIXC9yMELGYrerXIZm+B6Caux8lopfQ==",
         "dependencies": {
-          "Microsoft.CodeCoverage": "16.7.1",
-          "Microsoft.TestPlatform.TestHost": "16.7.1"
+          "Microsoft.CodeCoverage": "16.8.0",
+          "Microsoft.TestPlatform.TestHost": "16.8.0"
         }
       },
       "xunit": {
@@ -42,21 +42,21 @@
       },
       "Magick.NET-Q16-AnyCPU": {
         "type": "Transitive",
-        "resolved": "7.22.0",
-        "contentHash": "5H6IGEDWUT9mJIeA08bHywVIAVRwKwsbF8PQfjznC/Mzz3UspVtEG7zquXkM2oL2C/ra3R2pbmFJUn0mO7Fidg==",
+        "resolved": "7.22.2.1",
+        "contentHash": "wt0K+iAV3uq7vIH08eQGfhoOQC8dz+JXf4ngLYO3IAyjMC1RIOBN/UOTi0R8v6yXWW7QWdklHh5fg6BQ4r3O8g==",
         "dependencies": {
-          "Magick.NET.Core": "5.0.0"
+          "Magick.NET.Core": "5.2.1"
         }
       },
       "Magick.NET.Core": {
         "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "w43b+Wk1Il8+Xe1//SRZMsGgXJRzVB0ZwcbQimfx4bUzzBhrHHJ45dgYg1izWxaWV34sJp6N26j0viwwCQsGtA=="
+        "resolved": "5.2.1",
+        "contentHash": "dAVffCAKiCdZjF/5YJejpGKSOSir/8lX0H4RhNt+mlhlXCsrmEqY947bIKIWvXZ1adHCQyYmGauT/KNMMNZIZw=="
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
-        "resolved": "16.7.1",
-        "contentHash": "PhSppbk+kvAyD9yGJIcBRJ/XYwY+21YK88l22PGTtixaxNdjnx1idVKh88LCGwKaTL8HhlnQ41VmBiBdZJzIQw=="
+        "resolved": "16.8.0",
+        "contentHash": "fR7HsWO+jTRhfBPWVl6QJbJSEU98siIKcQIDIo2tOH6nlogcOdScquWzVABR0UUpQlfWwt13vyryOltvLfsHnw=="
       },
       "Microsoft.CSharp": {
         "type": "Transitive",
@@ -93,18 +93,18 @@
       },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
-        "resolved": "16.7.1",
-        "contentHash": "FL+VpAC/nCCzj80MwX6L8gJD06u2m1SKcQQLAymDLFqNtgtI9h3J5n0mVN+s18qcMzybsmO9GK7rMuHYx11KMg==",
+        "resolved": "16.8.0",
+        "contentHash": "Y60IDgwinOqwECwmvXyFqk2lnQAvcS6EKevc3DyKUJoJaNJ9bUGsUS8H2nlgBHloSQ/Zqj27CjRuLhBsCUO58w==",
         "dependencies": {
           "NuGet.Frameworks": "5.0.0"
         }
       },
       "Microsoft.TestPlatform.TestHost": {
         "type": "Transitive",
-        "resolved": "16.7.1",
-        "contentHash": "mv7MnBDtqwQAjoH+AphE+Tu0dsF6x/c7Zs8umkb2McbvNALJdfBuWJQbiXGWqhNq7k8eMmnkNO6klJz4pkgekw==",
+        "resolved": "16.8.0",
+        "contentHash": "CVXKGIWakPq7UboAlJ7ukcngBFF2UaHwS9pAN3nLyOpOR3yUYbinpd+eVvz6Fm/qRBP4uiwx0lWEZlHOHG1c0w==",
         "dependencies": {
-          "Microsoft.TestPlatform.ObjectModel": "16.7.1",
+          "Microsoft.TestPlatform.ObjectModel": "16.8.0",
           "Newtonsoft.Json": "9.0.1"
         }
       },
@@ -322,8 +322,8 @@
       },
       "SixLabors.ImageSharp": {
         "type": "Transitive",
-        "resolved": "1.0.1",
-        "contentHash": "DjLoFNdUfsDP7RhPpr5hcUhl1XiejqBML9uDWuOUwCkc0Y+sG9IJLLbqSOi9XeoWqPviwdcDm1F8nKdF0qTYIQ=="
+        "resolved": "1.0.2",
+        "contentHash": "iZJ37Iss3pUkFl961x1aka85QuvgY9oNZabHijzVnHs4QTz6EMNx3zjJDyvK/0+Ryj6JPv/PC7GVIJXLHtu2nQ=="
       },
       "Sprache": {
         "type": "Transitive",
@@ -1232,7 +1232,7 @@
         "type": "Project",
         "dependencies": {
           "LiteDB": "5.0.9",
-          "Magick.NET-Q16-AnyCPU": "7.22.0",
+          "Magick.NET-Q16-AnyCPU": "7.22.2.1",
           "NLog": "4.7.5",
           "Omnius.Core": "0.0.1-alpha.1",
           "Omnius.Core.Collections": "0.0.1-alpha.1",
@@ -1244,7 +1244,7 @@
           "Omnius.Core.Serialization": "0.0.1-alpha.1",
           "Omnius.Lxna.Components": "0.0.1-alpha.1",
           "SevenZipExtractor": "1.0.15",
-          "SixLabors.ImageSharp": "1.0.1"
+          "SixLabors.ImageSharp": "1.0.2"
         }
       }
     }
