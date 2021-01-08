@@ -15,6 +15,8 @@ namespace Omnius.Lxna.Components
 
     public class ArchiveFileExtractorOptions
     {
+        public string? ArchiveFilePath { get; init; }
+
         public string? TemporaryDirectoryPath { get; init; }
 
         public IBytesPool? BytesPool { get; init; }
@@ -32,7 +34,7 @@ namespace Omnius.Lxna.Components
 
         ValueTask<IEnumerable<string>> FindFilesAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
 
-        ValueTask<Stream> GetPhysicalFileStreamAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
+        ValueTask<Stream> GetFileStreamAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
 
         ValueTask<long> GetFileSizeAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
 

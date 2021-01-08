@@ -15,7 +15,7 @@ namespace Omnius.Lxna.Components
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly string _tempPath;
+        private readonly string _tempDirPath;
         private readonly IBytesPool _bytesPool;
 
         private readonly Random _random = new Random();
@@ -35,7 +35,7 @@ namespace Omnius.Lxna.Components
 
         internal ArchiveFileExtractor(ArchiveFileExtractorOptions options)
         {
-            _tempPath = options.TemporaryDirectoryPath ?? Path.Combine(Path.GetTempPath(), "ArchiveFileExtractor");
+            _tempDirPath = options.TemporaryDirectoryPath ?? Path.Combine(Path.GetTempPath(), "ArchiveFileExtractor");
             _bytesPool = options.BytesPool ?? BytesPool.Shared;
         }
 
@@ -140,7 +140,7 @@ namespace Omnius.Lxna.Components
             return results;
         }
 
-        public async ValueTask<Stream> GetPhysicalFileStreamAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
+        public async ValueTask<Stream> GetFileStreamAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
         {
             using var archiveFile = new ArchiveFile(archiveFilePath);
             var entry = archiveFile.Entries
@@ -170,7 +170,7 @@ namespace Omnius.Lxna.Components
                 .Where(n => !n.IsFolder)
                 .FirstOrDefault(n => PathHelper.Normalize(n.FileName) == path);
 
-            var tempFileStream = await FileHelper.GenTempFileStreamAsync(_tempPath, _random, cancellationToken);
+            var tempFileStream = await FileHelper.GenTempFileStreamAsync(_tempDirPath, _random, cancellationToken);
             entry.Extract(tempFileStream);
             return new ExtractedFileOwner(tempFileStream.Name);
         }
