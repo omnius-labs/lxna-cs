@@ -8,18 +8,23 @@ namespace Omnius.Lxna.Components.Models
     {
         public string GetName()
         {
-            var values = this.Values.Where(n => !string.IsNullOrEmpty(n)).ToArray();
-            return values[^1].Split('/')[^1];
+            var value = this.Values.Where(n => !string.IsNullOrEmpty(n)).LastOrDefault() ?? string.Empty;
+            return value.Split('/')[^1];
         }
 
         public string GetExtension()
         {
-            var values = this.Values.Where(n => !string.IsNullOrEmpty(n)).ToArray();
-            return System.IO.Path.GetExtension(values[^1]);
+            var value = this.Values.Where(n => !string.IsNullOrEmpty(n)).LastOrDefault() ?? string.Empty;
+            return System.IO.Path.GetExtension(value);
         }
 
         public int CompareTo(NestedPath? other)
         {
+            if (other is null)
+            {
+                return 1;
+            }
+
             return CollectionHelper.Compare(this.Values, other.Values);
         }
 

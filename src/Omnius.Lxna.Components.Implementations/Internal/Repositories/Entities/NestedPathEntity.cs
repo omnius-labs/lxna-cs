@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Omnius.Lxna.Components.Models;
 
@@ -14,7 +15,7 @@ namespace Omnius.Lxna.Components.Internal.Repositories.Entities
 
         public NestedPath Export()
         {
-            return new NestedPath(this.Values);
+            return new NestedPath(this.Values ?? Array.Empty<string>());
         }
     }
 }

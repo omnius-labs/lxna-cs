@@ -225,7 +225,7 @@ namespace Omnius.Lxna.Components
             {
                 var basePaths = path.Values.ToArray()[..^1];
                 using var archiveFile = await this.InternalExtractFileAsync(basePaths, cancellationToken);
-                return await _archiveFileExtractor.GetPhysicalFileStreamAsync(archiveFile.Path, path.Values[^1], cancellationToken);
+                return await _archiveFileExtractor.GetFileStreamAsync(archiveFile.Path, path.Values[^1], cancellationToken);
             }
         }
 
