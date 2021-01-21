@@ -22,22 +22,22 @@ namespace Omnius.Lxna.Components
         public IBytesPool? BytesPool { get; init; }
     }
 
-    public interface IArchiveFileExtractor : IAsyncDisposable
+    public interface IArchiveFileExtractor : IDisposable
     {
-        ValueTask<bool> ExistsFileAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
+        ValueTask<bool> ExistsFileAsync(string path, CancellationToken cancellationToken = default);
 
-        ValueTask<bool> ExistsDirectoryAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
+        ValueTask<bool> ExistsDirectoryAsync(string path, CancellationToken cancellationToken = default);
 
-        ValueTask<DateTime> GetFileLastWriteTimeAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
+        ValueTask<DateTime> GetFileLastWriteTimeAsync(string path, CancellationToken cancellationToken = default);
 
-        ValueTask<IEnumerable<string>> FindDirectoriesAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
+        ValueTask<IEnumerable<string>> FindDirectoriesAsync(string path, CancellationToken cancellationToken = default);
 
-        ValueTask<IEnumerable<string>> FindFilesAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
+        ValueTask<IEnumerable<string>> FindFilesAsync(string path, CancellationToken cancellationToken = default);
 
-        ValueTask<Stream> GetFileStreamAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
+        ValueTask<Stream> GetFileStreamAsync(string path, CancellationToken cancellationToken = default);
 
-        ValueTask<long> GetFileSizeAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
+        ValueTask<long> GetFileSizeAsync(string path, CancellationToken cancellationToken = default);
 
-        ValueTask<IFileOwner> ExtractFileAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default);
+        ValueTask<IFileOwner> ExtractFileAsync(string path, CancellationToken cancellationToken = default);
     }
 }

@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Nito.AsyncEx;
 using Omnius.Core;
 using Omnius.Lxna.Components;
 using Omnius.Lxna.Components.Models;

@@ -25,6 +25,7 @@
     <PackageReference Include="NLog" Version="4.7.5" />
     <PackageReference Include="NLog.Config" Version="4.7.5" />
     <PackageReference Include="ReactiveProperty" Version="7.5.1" />
+    <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>

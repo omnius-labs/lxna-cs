@@ -227,7 +227,7 @@ namespace Omnius.Lxna.Components
         {
             var resultMap = new ConcurrentDictionary<int, IMemoryOwner<byte>>();
 
-            using var extractedFileOwner = await _fileSystem.ExtractFileAsync(filePath, cancellationToken);
+            await using var extractedFileOwner = await _fileSystem.ExtractFileAsync(filePath, cancellationToken);
 
             var duration = await GetMovieDurationAsync(extractedFileOwner.Path, cancellationToken).ConfigureAwait(false);
             int intervalSeconds = (int)Math.Max(minInterval.TotalSeconds, duration.TotalSeconds / maxImageCount);
