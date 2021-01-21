@@ -16,7 +16,9 @@ namespace Omnius.Lxna.Components
 
     public class FileSystemOptions
     {
-        public IArchiveFileExtractor? ArchiveFileExtractor { get; init; }
+        public IArchiveFileExtractorFactory? ArchiveFileExtractorFactory { get; init; }
+
+        public string? TemporaryDirectoryPath { get; init; }
 
         public IBytesPool? BytesPool { get; init; }
     }

@@ -3,6 +3,7 @@ using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Omnius.Core;
 using Omnius.Lxna.Components;
 using Omnius.Lxna.Ui.Desktop.ViewModels;
 
@@ -30,15 +31,14 @@ namespace Omnius.Lxna.Ui.Desktop.Views
             var configPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "../config");
             Directory.CreateDirectory(configPath);
 
-            var archiveFileExtractorOptions = new ArchiveFileExtractorOptions()
-            {
-                TemporaryDirectoryPath = "./tmp",
-            };
-            var archiveFileExtractor = await ArchiveFileExtractor.Factory.CreateAsync(archiveFileExtractorOptions);
+            var tempPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "../tmp");
+            Directory.CreateDirectory(tempPath);
 
             var fileSystemOptions = new FileSystemOptions()
             {
-                ArchiveFileExtractor = archiveFileExtractor,
+                ArchiveFileExtractorFactory = ArchiveFileExtractor.Factory,
+                TemporaryDirectoryPath = tempPath,
+                BytesPool = BytesPool.Shared,
             };
             var fileSystem = await FileSystem.Factory.CreateAsync(fileSystemOptions);
 

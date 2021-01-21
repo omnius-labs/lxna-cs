@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteDB;
+using Nito.AsyncEx;
 using Omnius.Core;
 using Omnius.Core.Io;
 using Omnius.Core.RocketPack.Helpers;
@@ -95,11 +96,13 @@ namespace Omnius.Lxna.Components.Internal.Repositories
                     };
                     var storage = this.GetStorage();
 
-                    using var recyclableMemoryStream = new RecyclableMemoryStream(_bytesPool);
-                    RocketPackHelper.MessageToStream(entity, recyclableMemoryStream);
-                    recyclableMemoryStream.Seek(0, SeekOrigin.Begin);
+                    if (storage.Exists(id))
+                    {
+                        return;
+                    }
 
-                    storage.Upload(id, "-", recyclableMemoryStream);
+                    using var outStream = storage.OpenWrite(id, "-");
+                    RocketPackHelper.MessageToStream(entity, outStream);
                 }
             }
         }

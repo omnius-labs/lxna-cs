@@ -11,7 +11,7 @@ namespace Omnius.Lxna.Components.Internal.Helpers
     {
         private static readonly Lazy<Base16> _base16 = new(() => new Base16(), true);
 
-        public static async ValueTask<FileStream> GenTempFileStreamAsync(string destinationDirectoryPath, Random random, CancellationToken cancellationToken = default)
+        public static async ValueTask<FileStream> GenTempFileStreamAsync(string destinationDirectoryPath, string extension, Random random, CancellationToken cancellationToken = default)
         {
             var buffer = new byte[32];
 
@@ -21,7 +21,7 @@ namespace Omnius.Lxna.Components.Internal.Helpers
 
                 random.NextBytes(buffer);
                 var randomText = _base16.Value.BytesToString(buffer);
-                var tempFilePath = Path.Combine(destinationDirectoryPath, randomText);
+                var tempFilePath = Path.Combine(destinationDirectoryPath, randomText + extension);
 
                 try
                 {

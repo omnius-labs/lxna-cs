@@ -11,12 +11,16 @@ using SevenZipExtractor;
 
 namespace Omnius.Lxna.Components
 {
-    public sealed class ArchiveFileExtractor : AsyncDisposableBase, IArchiveFileExtractor
+    public sealed class ArchiveFileExtractor : DisposableBase, IArchiveFileExtractor
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
+        private readonly string _archiveFilePath;
         private readonly string _tempDirPath;
         private readonly IBytesPool _bytesPool;
+
+        private ArchiveFile _archiveFile = null!;
+        private Dictionary<string, Entry> _entryMap = new();
 
         private readonly Random _random = new Random();
 
@@ -35,64 +39,70 @@ namespace Omnius.Lxna.Components
 
         internal ArchiveFileExtractor(ArchiveFileExtractorOptions options)
         {
+            _archiveFilePath = options.ArchiveFilePath ?? throw new ArgumentNullException(options.ArchiveFilePath);
             _tempDirPath = options.TemporaryDirectoryPath ?? Path.Combine(Path.GetTempPath(), "ArchiveFileExtractor");
             _bytesPool = options.BytesPool ?? BytesPool.Shared;
         }
 
         internal async ValueTask InitAsync()
         {
-        }
+            await Task.Delay(1).ConfigureAwait(false);
 
-        protected override async ValueTask OnDisposeAsync()
-        {
-        }
+            _archiveFile = new ArchiveFile(_archiveFilePath);
 
-        public async ValueTask<bool> ExistsFileAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
-        {
-            using var archiveFile = new ArchiveFile(archiveFilePath);
-            return archiveFile.Entries
-                .Where(n => !n.IsFolder)
-                .Select(n => PathHelper.Normalize(n.FileName))
-                .Any(n => n == path);
-        }
-
-        public async ValueTask<bool> ExistsDirectoryAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
-        {
-            using var archiveFile = new ArchiveFile(archiveFilePath);
-            return archiveFile.Entries
-                .Where(n => n.IsFolder)
-                .Select(n => PathHelper.Normalize(n.FileName))
-                .Any(n => n == path);
-        }
-
-        public async ValueTask<DateTime> GetFileLastWriteTimeAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
-        {
-            using var archiveFile = new ArchiveFile(archiveFilePath);
-            var entry = archiveFile.Entries
-                .Where(n => !n.IsFolder)
-                .FirstOrDefault(n => PathHelper.Normalize(n.FileName) == path);
-
-            if (entry is null)
+            foreach (var entry in _archiveFile.Entries)
             {
-                throw new FileNotFoundException();
+                _entryMap.Add(PathHelper.Normalize(entry.FileName), entry);
+            }
+        }
+
+        protected override void OnDispose(bool disposing)
+        {
+            _archiveFile.Dispose();
+            _entryMap.Clear();
+        }
+
+        public async ValueTask<bool> ExistsFileAsync(string path, CancellationToken cancellationToken = default)
+        {
+            if (_entryMap.TryGetValue(path, out var entry) && !entry.IsFolder)
+            {
+                return true;
             }
 
-            return entry.LastWriteTime.ToUniversalTime();
+            return false;
         }
 
-        public async ValueTask<IEnumerable<string>> FindDirectoriesAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
+        public async ValueTask<bool> ExistsDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        {
+            if (_entryMap.TryGetValue(path, out var entry) && entry.IsFolder)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public async ValueTask<DateTime> GetFileLastWriteTimeAsync(string path, CancellationToken cancellationToken = default)
+        {
+            if (_entryMap.TryGetValue(path, out var entry) && !entry.IsFolder)
+            {
+                return entry.LastWriteTime.ToUniversalTime();
+            }
+
+            throw new FileNotFoundException();
+        }
+
+        public async ValueTask<IEnumerable<string>> FindDirectoriesAsync(string path, CancellationToken cancellationToken = default)
         {
             var results = new List<string>();
 
-            using var archiveFile = new ArchiveFile(archiveFilePath);
-            foreach (var entry in archiveFile.Entries)
+            foreach (var (filePath, entry) in _entryMap)
             {
                 if (!entry.IsFolder)
                 {
                     continue;
                 }
 
-                var filePath = PathHelper.Normalize(entry.FileName);
                 if (filePath == path || !filePath.StartsWith(path))
                 {
                     continue;
@@ -110,19 +120,17 @@ namespace Omnius.Lxna.Components
             return results;
         }
 
-        public async ValueTask<IEnumerable<string>> FindFilesAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
+        public async ValueTask<IEnumerable<string>> FindFilesAsync(string path, CancellationToken cancellationToken = default)
         {
             var results = new List<string>();
 
-            using var archiveFile = new ArchiveFile(archiveFilePath);
-            foreach (var entry in archiveFile.Entries)
+            foreach (var (filePath, entry) in _entryMap)
             {
                 if (entry.IsFolder)
                 {
                     continue;
                 }
 
-                var filePath = PathHelper.Normalize(entry.FileName);
                 if (filePath == path || !filePath.StartsWith(path))
                 {
                     continue;
@@ -140,42 +148,42 @@ namespace Omnius.Lxna.Components
             return results;
         }
 
-        public async ValueTask<Stream> GetFileStreamAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
+        public async ValueTask<Stream> GetFileStreamAsync(string path, CancellationToken cancellationToken = default)
         {
-            using var archiveFile = new ArchiveFile(archiveFilePath);
-            var entry = archiveFile.Entries
-                .Where(n => !n.IsFolder)
-                .FirstOrDefault(n => PathHelper.Normalize(n.FileName) == path);
+            if (_entryMap.TryGetValue(path, out var entry) && !entry.IsFolder)
+            {
+                var memoryStream = new RecyclableMemoryStream(_bytesPool);
+                entry.Extract(memoryStream);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                return memoryStream;
+            }
 
-            var memoryStream = new RecyclableMemoryStream(_bytesPool);
-            entry.Extract(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            return memoryStream;
+            throw new FileNotFoundException();
         }
 
-        public async ValueTask<long> GetFileSizeAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
+        public async ValueTask<long> GetFileSizeAsync(string path, CancellationToken cancellationToken = default)
         {
-            using var archiveFile = new ArchiveFile(archiveFilePath);
-            var entry = archiveFile.Entries
-                .Where(n => !n.IsFolder)
-                .FirstOrDefault(n => PathHelper.Normalize(n.FileName) == path);
+            if (_entryMap.TryGetValue(path, out var entry) && !entry.IsFolder)
+            {
+                return (long)entry.Size;
+            }
 
-            return (long)entry.Size;
+            throw new FileNotFoundException();
         }
 
-        public async ValueTask<IFileOwner> ExtractFileAsync(string archiveFilePath, string path, CancellationToken cancellationToken = default)
+        public async ValueTask<IFileOwner> ExtractFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            using var archiveFile = new ArchiveFile(archiveFilePath);
-            var entry = archiveFile.Entries
-                .Where(n => !n.IsFolder)
-                .FirstOrDefault(n => PathHelper.Normalize(n.FileName) == path);
+            if (_entryMap.TryGetValue(path, out var entry) && !entry.IsFolder)
+            {
+                var tempFileStream = await FileHelper.GenTempFileStreamAsync(_tempDirPath, Path.GetExtension(path), _random, cancellationToken);
+                entry.Extract(tempFileStream);
+                return new ExtractedFileOwner(tempFileStream.Name);
+            }
 
-            var tempFileStream = await FileHelper.GenTempFileStreamAsync(_tempDirPath, _random, cancellationToken);
-            entry.Extract(tempFileStream);
-            return new ExtractedFileOwner(tempFileStream.Name);
+            throw new FileNotFoundException();
         }
 
-        private class ExtractedFileOwner : IFileOwner
+        private class ExtractedFileOwner : AsyncDisposableBase, IFileOwner
         {
             public ExtractedFileOwner(string path)
             {
@@ -184,8 +192,22 @@ namespace Omnius.Lxna.Components
 
             public string Path { get; }
 
-            public void Dispose()
+            protected override async ValueTask OnDisposeAsync()
             {
+                await Task.Delay(1).ConfigureAwait(false);
+
+                for (int i = 0; i < 5; i++)
+                {
+                    try
+                    {
+                        File.Delete(this.Path);
+                        return;
+                    }
+                    catch (IOException)
+                    {
+                        await Task.Delay(100);
+                    }
+                }
             }
         }
     }
