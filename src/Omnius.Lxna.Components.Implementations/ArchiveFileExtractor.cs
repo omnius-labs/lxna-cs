@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -14,6 +15,7 @@ namespace Omnius.Lxna.Components
     public sealed class ArchiveFileExtractor : DisposableBase, IArchiveFileExtractor
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly HashSet<string> _archiveFileExtensionList = new HashSet<string>() { ".zip", ".rar", ".7z" };
 
         private readonly string _archiveFilePath;
         private readonly string _tempDirPath;
@@ -103,21 +105,39 @@ namespace Omnius.Lxna.Components
                     continue;
                 }
 
-                if (filePath == path || !filePath.StartsWith(path))
+                if (IsTopPath(path, filePath))
                 {
-                    continue;
+                    results.Add(filePath);
                 }
-
-                string relativePath = filePath.Remove(0, path.Length).TrimStart('/');
-                if (relativePath.Contains('/'))
-                {
-                    continue;
-                }
-
-                results.Add(filePath);
             }
 
             return results;
+        }
+
+        public async ValueTask<(IEnumerable<string>, IEnumerable<string>)> FindDirectoriesAndArchiveFilesAsync(string path, CancellationToken cancellationToken = default)
+        {
+            var dirs = new List<string>();
+            var files = new List<string>();
+
+            foreach (var (filePath, entry) in _entryMap)
+            {
+                if (entry.IsFolder)
+                {
+                    if (IsTopPath(path, filePath))
+                    {
+                        dirs.Add(filePath);
+                    }
+                }
+                else if (_archiveFileExtensionList.Contains(Path.GetExtension(filePath)))
+                {
+                    if (IsTopPath(path, filePath))
+                    {
+                        files.Add(filePath);
+                    }
+                }
+            }
+
+            return (dirs, files);
         }
 
         public async ValueTask<IEnumerable<string>> FindFilesAsync(string path, CancellationToken cancellationToken = default)
@@ -131,21 +151,28 @@ namespace Omnius.Lxna.Components
                     continue;
                 }
 
-                if (filePath == path || !filePath.StartsWith(path))
+                if (IsTopPath(path, filePath))
                 {
-                    continue;
+                    results.Add(filePath);
                 }
-
-                string relativePath = filePath.Remove(0, path.Length).TrimStart('/');
-                if (relativePath.Contains('/'))
-                {
-                    continue;
-                }
-
-                results.Add(filePath);
             }
 
             return results;
+        }
+
+        private static bool IsTopPath(string findPath, string targetPath)
+        {
+            if (findPath == targetPath || !targetPath.StartsWith(findPath))
+            {
+                return false;
+            }
+
+            if (targetPath.AsSpan(findPath.Length).IndexOf('/') > 0)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public async ValueTask<Stream> GetFileStreamAsync(string path, CancellationToken cancellationToken = default)

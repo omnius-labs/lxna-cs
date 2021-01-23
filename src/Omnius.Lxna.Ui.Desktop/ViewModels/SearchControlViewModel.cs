@@ -43,8 +43,8 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
             _thumbnailGenerator = thumbnailGenerator;
             _thumbnailLoader = new ThumbnailLoader(_thumbnailGenerator);
 
-            this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => new DirectoryViewModel(null, n, _fileSystem)).AddTo(_disposable);
-            this.SelectedDirectory = new ReactiveProperty<DirectoryViewModel>().AddTo(_disposable);
+            this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => n).AddTo(_disposable);
+            this.SelectedDirectory = new ReactiveProperty<DirectoryModel>().AddTo(_disposable);
             this.SelectedDirectory.Subscribe(n =>
             {
                 if (n != null)
@@ -52,7 +52,7 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
                     this.TreeView_SelectionChanged(n);
                 }
             }).AddTo(_disposable);
-            this.CurrentItems = _currentItemModels.ToReadOnlyReactiveCollection(n => new ItemViewModel(n)).AddTo(_disposable);
+            this.CurrentItems = _currentItemModels.ToReadOnlyReactiveCollection(n => n).AddTo(_disposable);
 
             this.Init();
         }
@@ -86,21 +86,21 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
             _cancellationTokenSource.Dispose();
         }
 
-        public ReadOnlyReactiveCollection<DirectoryViewModel> RootDirectories { get; }
+        public ReadOnlyReactiveCollection<DirectoryModel> RootDirectories { get; }
 
-        public ReactiveProperty<DirectoryViewModel> SelectedDirectory { get; }
+        public ReactiveProperty<DirectoryModel> SelectedDirectory { get; }
 
-        public ReadOnlyReactiveCollection<ItemViewModel> CurrentItems { get; }
+        public ReadOnlyReactiveCollection<ItemModel> CurrentItems { get; }
 
         public async void NotifyDoubleTapped(object item)
         {
-            var path = ((ItemViewModel)item).Model.Path;
+            var path = ((ItemModel)item).Path;
             if (await _fileSystem.ExistsDirectoryAsync(path))
             {
-                var directoryViewModel = this.SelectedDirectory.Value.Children.FirstOrDefault(n => n.Model.Path == path);
+                var directoryViewModel = this.SelectedDirectory.Value.Children.FirstOrDefault(n => n.Path == path);
                 if (directoryViewModel is not null)
                 {
-                    this.SelectedDirectory.Value.IsExpanded.Value = true;
+                    this.SelectedDirectory.Value.IsExpanded = true;
                     //  this.SelectedDirectory.Value = directoryViewModel;
                 }
             }
@@ -114,26 +114,26 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
 
         public void NotifyItemPrepared(object item)
         {
-            if (item is ItemViewModel viewModel)
+            if (item is ItemModel model)
             {
-                _thumbnailLoader.NotifyItemPrepared(viewModel.Model);
+                _thumbnailLoader.NotifyItemPrepared(model);
             }
         }
 
         public void NotifyItemClearing(object item)
         {
-            if (item is ItemViewModel viewModel)
+            if (item is ItemModel model)
             {
-                _thumbnailLoader.NotifyItemClearing(viewModel.Model);
+                _thumbnailLoader.NotifyItemClearing(model);
             }
         }
 
-        private async void TreeView_SelectionChanged(DirectoryViewModel selectedDirectory)
+        private async void TreeView_SelectionChanged(DirectoryModel selectedDirectory)
         {
             await this.RefreshCurrentItemModelsAsync(selectedDirectory);
         }
 
-        private async Task RefreshCurrentItemModelsAsync(DirectoryViewModel selectedDirectory)
+        private async Task RefreshCurrentItemModelsAsync(DirectoryModel selectedDirectory)
         {
             await Task.Delay(1).ConfigureAwait(false);
 
@@ -148,7 +148,7 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
                 }
 
                 var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token);
-                var task = this.RefreshCurrentItemModelsAsync(selectedDirectory.Model.Path, cancellationTokenSource.Token);
+                var task = this.RefreshCurrentItemModelsAsync(selectedDirectory.Path, cancellationTokenSource.Token);
 
                 _refreshCurrentItemModelsTaskStatus = new TaskStatus(task, cancellationTokenSource);
             }

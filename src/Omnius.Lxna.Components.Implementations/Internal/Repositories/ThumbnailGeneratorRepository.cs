@@ -40,10 +40,12 @@ namespace Omnius.Lxna.Components.Internal.Repositories
 
         public sealed class ThumbnailCachesRepository
         {
+            private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
             private readonly LiteDatabase _database;
             private readonly IBytesPool _bytesPool;
 
-            private readonly AsyncLock _asyncLock = new AsyncLock();
+            private readonly AsyncReaderWriterLock _asyncLock = new();
 
             public ThumbnailCachesRepository(LiteDatabase database, IBytesPool bytesPool)
             {
@@ -57,7 +59,7 @@ namespace Omnius.Lxna.Components.Internal.Repositories
             {
                 await Task.Delay(1).ConfigureAwait(false);
 
-                using (await _asyncLock.LockAsync())
+                using (await _asyncLock.ReaderLockAsync())
                 {
                     var id = new ThumbnailCacheIdEntity()
                     {
@@ -75,8 +77,10 @@ namespace Omnius.Lxna.Components.Internal.Repositories
                         return null;
                     }
 
-                    using var inStream = liteFileInfo.OpenRead();
-                    return RocketPackHelper.StreamToMessage<ThumbnailCache>(inStream);
+                    using (var inStream = liteFileInfo.OpenRead())
+                    {
+                        return RocketPackHelper.StreamToMessage<ThumbnailCache>(inStream);
+                    }
                 }
             }
 
@@ -84,7 +88,7 @@ namespace Omnius.Lxna.Components.Internal.Repositories
             {
                 await Task.Delay(1).ConfigureAwait(false);
 
-                using (await _asyncLock.LockAsync())
+                using (await _asyncLock.WriterLockAsync())
                 {
                     var id = new ThumbnailCacheIdEntity()
                     {
@@ -96,13 +100,30 @@ namespace Omnius.Lxna.Components.Internal.Repositories
                     };
                     var storage = this.GetStorage();
 
-                    if (storage.Exists(id))
+                    if (!_database.BeginTrans())
                     {
-                        return;
+                        _logger.Error("current thread already in a transaction");
+                        throw new NotSupportedException();
                     }
 
-                    using var outStream = storage.OpenWrite(id, "-");
-                    RocketPackHelper.MessageToStream(entity, outStream);
+                    try
+                    {
+                        using (var outStream = storage.OpenWrite(id, "-"))
+                        {
+                            RocketPackHelper.MessageToStream(entity, outStream);
+                        }
+
+                        if (!_database.Commit())
+                        {
+                            _logger.Error("failed to commit");
+                            throw new NotSupportedException();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Debug(e);
+                        _database.Rollback();
+                    }
                 }
             }
         }
