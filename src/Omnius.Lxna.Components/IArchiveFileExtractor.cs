@@ -32,6 +32,8 @@ namespace Omnius.Lxna.Components
 
         ValueTask<IEnumerable<string>> FindDirectoriesAsync(string path, CancellationToken cancellationToken = default);
 
+        ValueTask<(IEnumerable<string>, IEnumerable<string>)> FindDirectoriesAndArchiveFilesAsync(string path, CancellationToken cancellationToken = default);
+
         ValueTask<IEnumerable<string>> FindFilesAsync(string path, CancellationToken cancellationToken = default);
 
         ValueTask<Stream> GetFileStreamAsync(string path, CancellationToken cancellationToken = default);

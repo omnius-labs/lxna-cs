@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Omnius.Core.Helpers;
 using Omnius.Lxna.Components;
 using Omnius.Lxna.Components.Models;
@@ -18,6 +20,13 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
         {
             this.Path = path;
             _fileSystem = fileSystem;
+
+            if (path == NestedPath.Empty)
+            {
+                return;
+            }
+
+            this.Children = new[] { new DirectoryModel(NestedPath.Empty, _fileSystem) };
         }
 
         private NestedPath _path = NestedPath.Empty;
@@ -47,19 +56,38 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
             private set => this.SetProperty(ref _name, value);
         }
 
-        public ObservableCollection<DirectoryModel> Children { get; } = new ObservableCollection<DirectoryModel>();
+        private bool _isExpanded = false;
 
-        public async void RefreshChildren()
+        public bool IsExpanded
         {
-            this.Children.Clear();
-
-            var directories = await _fileSystem.FindDirectoriesAsync(this.Path);
-            var archiveFiles = await _fileSystem.FindArchiveFilesAsync(this.Path);
-
-            foreach (var directoryPath in CollectionHelper.Unite(directories, archiveFiles))
+            get => _isExpanded;
+            set
             {
-                this.Children.Add(new DirectoryModel(directoryPath, _fileSystem));
+                this.SetProperty(ref _isExpanded, value);
+                this.RefreshChildrenAsync();
             }
+        }
+
+        private IList<DirectoryModel> _children = Array.Empty<DirectoryModel>();
+
+        public IList<DirectoryModel> Children
+        {
+            get => _children;
+            set => this.SetProperty(ref _children, value);
+        }
+
+        public async void RefreshChildrenAsync()
+        {
+            var directories = await _fileSystem.FindDirectoriesAndArchiveFilesAsync(this.Path);
+
+            var children = new List<DirectoryModel>();
+
+            foreach (var directoryPath in directories)
+            {
+                children.Add(new DirectoryModel(directoryPath, _fileSystem));
+            }
+
+            this.Children = children;
         }
     }
 }

@@ -22,14 +22,14 @@
                 Items="{Binding RootDirectories}" SelectedItem="{Binding SelectedDirectory.Value}">
             <TreeView.Styles>
                 <Style Selector="TreeViewItem">
-                    <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}"/>
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
                 </Style>
             </TreeView.Styles>
             <TreeView.ItemTemplate>
                 <TreeDataTemplate ItemsSource="{Binding Children}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="{Binding Icon}" />
-                        <TextBlock Text="{Binding Name.Value}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
@@ -43,8 +43,8 @@
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate>
                         <Grid Width="256" Height="256" RowDefinitions="*,Auto">
-                            <Image Grid.Row="0" Source="{Binding Thumbnail.Value}" />
-                            <TextBlock Grid.Row="1" Text="{Binding Name.Value}" TextWrapping="Wrap" />
+                            <Image Grid.Row="0" Source="{Binding Thumbnail}" />
+                            <TextBlock Grid.Row="1" Text="{Binding Name}" TextWrapping="Wrap" />
                         </Grid>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>

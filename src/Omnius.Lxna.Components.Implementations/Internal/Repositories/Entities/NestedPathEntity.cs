@@ -6,7 +6,7 @@ namespace Omnius.Lxna.Components.Internal.Repositories.Entities
 {
     public class NestedPathEntity
     {
-        public string[]? Values { get; init; }
+        public string[]? Values { get; set; }
 
         public static NestedPathEntity Import(NestedPath value)
         {

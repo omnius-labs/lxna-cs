@@ -5,16 +5,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using ImageMagick;
 using Omnius.Core;
-using Omnius.Core.Cryptography.Functions;
 using Omnius.Core.Extensions;
 using Omnius.Core.Io;
 using Omnius.Core.RocketPack;
 using Omnius.Core.Serialization;
-using Omnius.Core.Serialization.Extensions;
 using Omnius.Lxna.Components.Internal.Models;
 using Omnius.Lxna.Components.Internal.Repositories;
 using Omnius.Lxna.Components.Models;
@@ -311,7 +309,38 @@ namespace Omnius.Lxna.Components
 
         private void ConvertImage(Stream inStream, Stream outStream, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
         {
-            var image = SixLabors.ImageSharp.Image.Load(inStream);
+            try
+            {
+                this.InternalImageSharpConvertImage(inStream, outStream, width, height, resizeType, formatType);
+            }
+            catch (SixLabors.ImageSharp.UnknownImageFormatException)
+            {
+                using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
+                {
+                    this.InternalMagickImageConvertImage(inStream, bitmapStream);
+                    bitmapStream.Seek(0, SeekOrigin.Begin);
+
+                    this.InternalImageSharpConvertImage(bitmapStream, outStream, width, height, resizeType, formatType);
+                }
+            }
+        }
+
+        private void InternalMagickImageConvertImage(Stream inStream, Stream outStream)
+        {
+            try
+            {
+                using var magickImage = new MagickImage(inStream, MagickFormat.Unknown);
+                magickImage.Write(outStream, MagickFormat.Png32);
+            }
+            catch (Exception e)
+            {
+                throw new NotSupportedException(e.GetType().ToString(), e);
+            }
+        }
+
+        private void InternalImageSharpConvertImage(Stream inStream, Stream outStream, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
+        {
+            using var image = SixLabors.ImageSharp.Image.Load(inStream);
             image.Mutate(x =>
             {
                 var resizeOptions = new ResizeOptions

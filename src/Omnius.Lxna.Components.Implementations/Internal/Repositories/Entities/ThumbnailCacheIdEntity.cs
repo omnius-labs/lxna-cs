@@ -5,14 +5,14 @@ namespace Omnius.Lxna.Components.Internal.Repositories.Entities
 {
     public class ThumbnailCacheIdEntity
     {
-        public NestedPathEntity? FilePath { get; init; }
+        public NestedPathEntity? FilePath { get; set; }
 
-        public ThumbnailResizeType ThumbnailResizeType { get; init; }
+        public ThumbnailResizeType ThumbnailResizeType { get; set; }
 
-        public ThumbnailFormatType ThumbnailFormatType { get; init; }
+        public ThumbnailFormatType ThumbnailFormatType { get; set; }
 
-        public int ThumbnailWidth { get; init; }
+        public int ThumbnailWidth { get; set; }
 
-        public int ThumbnailHeight { get; init; }
+        public int ThumbnailHeight { get; set; }
     }
 }

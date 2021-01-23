@@ -138,19 +138,25 @@ namespace Omnius.Lxna.Components
             if (path is null || path.Values.Count == 0)
             {
                 var result = await this.FindRootPhysicalDirectoriesAsync(cancellationToken);
-                return result.Select(n => new NestedPath(new[] { n })).ToArray();
+                var list = result.Select(n => new NestedPath(new[] { n })).ToList();
+                list.Sort();
+                return list;
             }
             else if (path.Values.Count == 1)
             {
                 var result = await this.FindPhysicalDirectoriesAsync(path.Values[0], cancellationToken);
-                return result.Select(n => new NestedPath(new[] { n })).ToArray();
+                var list = result.Select(n => new NestedPath(new[] { n })).ToList();
+                list.Sort();
+                return list;
             }
             else
             {
                 var archiveFilePath = new NestedPath(path.Values.ToArray()[..^1]);
                 var archiveFileExtractor = await this.GetArchiveFileExtractorAsync(archiveFilePath, cancellationToken);
                 var result = await archiveFileExtractor.FindDirectoriesAsync(path.Values[^1], cancellationToken);
-                return result.Select(n => new NestedPath(archiveFilePath.Values.Append(n).ToArray())).ToArray();
+                var list = result.Select(n => new NestedPath(archiveFilePath.Values.Append(n).ToArray())).ToList();
+                list.Sort();
+                return list;
             }
         }
 
@@ -176,13 +182,56 @@ namespace Omnius.Lxna.Components
             return Directory.GetDirectories(path).Select(n => PathHelper.Normalize(n));
         }
 
-        public async ValueTask<IEnumerable<NestedPath>> FindArchiveFilesAsync(NestedPath path, CancellationToken cancellationToken = default)
+        public async ValueTask<IEnumerable<NestedPath>> FindDirectoriesAndArchiveFilesAsync(NestedPath path, CancellationToken cancellationToken = default)
         {
-            var results = await this.FindFilesAsync(path, cancellationToken);
-            return results
-                .Where(n => _archiveFileExtensionList.Contains(n.GetExtension()))
-                .Select(n => NestedPath.Combine(n, string.Empty))
-                .ToArray();
+            if (path is null || path.Values.Count == 0)
+            {
+                var result = await this.FindRootPhysicalDirectoriesAsync(cancellationToken);
+                var list = result.Select(n => new NestedPath(new[] { n })).ToList();
+                list.Sort();
+                return list;
+            }
+            else if (path.Values.Count == 1)
+            {
+                var (dirs, files) = await this.FindPhysicalDirectoriesAndArchiveFilesAsync(path.Values[0], cancellationToken);
+                var list = dirs.Select(n => new NestedPath(new[] { n })).Union(files.Select(n => new NestedPath(new[] { n, "" }))).ToList();
+                list.Sort();
+                return list;
+            }
+            else
+            {
+                var archiveFilePath = new NestedPath(path.Values.ToArray()[..^1]);
+                var archiveFileExtractor = await this.GetArchiveFileExtractorAsync(archiveFilePath, cancellationToken);
+                var (dirs, files) = await archiveFileExtractor.FindDirectoriesAndArchiveFilesAsync(path.Values[^1], cancellationToken);
+                var list = dirs.Select(n => new NestedPath(archiveFilePath.Values.Append(n).ToArray())).Union(files.Select(n => new NestedPath(archiveFilePath.Values.Append(n).Append("").ToArray()))).ToList();
+                list.Sort();
+                return list;
+            }
+        }
+
+        private async ValueTask<(IEnumerable<string>, IEnumerable<string>)> FindPhysicalDirectoriesAndArchiveFilesAsync(string path, CancellationToken cancellationToken = default)
+        {
+            if (!Directory.Exists(path))
+            {
+                return (Enumerable.Empty<string>(), Enumerable.Empty<string>());
+            }
+
+            var dirs = new List<string>();
+            var files = new List<string>();
+
+            foreach (var entry in new DirectoryInfo(path).EnumerateFileSystemInfos())
+            {
+                if (entry.Attributes.HasFlag(FileAttributes.Directory))
+                {
+                    dirs.Add(PathHelper.Normalize(entry.FullName));
+                }
+                else if (_archiveFileExtensionList.Contains(entry.Extension))
+                {
+                    files.Add(PathHelper.Normalize(entry.FullName));
+                }
+            }
+
+            return (dirs, files);
         }
 
         public async ValueTask<IEnumerable<NestedPath>> FindFilesAsync(NestedPath path, CancellationToken cancellationToken = default)
@@ -195,14 +244,18 @@ namespace Omnius.Lxna.Components
             if (path.Values.Count == 1)
             {
                 var result = await this.FindPhysicalFileAsync(path.Values[0], cancellationToken);
-                return result.Select(n => new NestedPath(new[] { n })).ToArray();
+                var list = result.Select(n => new NestedPath(new[] { n })).ToList();
+                list.Sort();
+                return list;
             }
             else
             {
                 var archiveFilePath = new NestedPath(path.Values.ToArray()[..^1]);
                 var archiveFileExtractor = await this.GetArchiveFileExtractorAsync(archiveFilePath, cancellationToken);
                 var result = await archiveFileExtractor.FindFilesAsync(path.Values[^1], cancellationToken);
-                return result.Select(n => new NestedPath(archiveFilePath.Values.Append(n).ToArray())).ToArray();
+                var list = result.Select(n => new NestedPath(archiveFilePath.Values.Append(n).ToArray())).ToList();
+                list.Sort();
+                return list;
             }
         }
 
