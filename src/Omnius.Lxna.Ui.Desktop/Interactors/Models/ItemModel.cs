@@ -9,6 +9,7 @@ using Omnius.Core;
 using Omnius.Core.Collections;
 using Omnius.Core.Io;
 using Omnius.Lxna.Components.Models;
+using Omnius.Lxna.Ui.Desktop.Interactors.Models.Primitives;
 
 namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 {

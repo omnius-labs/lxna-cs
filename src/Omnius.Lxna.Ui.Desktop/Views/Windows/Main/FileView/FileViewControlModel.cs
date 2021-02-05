@@ -1,57 +1,54 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Runtime.InteropServices;
+using System.Reactive.Linq;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Nito.AsyncEx;
 using Omnius.Core;
-using Omnius.Lxna.Components;
 using Omnius.Lxna.Components.Models;
 using Omnius.Lxna.Ui.Desktop.Interactors;
 using Omnius.Lxna.Ui.Desktop.Interactors.Models;
+using Omnius.Lxna.Ui.Desktop.Resources;
+using Omnius.Lxna.Ui.Desktop.Windows.Views.Helpers;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Omnius.Lxna.Ui.Desktop.ViewModels
+namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.FileView
 {
-    public class SearchControlViewModel : AsyncDisposableBase
+    public class FileViewControlModel : AsyncDisposableBase
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly IFileSystem _fileSystem;
-        private readonly IThumbnailGenerator _thumbnailGenerator;
+        private readonly AppState _state;
+
         private readonly ThumbnailLoader _thumbnailLoader;
 
-        private TaskStatus? _refreshCurrentItemModelsTaskStatus = null;
-        private readonly AsyncLock _refreshCurrentItemModelsTaskAsyncLock = new AsyncLock();
+        private TaskState? _refreshCurrentItemModelsTaskState = null;
+        private readonly AsyncLock _refreshCurrentItemModelsTaskAsyncLock = new();
 
-        private readonly ObservableCollection<DirectoryModel> _rootDirectoryModels = new ObservableCollection<DirectoryModel>();
-        private readonly ObservableCollection<ItemModel> _currentItemModels = new ObservableCollection<ItemModel>();
+        private readonly ObservableCollection<DirectoryModel> _rootDirectoryModels = new();
+        private readonly ObservableCollection<ItemModel> _currentItemModels = new();
 
         private readonly CancellationTokenSource _cancellationTokenSource = new();
-        private readonly CompositeDisposable _disposable = new CompositeDisposable();
+        private readonly CompositeDisposable _disposable = new();
 
-        public SearchControlViewModel(IFileSystem fileSystem, IThumbnailGenerator thumbnailGenerator)
+        public FileViewControlModel(AppState state)
         {
-            _fileSystem = fileSystem;
-            _thumbnailGenerator = thumbnailGenerator;
-            _thumbnailLoader = new ThumbnailLoader(_thumbnailGenerator);
+            _state = state;
+            _thumbnailLoader = new ThumbnailLoader(_state.GetThumbnailGenerator());
 
+            var uiSettings = _state.GetUiSettings();
+
+            this.TreeViewWidth = uiSettings.ToReactivePropertySlimAsSynchronized(n => n.FileView_TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
+            this.Thumbnail_Width = uiSettings.ToReactivePropertySlimAsSynchronized(n => n.Thumbnail_Width).AddTo(_disposable);
+            this.Thumbnail_Height = uiSettings.ToReactivePropertySlimAsSynchronized(n => n.Thumbnail_Height).AddTo(_disposable);
             this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => n).AddTo(_disposable);
             this.SelectedDirectory = new ReactiveProperty<DirectoryModel>().AddTo(_disposable);
-            this.SelectedDirectory.Subscribe(n =>
-            {
-                if (n != null)
-                {
-                    this.TreeView_SelectionChanged(n);
-                }
-            }).AddTo(_disposable);
+            this.SelectedDirectory.Where(n => n is not null).Subscribe(n => this.TreeView_SelectionChanged(n)).AddTo(_disposable);
             this.CurrentItems = _currentItemModels.ToReadOnlyReactiveCollection(n => n).AddTo(_disposable);
 
             this.Init();
@@ -59,9 +56,9 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
 
         private async void Init()
         {
-            foreach (var drive in await _fileSystem.FindDirectoriesAsync())
+            foreach (var drive in await _state.GetFileSystem().FindDirectoriesAsync())
             {
-                var model = new DirectoryModel(drive, _fileSystem);
+                var model = new DirectoryModel(drive, _state.GetFileSystem());
                 _rootDirectoryModels.Add(model);
             }
         }
@@ -73,11 +70,11 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
 
             using (await _refreshCurrentItemModelsTaskAsyncLock.LockAsync())
             {
-                if (_refreshCurrentItemModelsTaskStatus is not null)
+                if (_refreshCurrentItemModelsTaskState is not null)
                 {
-                    _refreshCurrentItemModelsTaskStatus.CancellationTokenSource.Cancel();
-                    await _refreshCurrentItemModelsTaskStatus.Task;
-                    _refreshCurrentItemModelsTaskStatus.CancellationTokenSource.Dispose();
+                    _refreshCurrentItemModelsTaskState.CancellationTokenSource.Cancel();
+                    await _refreshCurrentItemModelsTaskState.Task;
+                    _refreshCurrentItemModelsTaskState.CancellationTokenSource.Dispose();
                 }
             }
 
@@ -85,6 +82,12 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
 
             _cancellationTokenSource.Dispose();
         }
+
+        public ReactivePropertySlim<GridLength> TreeViewWidth { get; }
+
+        public ReactivePropertySlim<int> Thumbnail_Width { get; }
+
+        public ReactivePropertySlim<int> Thumbnail_Height { get; }
 
         public ReadOnlyReactiveCollection<DirectoryModel> RootDirectories { get; }
 
@@ -94,21 +97,28 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
 
         public async void NotifyDoubleTapped(object item)
         {
-            var path = ((ItemModel)item).Path;
-            if (await _fileSystem.ExistsDirectoryAsync(path))
+            if (item is not ItemModel model)
+            {
+                return;
+            }
+
+            var path = model.Path;
+
+            if (await _state.GetFileSystem().ExistsDirectoryAsync(path))
             {
                 var directoryViewModel = this.SelectedDirectory.Value.Children.FirstOrDefault(n => n.Path == path);
-                if (directoryViewModel is not null)
+                if (directoryViewModel is null)
                 {
-                    this.SelectedDirectory.Value.IsExpanded = true;
-                    //  this.SelectedDirectory.Value = directoryViewModel;
+                    return;
                 }
+
+                this.SelectedDirectory.Value.IsExpanded = true;
+                this.SelectedDirectory.Value = directoryViewModel;
             }
-            else if (await _fileSystem.ExistsFileAsync(path))
+            else if (await _state.GetFileSystem().ExistsFileAsync(path))
             {
-                // var process = new Process();
-                // process.StartInfo.UseShellExecute = true;
-                // process.Start();
+                var window = new Picture.PictureWindow(_state, path);
+                await window.ShowDialog(App.Current.MainWindow);
             }
         }
 
@@ -130,27 +140,27 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
 
         private async void TreeView_SelectionChanged(DirectoryModel selectedDirectory)
         {
-            await this.RefreshCurrentItemModelsAsync(selectedDirectory);
+            await this.RefreshAsync(selectedDirectory);
         }
 
-        private async Task RefreshCurrentItemModelsAsync(DirectoryModel selectedDirectory)
+        private async Task RefreshAsync(DirectoryModel selectedDirectory)
         {
             await Task.Delay(1).ConfigureAwait(false);
 
             using (await _refreshCurrentItemModelsTaskAsyncLock.LockAsync())
             {
-                // 古い再描画タスクを終了する
-                if (_refreshCurrentItemModelsTaskStatus is not null)
+                // 古い再描画タスクを終了
+                if (_refreshCurrentItemModelsTaskState is not null)
                 {
-                    _refreshCurrentItemModelsTaskStatus.CancellationTokenSource.Cancel();
-                    await _refreshCurrentItemModelsTaskStatus.Task;
-                    _refreshCurrentItemModelsTaskStatus.CancellationTokenSource.Dispose();
+                    _refreshCurrentItemModelsTaskState.CancellationTokenSource.Cancel();
+                    await _refreshCurrentItemModelsTaskState.Task;
+                    _refreshCurrentItemModelsTaskState.CancellationTokenSource.Dispose();
                 }
 
+                // 新しい描画タスクを開始
                 var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token);
                 var task = this.RefreshCurrentItemModelsAsync(selectedDirectory.Path, cancellationTokenSource.Token);
-
-                _refreshCurrentItemModelsTaskStatus = new TaskStatus(task, cancellationTokenSource);
+                _refreshCurrentItemModelsTaskState = new TaskState(task, cancellationTokenSource);
             }
         }
 
@@ -172,29 +182,37 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
                     _currentItemModels.Clear();
                 });
 
-                var tempList = new List<NestedPath>();
+                var files = new List<NestedPath>();
+                var dirs = new List<NestedPath>();
 
                 try
                 {
-                    tempList.AddRange(await _fileSystem.FindFilesAsync(path, cancellationToken));
-                    tempList.AddRange(await _fileSystem.FindDirectoriesAsync(path, cancellationToken));
+                    files.AddRange(await _state.GetFileSystem().FindFilesAsync(path, cancellationToken));
+                    dirs.AddRange(await _state.GetFileSystem().FindDirectoriesAsync(path, cancellationToken));
                 }
                 catch (UnauthorizedAccessException e)
                 {
                     _logger.Error(e);
                 }
 
-                tempList.Sort();
+                files.Sort();
+                dirs.Sort();
 
                 await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    foreach (var filePath in tempList)
+                    foreach (var dirPath in dirs)
+                    {
+                        _currentItemModels.Add(new ItemModel(dirPath));
+                    }
+
+                    foreach (var filePath in files)
                     {
                         _currentItemModels.Add(new ItemModel(filePath));
                     }
                 });
 
-                _thumbnailLoader.Start(_currentItemModels);
+                var uiSettings = _state.GetUiSettings();
+                await _thumbnailLoader.StartAsync(uiSettings.Thumbnail_Width, uiSettings.Thumbnail_Height, _currentItemModels);
             }
             catch (OperationCanceledException e)
             {
@@ -206,9 +224,9 @@ namespace Omnius.Lxna.Ui.Desktop.ViewModels
             }
         }
 
-        private class TaskStatus
+        private class TaskState
         {
-            public TaskStatus(Task task, CancellationTokenSource cancellationTokenSource)
+            public TaskState(Task task, CancellationTokenSource cancellationTokenSource)
             {
                 this.Task = task;
                 this.CancellationTokenSource = cancellationTokenSource;

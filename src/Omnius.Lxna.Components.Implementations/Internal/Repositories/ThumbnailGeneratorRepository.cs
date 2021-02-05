@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using LiteDB;
 using Nito.AsyncEx;
 using Omnius.Core;
-using Omnius.Core.Io;
+using Omnius.Core.Helpers;
 using Omnius.Core.RocketPack.Helpers;
 using Omnius.Lxna.Components.Internal.Models;
 using Omnius.Lxna.Components.Internal.Repositories.Entities;
@@ -19,11 +19,12 @@ namespace Omnius.Lxna.Components.Internal.Repositories
 
         private readonly IBytesPool _bytesPool;
 
-        public ThumbnailGeneratorRepository(string path, IBytesPool bytesPool)
+        public ThumbnailGeneratorRepository(string filePath, IBytesPool bytesPool)
         {
-            _bytesPool = bytesPool;
+            DirectoryHelper.CreateDirectory(Path.GetDirectoryName(filePath)!);
 
-            _database = new LiteDatabase(path);
+            _bytesPool = bytesPool;
+            _database = new LiteDatabase(filePath);
             this.ThumbnailCaches = new ThumbnailCachesRepository(_database, _bytesPool);
         }
 

@@ -73,7 +73,7 @@ namespace Omnius.Lxna.Components.Models
         }
         public override bool Equals(object? other)
         {
-            if (!(other is global::Omnius.Lxna.Components.Models.NestedPath)) return false;
+            if (other is not global::Omnius.Lxna.Components.Models.NestedPath) return false;
             return this.Equals((global::Omnius.Lxna.Components.Models.NestedPath)other);
         }
         public bool Equals(global::Omnius.Lxna.Components.Models.NestedPath? target)
@@ -186,7 +186,7 @@ namespace Omnius.Lxna.Components.Models
         }
         public override bool Equals(object? other)
         {
-            if (!(other is global::Omnius.Lxna.Components.Models.ThumbnailContent)) return false;
+            if (other is not global::Omnius.Lxna.Components.Models.ThumbnailContent) return false;
             return this.Equals((global::Omnius.Lxna.Components.Models.ThumbnailContent)other);
         }
         public bool Equals(global::Omnius.Lxna.Components.Models.ThumbnailContent? target)
@@ -289,7 +289,7 @@ namespace Omnius.Lxna.Components.Models
         }
         public override bool Equals(object? other)
         {
-            if (!(other is global::Omnius.Lxna.Components.Models.ThumbnailGeneratorOptions)) return false;
+            if (other is not global::Omnius.Lxna.Components.Models.ThumbnailGeneratorOptions) return false;
             return this.Equals((global::Omnius.Lxna.Components.Models.ThumbnailGeneratorOptions)other);
         }
         public bool Equals(global::Omnius.Lxna.Components.Models.ThumbnailGeneratorOptions? target)

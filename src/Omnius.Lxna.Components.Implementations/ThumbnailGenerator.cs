@@ -92,9 +92,9 @@ namespace Omnius.Lxna.Components
                 return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
             }
 
-            // Picture
+            // Movie
             {
-                var result = await this.GetPictureThumbnailAsync(filePath, options, cancellationToken).ConfigureAwait(false);
+                var result = await this.GetMovieThumbnailAsync(filePath, options, cancellationToken).ConfigureAwait(false);
 
                 if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
                 {
@@ -102,9 +102,9 @@ namespace Omnius.Lxna.Components
                 }
             }
 
-            // Movie
+            // Picture
             {
-                var result = await this.GetMovieThumbnailAsync(filePath, options, cancellationToken).ConfigureAwait(false);
+                var result = await this.GetPictureThumbnailAsync(filePath, options, cancellationToken).ConfigureAwait(false);
 
                 if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
                 {
@@ -138,7 +138,8 @@ namespace Omnius.Lxna.Components
 
         private async ValueTask<ThumbnailGeneratorGetThumbnailResult> GetPictureThumbnailAsync(NestedPath filePath, ThumbnailGeneratorGetThumbnailOptions options, CancellationToken cancellationToken = default)
         {
-            if (!_pictureTypeExtensionList.Contains(filePath.GetExtension().ToLower()))
+            var ext = filePath.GetExtension().ToLower();
+            if (!_pictureTypeExtensionList.Contains(ext))
             {
                 return new ThumbnailGeneratorGetThumbnailResult(ThumbnailGeneratorResultStatus.Failed);
             }
@@ -235,50 +236,92 @@ namespace Omnius.Lxna.Components
                 .Select(x => x * intervalSeconds)
                 .Where(seekSec => (duration.TotalSeconds - seekSec) > 1) // 残り1秒以下の場合は除外
                 .ForEachAsync(
-                    async (seekSec) =>
+                    async seekSec =>
                     {
-                        try
-                        {
-                            var arguments = $"-loglevel error -ss {seekSec} -i \"{extractedFileOwner.Path}\" -vframes 1 -f image2 pipe:1";
-
-                            using var process = Process.Start(new ProcessStartInfo("ffmpeg", arguments)
-                            {
-                                CreateNoWindow = true,
-                                UseShellExecute = false,
-                                RedirectStandardOutput = true,
-                                RedirectStandardError = false,
-                            });
-
-                            using var baseStream = process!.StandardOutput.BaseStream;
-                            using var inStream = new RecyclableMemoryStream(_bytesPool);
-                            using var outStream = new RecyclableMemoryStream(_bytesPool);
-
-                            await baseStream.CopyToAsync(inStream, cancellationToken);
-                            inStream.Seek(0, SeekOrigin.Begin);
-                            this.ConvertImage(inStream, outStream, width, height, resizeType, formatType);
-
-                            await process.WaitForExitAsync(cancellationToken);
-
-                            resultMap[seekSec] = outStream.ToMemoryOwner();
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.Warn(e);
-                            throw;
-                        }
+                        var ret = await this.GetMovieImagesAsync(extractedFileOwner.Path, seekSec, width, height, resizeType, formatType, cancellationToken);
+                        resultMap.TryAdd(ret.SeekSec, ret.MemoryOwner);
                     }, (int)_concurrency, cancellationToken).ConfigureAwait(false);
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (resultMap.IsEmpty)
+            if (!resultMap.IsEmpty)
             {
-                throw new NotSupportedException();
+                var tempList = resultMap.ToList();
+                tempList.Sort((x, y) => x.Key.CompareTo(y.Key));
+
+                return tempList.Select(n => n.Value).ToArray();
             }
 
-            var tempList = resultMap.ToList();
-            tempList.Sort((x, y) => x.Key.CompareTo(y.Key));
+            var ret = await this.GetMovieImageAsync(extractedFileOwner.Path, width, height, resizeType, formatType, cancellationToken);
+            return new[] { ret };
+        }
 
-            return tempList.Select(n => n.Value).ToArray();
+        private async ValueTask<IMemoryOwner<byte>> GetMovieImageAsync(string path, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var arguments = $"-loglevel error -i \"{path}\" -vf thumbnail=30 -frames:v 1 -f image2 pipe:1";
+
+                using var process = Process.Start(new ProcessStartInfo("ffmpeg", arguments)
+                {
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = false,
+                });
+
+                using var baseStream = process!.StandardOutput.BaseStream;
+
+                using var inStream = new RecyclableMemoryStream(_bytesPool);
+                using var outStream = new RecyclableMemoryStream(_bytesPool);
+
+                await baseStream.CopyToAsync(inStream, cancellationToken);
+                inStream.Seek(0, SeekOrigin.Begin);
+                await process.WaitForExitAsync(cancellationToken);
+
+                this.ConvertImage(inStream, outStream, width, height, resizeType, formatType);
+
+                return outStream.ToMemoryOwner();
+            }
+            catch (Exception e)
+            {
+                _logger.Warn(e);
+                throw;
+            }
+        }
+
+        private async ValueTask<(int SeekSec, IMemoryOwner<byte> MemoryOwner)> GetMovieImagesAsync(string path, int seekSec, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var arguments = $"-loglevel error -ss {seekSec} -i \"{path}\" -vframes 1 -f image2 pipe:1";
+
+                using var process = Process.Start(new ProcessStartInfo("ffmpeg", arguments)
+                {
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = false,
+                });
+
+                using var baseStream = process!.StandardOutput.BaseStream;
+
+                using var inStream = new RecyclableMemoryStream(_bytesPool);
+                using var outStream = new RecyclableMemoryStream(_bytesPool);
+
+                await baseStream.CopyToAsync(inStream, cancellationToken);
+                inStream.Seek(0, SeekOrigin.Begin);
+                await process.WaitForExitAsync(cancellationToken);
+
+                this.ConvertImage(inStream, outStream, width, height, resizeType, formatType);
+
+                return (seekSec, outStream.ToMemoryOwner());
+            }
+            catch (Exception e)
+            {
+                _logger.Warn(e);
+                throw;
+            }
         }
 
         private static async ValueTask<TimeSpan> GetMovieDurationAsync(string path, CancellationToken cancellationToken = default)
