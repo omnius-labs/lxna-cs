@@ -45,7 +45,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
             _cancellationTokenSource?.Dispose();
         }
 
-        public void Start(IEnumerable<ItemModel> itemModels)
+        public async ValueTask StartAsync(int width, int height, IEnumerable<ItemModel> itemModels)
         {
             lock (_lockObject)
             {
@@ -55,7 +55,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
             _resetEvent.Set();
 
             _cancellationTokenSource = new CancellationTokenSource();
-            var loadTask = this.LoadAsync(_cancellationTokenSource.Token);
+            var loadTask = this.LoadAsync(width, height, _cancellationTokenSource.Token);
             var rotateTask = this.RotateAsync(_cancellationTokenSource.Token);
             _task = Task.WhenAll(loadTask, rotateTask);
         }
@@ -100,7 +100,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
             _callbackManager.Invoke();
         }
 
-        private async Task LoadAsync(CancellationToken cancellationToken = default)
+        private async Task LoadAsync(int width, int height, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -114,8 +114,8 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
                     var hiddenItemModels = new List<ItemModel>(this.GetHiddenItemModels());
 
                     await this.ClearThumbnailAsync(hiddenItemModels, cancellationToken);
-                    await this.LoadThumbnailAsync(shownItemModels.Where(n => n.Thumbnail == null), false, cancellationToken);
-                    await this.LoadThumbnailAsync(shownItemModels.Where(n => n.Thumbnail == null), true, cancellationToken);
+                    await this.LoadThumbnailAsync(shownItemModels.Where(n => n.Thumbnail == null), width, height, false, cancellationToken);
+                    await this.LoadThumbnailAsync(shownItemModels.Where(n => n.Thumbnail == null), width, height, true, cancellationToken);
                 }
             }
             catch (OperationCanceledException e)
@@ -137,7 +137,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
             }
         }
 
-        private async Task LoadThumbnailAsync(IEnumerable<ItemModel> targetModels, bool cacheOnly, CancellationToken cancellationToken)
+        private async Task LoadThumbnailAsync(IEnumerable<ItemModel> targetModels, int width, int height, bool cacheOnly, CancellationToken cancellationToken)
         {
             using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             using var unsubscriber = _callbackManager.Subscribe(() => linkedCancellationTokenSource.Cancel());
@@ -146,7 +146,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var options = new ThumbnailGeneratorGetThumbnailOptions(256, 256, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 30);
+                var options = new ThumbnailGeneratorGetThumbnailOptions(width, height, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 30);
                 var result = await _thumbnailGenerator.GetThumbnailAsync(model.Path, options, cacheOnly, cancellationToken).ConfigureAwait(false);
 
                 if (result.Status == ThumbnailGeneratorResultStatus.Succeeded)
@@ -240,22 +240,22 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
 
         private sealed class CallbackManager
         {
-            private event Action? _event;
+            private event Action? Event;
 
             public void Invoke()
             {
-                _event?.Invoke();
+                this.Event?.Invoke();
             }
 
             public IDisposable Subscribe(Action action)
             {
-                _event += action;
+                this.Event += action;
                 return new Cookie(this, action);
             }
 
             private void Unsubscribe(Action action)
             {
-                _event -= action;
+                this.Event -= action;
             }
 
             private sealed class Cookie : IDisposable

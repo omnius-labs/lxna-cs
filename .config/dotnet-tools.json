@@ -25,6 +25,12 @@
       "commands": [
         "nukeeper"
       ]
+    },
+    "dotnet-t4": {
+      "version": "2.2.0",
+      "commands": [
+        "t4"
+      ]
     }
   }
 }

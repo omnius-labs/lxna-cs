@@ -1,4 +1,3 @@
-using System;
 using Omnius.Lxna.Components.Models;
 
 namespace Omnius.Lxna.Components.Internal.Repositories.Entities

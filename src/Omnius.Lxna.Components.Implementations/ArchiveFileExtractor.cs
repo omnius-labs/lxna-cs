@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Omnius.Core;
@@ -22,7 +20,8 @@ namespace Omnius.Lxna.Components
         private readonly IBytesPool _bytesPool;
 
         private ArchiveFile _archiveFile = null!;
-        private Dictionary<string, Entry> _entryMap = new();
+        private Dictionary<string, Entry> _fileEntryMap = new();
+        private HashSet<string> _dirSet = new();
 
         private readonly Random _random = new Random();
 
@@ -52,41 +51,54 @@ namespace Omnius.Lxna.Components
 
             _archiveFile = new ArchiveFile(_archiveFilePath);
 
+            this.ComputeFilesAndDirs();
+        }
+
+        private void ComputeFilesAndDirs()
+        {
             foreach (var entry in _archiveFile.Entries)
             {
-                _entryMap.Add(PathHelper.Normalize(entry.FileName), entry);
+                if (entry.IsFolder)
+                {
+                    var dirPath = PathHelper.Normalize(entry.FileName);
+                    _dirSet.Add(dirPath);
+                }
+                else
+                {
+                    var filePath = PathHelper.Normalize(entry.FileName);
+                    _fileEntryMap.Add(filePath, entry);
+                }
+            }
+
+            foreach (var filePath in _fileEntryMap.Keys)
+            {
+                foreach (var dirPath in PathHelper.ExtractDirectoryPaths(filePath))
+                {
+                    _dirSet.Add(dirPath);
+                }
             }
         }
 
         protected override void OnDispose(bool disposing)
         {
             _archiveFile.Dispose();
-            _entryMap.Clear();
+            _fileEntryMap.Clear();
+            _dirSet.Clear();
         }
 
         public async ValueTask<bool> ExistsFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            if (_entryMap.TryGetValue(path, out var entry) && !entry.IsFolder)
-            {
-                return true;
-            }
-
-            return false;
+            return _fileEntryMap.ContainsKey(path);
         }
 
         public async ValueTask<bool> ExistsDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
-            if (_entryMap.TryGetValue(path, out var entry) && entry.IsFolder)
-            {
-                return true;
-            }
-
-            return false;
+            return _dirSet.Contains(path);
         }
 
         public async ValueTask<DateTime> GetFileLastWriteTimeAsync(string path, CancellationToken cancellationToken = default)
         {
-            if (_entryMap.TryGetValue(path, out var entry) && !entry.IsFolder)
+            if (_fileEntryMap.TryGetValue(path, out var entry))
             {
                 return entry.LastWriteTime.ToUniversalTime();
             }
@@ -98,16 +110,11 @@ namespace Omnius.Lxna.Components
         {
             var results = new List<string>();
 
-            foreach (var (filePath, entry) in _entryMap)
+            foreach (var dirPath in _dirSet)
             {
-                if (!entry.IsFolder)
+                if (PathHelper.IsCurrentDirectory(path, dirPath))
                 {
-                    continue;
-                }
-
-                if (IsTopPath(path, filePath))
-                {
-                    results.Add(filePath);
+                    results.Add(dirPath);
                 }
             }
 
@@ -119,21 +126,24 @@ namespace Omnius.Lxna.Components
             var dirs = new List<string>();
             var files = new List<string>();
 
-            foreach (var (filePath, entry) in _entryMap)
+            foreach (var dirPath in _dirSet)
             {
-                if (entry.IsFolder)
+                if (PathHelper.IsCurrentDirectory(path, dirPath))
                 {
-                    if (IsTopPath(path, filePath))
-                    {
-                        dirs.Add(filePath);
-                    }
+                    dirs.Add(dirPath);
                 }
-                else if (_archiveFileExtensionList.Contains(Path.GetExtension(filePath)))
+            }
+
+            foreach (var filePath in _fileEntryMap.Keys)
+            {
+                if (!_archiveFileExtensionList.Contains(Path.GetExtension(filePath)))
                 {
-                    if (IsTopPath(path, filePath))
-                    {
-                        files.Add(filePath);
-                    }
+                    continue;
+                }
+
+                if (PathHelper.IsCurrentDirectory(path, filePath))
+                {
+                    files.Add(filePath);
                 }
             }
 
@@ -144,14 +154,9 @@ namespace Omnius.Lxna.Components
         {
             var results = new List<string>();
 
-            foreach (var (filePath, entry) in _entryMap)
+            foreach (var filePath in _fileEntryMap.Keys)
             {
-                if (entry.IsFolder)
-                {
-                    continue;
-                }
-
-                if (IsTopPath(path, filePath))
+                if (PathHelper.IsCurrentDirectory(path, filePath))
                 {
                     results.Add(filePath);
                 }
@@ -160,27 +165,14 @@ namespace Omnius.Lxna.Components
             return results;
         }
 
-        private static bool IsTopPath(string findPath, string targetPath)
-        {
-            if (findPath == targetPath || !targetPath.StartsWith(findPath))
-            {
-                return false;
-            }
-
-            if (targetPath.AsSpan(findPath.Length).IndexOf('/') > 0)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         public async ValueTask<Stream> GetFileStreamAsync(string path, CancellationToken cancellationToken = default)
         {
-            if (_entryMap.TryGetValue(path, out var entry) && !entry.IsFolder)
+            if (_fileEntryMap.TryGetValue(path, out var entry))
             {
                 var memoryStream = new RecyclableMemoryStream(_bytesPool);
                 entry.Extract(memoryStream);
+                await memoryStream.FlushAsync(cancellationToken);
+
                 memoryStream.Seek(0, SeekOrigin.Begin);
                 return memoryStream;
             }
@@ -190,7 +182,7 @@ namespace Omnius.Lxna.Components
 
         public async ValueTask<long> GetFileSizeAsync(string path, CancellationToken cancellationToken = default)
         {
-            if (_entryMap.TryGetValue(path, out var entry) && !entry.IsFolder)
+            if (_fileEntryMap.TryGetValue(path, out var entry))
             {
                 return (long)entry.Size;
             }
@@ -200,11 +192,14 @@ namespace Omnius.Lxna.Components
 
         public async ValueTask<IFileOwner> ExtractFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            if (_entryMap.TryGetValue(path, out var entry) && !entry.IsFolder)
+            if (_fileEntryMap.TryGetValue(path, out var entry))
             {
                 var tempFileStream = await FileHelper.GenTempFileStreamAsync(_tempDirPath, Path.GetExtension(path), _random, cancellationToken);
                 entry.Extract(tempFileStream);
-                return new ExtractedFileOwner(tempFileStream.Name);
+                await tempFileStream.FlushAsync(cancellationToken);
+
+                tempFileStream.Seek(0, SeekOrigin.Begin);
+                return new ExtractedFileOwner(tempFileStream);
             }
 
             throw new FileNotFoundException();
@@ -212,29 +207,18 @@ namespace Omnius.Lxna.Components
 
         private class ExtractedFileOwner : AsyncDisposableBase, IFileOwner
         {
-            public ExtractedFileOwner(string path)
+            private readonly FileStream _fileStream;
+
+            public ExtractedFileOwner(FileStream fileStream)
             {
-                this.Path = path;
+                _fileStream = fileStream;
             }
 
-            public string Path { get; }
+            public string Path => _fileStream.Name;
 
             protected override async ValueTask OnDisposeAsync()
             {
-                await Task.Delay(1).ConfigureAwait(false);
-
-                for (int i = 0; i < 5; i++)
-                {
-                    try
-                    {
-                        File.Delete(this.Path);
-                        return;
-                    }
-                    catch (IOException)
-                    {
-                        await Task.Delay(100);
-                    }
-                }
+                await _fileStream.DisposeAsync();
             }
         }
     }

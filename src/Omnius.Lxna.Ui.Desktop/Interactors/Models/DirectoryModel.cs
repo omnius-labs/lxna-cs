@@ -1,19 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using Omnius.Core.Helpers;
+using System.Threading.Channels;
 using Omnius.Lxna.Components;
 using Omnius.Lxna.Components.Models;
+using Omnius.Lxna.Ui.Desktop.Interactors.Models.Primitives;
 
 namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 {
     public sealed class DirectoryModel : BindableBase
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly IFileSystem _fileSystem;
 
         public DirectoryModel(NestedPath path, IFileSystem fileSystem)
@@ -76,13 +73,12 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
             set => this.SetProperty(ref _children, value);
         }
 
+        // FIXME
         public async void RefreshChildrenAsync()
         {
-            var directories = await _fileSystem.FindDirectoriesAndArchiveFilesAsync(this.Path);
-
             var children = new List<DirectoryModel>();
 
-            foreach (var directoryPath in directories)
+            foreach (var directoryPath in await _fileSystem.FindDirectoriesAndArchiveFilesAsync(this.Path))
             {
                 children.Add(new DirectoryModel(directoryPath, _fileSystem));
             }

@@ -1,12 +1,8 @@
-using System.IO;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Omnius.Core;
-using Omnius.Lxna.Components;
-using Omnius.Lxna.Components.Models;
-using Omnius.Lxna.Ui.Desktop.ViewModels;
-using Omnius.Lxna.Ui.Desktop.Views;
+using Omnius.Lxna.Ui.Desktop.Windows.Views.Main;
 
 namespace Omnius.Lxna.Ui.Desktop
 {
@@ -17,9 +13,13 @@ namespace Omnius.Lxna.Ui.Desktop
             AvaloniaXamlLoader.Load(this);
         }
 
+        public static new App Current => (App)Application.Current;
+
+        public Window? MainWindow => (this.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+
         public override void OnFrameworkInitializationCompleted()
         {
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 desktop.MainWindow = new MainWindow();
             }

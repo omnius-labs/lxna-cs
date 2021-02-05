@@ -1,18 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>C:\home\repos\omnius-labs\Lxna\tmp\bin\win\Omnius.Lxna.Ui.Desktop\Debug\</OutputPath>
   </PropertyGroup>
+
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
+
   <ItemGroup>
     <None Update="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.10.0" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0" />
@@ -40,4 +45,5 @@
     <ProjectReference Include="..\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
     <ProjectReference Include="..\Omnius.Lxna.Components.Implementations\Omnius.Lxna.Components.Implementations.csproj" />
   </ItemGroup>
+
 </Project>

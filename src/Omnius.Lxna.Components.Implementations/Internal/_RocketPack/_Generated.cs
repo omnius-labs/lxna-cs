@@ -58,7 +58,7 @@ namespace Omnius.Lxna.Components.Internal.Models
         }
         public override bool Equals(object? other)
         {
-            if (!(other is global::Omnius.Lxna.Components.Internal.Models.FileMeta)) return false;
+            if (other is not global::Omnius.Lxna.Components.Internal.Models.FileMeta) return false;
             return this.Equals((global::Omnius.Lxna.Components.Internal.Models.FileMeta)other);
         }
         public bool Equals(global::Omnius.Lxna.Components.Internal.Models.FileMeta? target)
@@ -189,7 +189,7 @@ namespace Omnius.Lxna.Components.Internal.Models
         }
         public override bool Equals(object? other)
         {
-            if (!(other is global::Omnius.Lxna.Components.Internal.Models.ThumbnailMeta)) return false;
+            if (other is not global::Omnius.Lxna.Components.Internal.Models.ThumbnailMeta) return false;
             return this.Equals((global::Omnius.Lxna.Components.Internal.Models.ThumbnailMeta)other);
         }
         public bool Equals(global::Omnius.Lxna.Components.Internal.Models.ThumbnailMeta? target)
@@ -343,7 +343,7 @@ namespace Omnius.Lxna.Components.Internal.Models
         }
         public override bool Equals(object? other)
         {
-            if (!(other is global::Omnius.Lxna.Components.Internal.Models.ThumbnailCache)) return false;
+            if (other is not global::Omnius.Lxna.Components.Internal.Models.ThumbnailCache) return false;
             return this.Equals((global::Omnius.Lxna.Components.Internal.Models.ThumbnailCache)other);
         }
         public bool Equals(global::Omnius.Lxna.Components.Internal.Models.ThumbnailCache? target)

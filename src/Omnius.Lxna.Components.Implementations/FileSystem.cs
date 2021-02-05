@@ -6,8 +6,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Nito.AsyncEx;
 using Omnius.Core;
-using Omnius.Core.Extensions;
 using Omnius.Lxna.Components.Internal.Helpers;
 using Omnius.Lxna.Components.Models;
 
@@ -22,9 +22,11 @@ namespace Omnius.Lxna.Components
         private readonly string _tempDirPath;
         private readonly IBytesPool _bytesPool;
 
-        private readonly Dictionary<NestedPath, ArchiveFileExtractorStatus> _cacheMap = new();
+        private readonly Dictionary<NestedPath, ArchiveFileExtractorState> _archiveFileExtractorStateMap = new();
+        private readonly AsyncLock _asyncLock = new();
 
-        private readonly object _lockObject = new();
+        private Task _watchTask = null!;
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         internal sealed class FileSystemFactory : IFileSystemFactory
         {
@@ -48,10 +50,47 @@ namespace Omnius.Lxna.Components
 
         internal async ValueTask InitAsync()
         {
+            _watchTask = this.WatchAsync(_cancellationTokenSource.Token);
         }
 
         protected override async ValueTask OnDisposeAsync()
         {
+            _cancellationTokenSource.Cancel();
+            await _watchTask;
+            _cancellationTokenSource.Dispose();
+        }
+
+        private async Task WatchAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                for (; ; )
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+
+                    foreach (var filePath in Directory.GetFiles(_tempDirPath, "*", new EnumerationOptions() { RecurseSubdirectories = true }))
+                    {
+                        try
+                        {
+                            File.Delete(filePath);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.Debug(e);
+                        }
+                    }
+                }
+            }
+            catch (OperationCanceledException e)
+            {
+                _logger.Info(e);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+            }
         }
 
         public async ValueTask<bool> ExistsFileAsync(NestedPath path, CancellationToken cancellationToken = default)
@@ -60,6 +99,8 @@ namespace Omnius.Lxna.Components
             {
                 throw new ArgumentException($"{nameof(path)} is invalid");
             }
+
+            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
             if (path.Values.Count == 1)
             {
@@ -87,6 +128,8 @@ namespace Omnius.Lxna.Components
                 throw new ArgumentException($"{nameof(path)} is invalid");
             }
 
+            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
             if (path.Values.Count == 1)
             {
                 var result = await this.ExistsPhysicalDirectoryAsync(path.Values[0], cancellationToken);
@@ -113,6 +156,8 @@ namespace Omnius.Lxna.Components
                 throw new ArgumentException($"{nameof(path)} is invalid");
             }
 
+            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
             if (path.Values.Count == 1)
             {
                 var result = await this.GetPhysicalFileLastWriteTimeAsync(path.Values[0], cancellationToken);
@@ -127,7 +172,7 @@ namespace Omnius.Lxna.Components
             }
         }
 
-        public async ValueTask<DateTime> GetPhysicalFileLastWriteTimeAsync(string path, CancellationToken cancellationToken = default)
+        private async ValueTask<DateTime> GetPhysicalFileLastWriteTimeAsync(string path, CancellationToken cancellationToken = default)
         {
             var fileInfo = new FileInfo(path);
             return fileInfo.LastAccessTimeUtc;
@@ -135,6 +180,8 @@ namespace Omnius.Lxna.Components
 
         public async ValueTask<IEnumerable<NestedPath>> FindDirectoriesAsync(NestedPath? path = null, CancellationToken cancellationToken = default)
         {
+            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
             if (path is null || path.Values.Count == 0)
             {
                 var result = await this.FindRootPhysicalDirectoriesAsync(cancellationToken);
@@ -184,6 +231,8 @@ namespace Omnius.Lxna.Components
 
         public async ValueTask<IEnumerable<NestedPath>> FindDirectoriesAndArchiveFilesAsync(NestedPath path, CancellationToken cancellationToken = default)
         {
+            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
             if (path is null || path.Values.Count == 0)
             {
                 var result = await this.FindRootPhysicalDirectoriesAsync(cancellationToken);
@@ -241,6 +290,8 @@ namespace Omnius.Lxna.Components
                 throw new ArgumentException($"{nameof(path)} is invalid");
             }
 
+            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
             if (path.Values.Count == 1)
             {
                 var result = await this.FindPhysicalFileAsync(path.Values[0], cancellationToken);
@@ -276,6 +327,8 @@ namespace Omnius.Lxna.Components
                 throw new ArgumentException($"{nameof(path)} is invalid");
             }
 
+            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
             if (path.Values.Count == 1)
             {
                 return await this.GetPhysicalFileStreamAsync(path.Values[0], cancellationToken);
@@ -302,6 +355,8 @@ namespace Omnius.Lxna.Components
                 throw new ArgumentException($"{nameof(path)} is invalid");
             }
 
+            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
             if (path.Values.Count == 1)
             {
                 return await this.GetPhysicalFileSizeAsync(path.Values[0], cancellationToken);
@@ -315,7 +370,7 @@ namespace Omnius.Lxna.Components
             }
         }
 
-        public async ValueTask<long> GetPhysicalFileSizeAsync(string path, CancellationToken cancellationToken = default)
+        private async ValueTask<long> GetPhysicalFileSizeAsync(string path, CancellationToken cancellationToken = default)
         {
             return new FileInfo(path).Length;
         }
@@ -326,6 +381,8 @@ namespace Omnius.Lxna.Components
             {
                 throw new ArgumentException($"{nameof(path)} is invalid");
             }
+
+            await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
             if (path.Values.Count == 1)
             {
@@ -340,7 +397,7 @@ namespace Omnius.Lxna.Components
             }
         }
 
-        private class PhysicalFileOwner : AsyncDisposableBase, IFileOwner
+        private class PhysicalFileOwner : IFileOwner
         {
             public PhysicalFileOwner(string path)
             {
@@ -349,8 +406,9 @@ namespace Omnius.Lxna.Components
 
             public string Path { get; }
 
-            protected override async ValueTask OnDisposeAsync()
+            public ValueTask DisposeAsync()
             {
+                return ValueTask.CompletedTask;
             }
         }
 
@@ -363,58 +421,79 @@ namespace Omnius.Lxna.Components
 
             if (path.Values.Count == 1)
             {
-                return await this.CreateArchiveFileExtractorAsync(path, null);
+                return await this.CreateArchiveFileExtractorAsync(path, null, cancellationToken);
             }
 
-            var result = await this.CreateArchiveFileExtractorAsync(path, null);
+            var result = await this.CreateArchiveFileExtractorAsync(path, null, cancellationToken);
 
             for (int i = 1; i < path.Values.Count; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var fileOwner = await result.ExtractFileAsync(path.Values[i], cancellationToken);
-                result = await this.CreateArchiveFileExtractorAsync(new NestedPath(path.Values.ToArray()[..i]), fileOwner);
+                result = await this.CreateArchiveFileExtractorAsync(new NestedPath(path.Values.ToArray()[..i]), fileOwner, cancellationToken);
             }
 
             return result;
         }
 
-        private async ValueTask<IArchiveFileExtractor> CreateArchiveFileExtractorAsync(NestedPath nestedPath, IFileOwner? fileOwner)
+        private const int MaxCacheSize = 256;
+
+        private async ValueTask<IArchiveFileExtractor> CreateArchiveFileExtractorAsync(NestedPath nestedPath, IFileOwner? fileOwner, CancellationToken cancellationToken = default)
         {
-            lock (_lockObject)
+            using (await _asyncLock.LockAsync(cancellationToken))
             {
-                if (_cacheMap.TryGetValue(nestedPath, out var status))
+                if (_archiveFileExtractorStateMap.TryGetValue(nestedPath, out var state))
                 {
-                    return status.ArchiveFileExtractor;
+                    return state.ArchiveFileExtractor;
                 }
-            }
 
-            var option = new ArchiveFileExtractorOptions()
-            {
-                ArchiveFilePath = fileOwner?.Path ?? nestedPath.Values[0],
-                TemporaryDirectoryPath = _tempDirPath,
-                BytesPool = _bytesPool,
-            };
-            var archiveFileExtractor = await _archiveFileExtractorFactory.CreateAsync(option);
+                await this.ShrinkCacheAsync(cancellationToken);
 
-            lock (_lockObject)
-            {
-                var status = new ArchiveFileExtractorStatus()
+                var option = new ArchiveFileExtractorOptions()
+                {
+                    ArchiveFilePath = fileOwner?.Path ?? nestedPath.Values[0],
+                    TemporaryDirectoryPath = _tempDirPath,
+                    BytesPool = _bytesPool,
+                };
+                var archiveFileExtractor = await _archiveFileExtractorFactory.CreateAsync(option);
+
+                state = new ArchiveFileExtractorState()
                 {
                     ArchiveFileExtractor = archiveFileExtractor,
                     FileOwner = fileOwner,
                 };
-                _cacheMap.TryAdd(nestedPath, status);
-            }
+                _archiveFileExtractorStateMap[nestedPath] = state;
 
-            return archiveFileExtractor;
+                return archiveFileExtractor;
+            }
         }
 
-        private sealed class ArchiveFileExtractorStatus
+        private async ValueTask ShrinkCacheAsync(CancellationToken cancellationToken = default)
+        {
+            if (_archiveFileExtractorStateMap.Count < MaxCacheSize)
+            {
+                return;
+            }
+
+            foreach (var s in _archiveFileExtractorStateMap.Values.OrderByDescending(n => n.UpdatedTime).Skip(MaxCacheSize))
+            {
+                s.ArchiveFileExtractor.Dispose();
+
+                if (s.FileOwner is not null)
+                {
+                    await s.FileOwner.DisposeAsync();
+                }
+            }
+        }
+
+        private sealed class ArchiveFileExtractorState
         {
             public IArchiveFileExtractor ArchiveFileExtractor { get; init; } = null!;
 
             public IFileOwner? FileOwner { get; init; }
+
+            public DateTime UpdatedTime { get; set; }
         }
     }
 }

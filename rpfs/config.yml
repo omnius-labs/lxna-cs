@@ -1,0 +1,8 @@
+- Includes:
+    - ./refs/core/rpfs/**/*.rpf
+    - ./rpfs/**/*.rpf
+  CompileTargets:
+    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Models.rpf
+      Output: ./src/Omnius.Lxna.Components/Models/_RocketPack/_Generated.cs
+    - Input: ./rpfs/Omnius.Lxna.Components.Implementations/Omnius.Lxna.Components.Internal.Models.rpf
+      Output: ./src/Omnius.Lxna.Components.Implementations/Internal/_RocketPack/_Generated.cs
