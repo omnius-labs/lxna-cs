@@ -1,5 +1,4 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -33,7 +32,7 @@ namespace Omnius.Lxna.Components
 
         ValueTask<IEnumerable<NestedPath>> FindDirectoriesAsync(NestedPath? path = null, CancellationToken cancellationToken = default);
 
-        ValueTask<IEnumerable<NestedPath>> FindDirectoriesAndArchiveFilesAsync(NestedPath path, CancellationToken cancellationToken = default);
+        ValueTask<IEnumerable<NestedPath>> FindArchiveFilesAsync(NestedPath path, CancellationToken cancellationToken = default);
 
         ValueTask<IEnumerable<NestedPath>> FindFilesAsync(NestedPath path, CancellationToken cancellationToken = default);
 

@@ -32,11 +32,11 @@ namespace Omnius.Lxna.Components.Internal.Helpers
         }
 
         [Fact]
-        public void ExtractDirectoryPathsTest()
+        public void ExtractDirectoriesTest()
         {
-            Assert.Equal(Array.Empty<string>(), PathHelper.ExtractDirectoryPaths("a"));
-            Assert.Equal(new[] { "a" }, PathHelper.ExtractDirectoryPaths("a/b"));
-            Assert.Equal(new[] { "a/b", "a" }, PathHelper.ExtractDirectoryPaths("a/b/c"));
+            Assert.Equal(Array.Empty<string>(), PathHelper.ExtractDirectories("a"));
+            Assert.Equal(new[] { "a" }, PathHelper.ExtractDirectories("a/b"));
+            Assert.Equal(new[] { "a/b", "a" }, PathHelper.ExtractDirectories("a/b/c"));
         }
     }
 }

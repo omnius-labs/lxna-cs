@@ -73,10 +73,7 @@ namespace Omnius.Lxna.Components.Internal.Repositories
                     var storage = this.GetStorage();
 
                     var liteFileInfo = storage.FindById(id);
-                    if (liteFileInfo is null)
-                    {
-                        return null;
-                    }
+                    if (liteFileInfo is null) return null;
 
                     using (var inStream = liteFileInfo.OpenRead())
                     {

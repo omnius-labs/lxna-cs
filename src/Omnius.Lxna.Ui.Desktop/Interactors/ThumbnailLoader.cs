@@ -113,9 +113,19 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
                     var shownItemModels = new List<ItemModel>(this.GetShownItemModels());
                     var hiddenItemModels = new List<ItemModel>(this.GetHiddenItemModels());
 
-                    await this.ClearThumbnailAsync(hiddenItemModels, cancellationToken);
-                    await this.LoadThumbnailAsync(shownItemModels.Where(n => n.Thumbnail == null), width, height, false, cancellationToken);
-                    await this.LoadThumbnailAsync(shownItemModels.Where(n => n.Thumbnail == null), width, height, true, cancellationToken);
+                    using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    using var unsubscriber = _callbackManager.Subscribe(() => linkedCancellationTokenSource.Cancel());
+
+                    try
+                    {
+                        await this.ClearThumbnailAsync(hiddenItemModels, linkedCancellationTokenSource.Token);
+                        await this.LoadThumbnailAsync(shownItemModels.Where(n => n.Thumbnail == null), width, height, false, linkedCancellationTokenSource.Token);
+                        await this.LoadThumbnailAsync(shownItemModels.Where(n => n.Thumbnail == null), width, height, true, linkedCancellationTokenSource.Token);
+                    }
+                    catch (OperationCanceledException e)
+                    {
+                        _logger.Debug(e);
+                    }
                 }
             }
             catch (OperationCanceledException e)
@@ -139,9 +149,6 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
 
         private async Task LoadThumbnailAsync(IEnumerable<ItemModel> targetModels, int width, int height, bool cacheOnly, CancellationToken cancellationToken)
         {
-            using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            using var unsubscriber = _callbackManager.Subscribe(() => linkedCancellationTokenSource.Cancel());
-
             foreach (var model in targetModels)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -211,10 +218,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
 
             foreach (var (model, index) in itemModels.Select((n, i) => (n, i)))
             {
-                if (!shownSet.Contains(model))
-                {
-                    continue;
-                }
+                if (!shownSet.Contains(model)) continue;
 
                 minIndex = Math.Min(minIndex, index);
                 maxIndex = Math.Max(maxIndex, index);
@@ -227,10 +231,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
 
             foreach (var (model, index) in itemModels.Select((n, i) => (n, i)))
             {
-                if (index < minIndex || index > maxIndex)
-                {
-                    continue;
-                }
+                if (index < minIndex || index > maxIndex) continue;
 
                 result.Add(model);
             }

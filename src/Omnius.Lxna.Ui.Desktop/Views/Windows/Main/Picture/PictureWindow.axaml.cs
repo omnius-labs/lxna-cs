@@ -31,10 +31,7 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.Picture
 
         protected override async ValueTask OnInitialize()
         {
-            if (_state is null || _path is null)
-            {
-                return;
-            }
+            if (_state is null || _path is null) return;
 
             this.Model = new PictureWindowModel(_state, _path);
         }

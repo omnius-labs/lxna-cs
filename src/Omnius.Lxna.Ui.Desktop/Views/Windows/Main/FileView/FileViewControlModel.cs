@@ -97,20 +97,14 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.FileView
 
         public async void NotifyDoubleTapped(object item)
         {
-            if (item is not ItemModel model)
-            {
-                return;
-            }
+            if (item is not ItemModel model) return;
 
             var path = model.Path;
 
             if (await _state.GetFileSystem().ExistsDirectoryAsync(path))
             {
                 var directoryViewModel = this.SelectedDirectory.Value.Children.FirstOrDefault(n => n.Path == path);
-                if (directoryViewModel is null)
-                {
-                    return;
-                }
+                if (directoryViewModel is null) return;
 
                 this.SelectedDirectory.Value.IsExpanded = true;
                 this.SelectedDirectory.Value = directoryViewModel;
