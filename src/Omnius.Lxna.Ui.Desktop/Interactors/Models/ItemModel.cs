@@ -84,10 +84,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
                     }
                     else
                     {
-                        if (_currentOffset == _nextOffset)
-                        {
-                            return _thumbnail;
-                        }
+                        if (_currentOffset == _nextOffset) return _thumbnail;
 
                         _thumbnail?.Dispose();
 
@@ -109,10 +106,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 
         public async ValueTask ClearThumbnailAsync()
         {
-            if (_thumbnailContents.Count == 0)
-            {
-                return;
-            }
+            if (_thumbnailContents.Count == 0) return;
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -168,10 +162,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
 
         public async ValueTask RotateThumbnailAsync()
         {
-            if (_thumbnailContents.Count <= 1)
-            {
-                return;
-            }
+            if (_thumbnailContents.Count <= 1) return;
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {

@@ -20,10 +20,7 @@ namespace Omnius.Lxna.Components.Models
 
         public int CompareTo(NestedPath? other)
         {
-            if (other is null)
-            {
-                return 1;
-            }
+            if (other is null) return 1;
 
             return CollectionHelper.Compare(this.Values, other.Values);
         }

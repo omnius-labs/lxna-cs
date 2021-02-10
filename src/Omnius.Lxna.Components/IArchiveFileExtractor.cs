@@ -1,5 +1,4 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -17,8 +16,6 @@ namespace Omnius.Lxna.Components
     {
         public string? ArchiveFilePath { get; init; }
 
-        public string? TemporaryDirectoryPath { get; init; }
-
         public IBytesPool? BytesPool { get; init; }
     }
 
@@ -32,7 +29,7 @@ namespace Omnius.Lxna.Components
 
         ValueTask<IEnumerable<string>> FindDirectoriesAsync(string path, CancellationToken cancellationToken = default);
 
-        ValueTask<(IEnumerable<string>, IEnumerable<string>)> FindDirectoriesAndArchiveFilesAsync(string path, CancellationToken cancellationToken = default);
+        ValueTask<IEnumerable<string>> FindArchiveFilesAsync(string path, CancellationToken cancellationToken = default);
 
         ValueTask<IEnumerable<string>> FindFilesAsync(string path, CancellationToken cancellationToken = default);
 
@@ -40,6 +37,6 @@ namespace Omnius.Lxna.Components
 
         ValueTask<long> GetFileSizeAsync(string path, CancellationToken cancellationToken = default);
 
-        ValueTask<IFileOwner> ExtractFileAsync(string path, CancellationToken cancellationToken = default);
+        ValueTask ExtractFileAsync(string path, Stream stream, CancellationToken cancellationToken = default);
     }
 }

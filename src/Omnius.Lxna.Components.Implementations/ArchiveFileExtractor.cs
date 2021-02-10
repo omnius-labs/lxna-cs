@@ -13,17 +13,17 @@ namespace Omnius.Lxna.Components
     public sealed class ArchiveFileExtractor : DisposableBase, IArchiveFileExtractor
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-        private static readonly HashSet<string> _archiveFileExtensionList = new HashSet<string>() { ".zip", ".rar", ".7z" };
+
+        private static readonly HashSet<string> _archiveFileExtensionList = new() { ".zip", ".rar", ".7z" };
 
         private readonly string _archiveFilePath;
-        private readonly string _tempDirPath;
         private readonly IBytesPool _bytesPool;
 
         private ArchiveFile _archiveFile = null!;
-        private Dictionary<string, Entry> _fileEntryMap = new();
-        private HashSet<string> _dirSet = new();
+        private readonly Dictionary<string, Entry> _fileEntryMap = new();
+        private readonly HashSet<string> _dirSet = new();
 
-        private readonly Random _random = new Random();
+        private readonly Random _random = new();
 
         internal sealed class ArchiveFileExtractorFactory : IArchiveFileExtractorFactory
         {
@@ -40,8 +40,7 @@ namespace Omnius.Lxna.Components
 
         internal ArchiveFileExtractor(ArchiveFileExtractorOptions options)
         {
-            _archiveFilePath = options.ArchiveFilePath ?? throw new ArgumentNullException(options.ArchiveFilePath);
-            _tempDirPath = options.TemporaryDirectoryPath ?? Path.Combine(Path.GetTempPath(), "ArchiveFileExtractor");
+            _archiveFilePath = options.ArchiveFilePath ?? throw new ArgumentNullException(nameof(options.ArchiveFilePath));
             _bytesPool = options.BytesPool ?? BytesPool.Shared;
         }
 
@@ -72,7 +71,7 @@ namespace Omnius.Lxna.Components
 
             foreach (var filePath in _fileEntryMap.Keys)
             {
-                foreach (var dirPath in PathHelper.ExtractDirectoryPaths(filePath))
+                foreach (var dirPath in PathHelper.ExtractDirectories(filePath))
                 {
                     _dirSet.Add(dirPath);
                 }
@@ -121,33 +120,21 @@ namespace Omnius.Lxna.Components
             return results;
         }
 
-        public async ValueTask<(IEnumerable<string>, IEnumerable<string>)> FindDirectoriesAndArchiveFilesAsync(string path, CancellationToken cancellationToken = default)
+        public async ValueTask<IEnumerable<string>> FindArchiveFilesAsync(string path, CancellationToken cancellationToken = default)
         {
-            var dirs = new List<string>();
-            var files = new List<string>();
-
-            foreach (var dirPath in _dirSet)
-            {
-                if (PathHelper.IsCurrentDirectory(path, dirPath))
-                {
-                    dirs.Add(dirPath);
-                }
-            }
+            var results = new List<string>();
 
             foreach (var filePath in _fileEntryMap.Keys)
             {
-                if (!_archiveFileExtensionList.Contains(Path.GetExtension(filePath)))
-                {
-                    continue;
-                }
+                if (!_archiveFileExtensionList.Contains(Path.GetExtension(filePath))) continue;
 
                 if (PathHelper.IsCurrentDirectory(path, filePath))
                 {
-                    files.Add(filePath);
+                    results.Add(filePath);
                 }
             }
 
-            return (dirs, files);
+            return results;
         }
 
         public async ValueTask<IEnumerable<string>> FindFilesAsync(string path, CancellationToken cancellationToken = default)
@@ -190,36 +177,16 @@ namespace Omnius.Lxna.Components
             throw new FileNotFoundException();
         }
 
-        public async ValueTask<IFileOwner> ExtractFileAsync(string path, CancellationToken cancellationToken = default)
+        public async ValueTask ExtractFileAsync(string path, Stream stream, CancellationToken cancellationToken = default)
         {
             if (_fileEntryMap.TryGetValue(path, out var entry))
             {
-                var tempFileStream = await FileHelper.GenTempFileStreamAsync(_tempDirPath, Path.GetExtension(path), _random, cancellationToken);
-                entry.Extract(tempFileStream);
-                await tempFileStream.FlushAsync(cancellationToken);
-
-                tempFileStream.Seek(0, SeekOrigin.Begin);
-                return new ExtractedFileOwner(tempFileStream);
+                entry.Extract(stream);
+                await stream.FlushAsync(cancellationToken);
+                return;
             }
 
             throw new FileNotFoundException();
-        }
-
-        private class ExtractedFileOwner : AsyncDisposableBase, IFileOwner
-        {
-            private readonly FileStream _fileStream;
-
-            public ExtractedFileOwner(FileStream fileStream)
-            {
-                _fileStream = fileStream;
-            }
-
-            public string Path => _fileStream.Name;
-
-            protected override async ValueTask OnDisposeAsync()
-            {
-                await _fileStream.DisposeAsync();
-            }
         }
     }
 }
