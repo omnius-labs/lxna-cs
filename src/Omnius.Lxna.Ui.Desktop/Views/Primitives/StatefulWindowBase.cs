@@ -21,17 +21,11 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Primitives
 
         protected override async void OnClosing(CancelEventArgs e)
         {
-            if (_isDisposed)
-            {
-                return;
-            }
+            if (_isDisposed) return;
 
             e.Cancel = true;
 
-            if (_isDisposing)
-            {
-                return;
-            }
+            if (_isDisposing) return;
 
             _isDisposing = true;
 

@@ -226,7 +226,7 @@ namespace Omnius.Lxna.Components
         {
             var resultMap = new ConcurrentDictionary<int, IMemoryOwner<byte>>();
 
-            await using var extractedFileOwner = await _fileSystem.ExtractFileAsync(filePath, cancellationToken);
+            using var extractedFileOwner = await _fileSystem.ExtractFileAsync(filePath, cancellationToken);
 
             var duration = await GetMovieDurationAsync(extractedFileOwner.Path, cancellationToken).ConfigureAwait(false);
             int intervalSeconds = (int)Math.Max(minInterval.TotalSeconds, duration.TotalSeconds / maxImageCount);
@@ -336,16 +336,15 @@ namespace Omnius.Lxna.Components
                 RedirectStandardError = false,
             });
 
+            if (process is null) throw new NotSupportedException();
+
             using var baseStream = process.StandardOutput.BaseStream;
             using var reader = new StreamReader(baseStream);
             var line = await reader.ReadLineAsync().ConfigureAwait(false);
 
             await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
-            if (line == null || !TimeSpan.TryParse(line.Trim(), out var result))
-            {
-                throw new NotSupportedException();
-            }
+            if (line == null || !TimeSpan.TryParse(line.Trim(), out var result)) throw new NotSupportedException();
 
             return result;
         }

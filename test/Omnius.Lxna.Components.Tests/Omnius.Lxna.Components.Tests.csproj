@@ -5,8 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.UnitTestToolkit\Omnius.Core.UnitTestToolkit.csproj" />
     <ProjectReference Include="..\..\src\Omnius.Lxna.Components.Implementations\Omnius.Lxna.Components.Implementations.csproj" />
     <ProjectReference Include="..\..\src\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Data\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
