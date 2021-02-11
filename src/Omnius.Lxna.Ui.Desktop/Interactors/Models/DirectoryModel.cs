@@ -18,10 +18,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
             this.Path = path;
             _fileSystem = fileSystem;
 
-            if (path == NestedPath.Empty)
-            {
-                return;
-            }
+            if (path == NestedPath.Empty) return;
 
             this.Children = new[] { new DirectoryModel(NestedPath.Empty, _fileSystem) };
         }
@@ -78,9 +75,14 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
         {
             var children = new List<DirectoryModel>();
 
-            foreach (var directoryPath in await _fileSystem.FindDirectoriesAndArchiveFilesAsync(this.Path))
+            foreach (var directoryPath in await _fileSystem.FindDirectoriesAsync(this.Path))
             {
                 children.Add(new DirectoryModel(directoryPath, _fileSystem));
+            }
+
+            foreach (var archiveFilePath in await _fileSystem.FindArchiveFilesAsync(this.Path))
+            {
+                children.Add(new DirectoryModel(archiveFilePath, _fileSystem));
             }
 
             this.Children = children;

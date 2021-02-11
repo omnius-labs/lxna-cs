@@ -30,10 +30,7 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.FileView
 
         private void ItemsRepeater_DoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            if (this.Model is null)
-            {
-                throw new NullReferenceException(nameof(this.Model));
-            }
+            if (this.Model is null) throw new NullReferenceException(nameof(this.Model));
 
             if (e.Source is IDataContextProvider control)
             {
@@ -43,20 +40,14 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.FileView
 
         private void ItemsRepeater_ElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
         {
-            if (this.Model is null)
-            {
-                throw new NullReferenceException(nameof(this.Model));
-            }
+            if (this.Model is null) throw new NullReferenceException(nameof(this.Model));
 
             this.Model.NotifyItemPrepared(e.Element.DataContext);
         }
 
         private void ItemsRepeater_ElementClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
         {
-            if (this.Model is null)
-            {
-                throw new NullReferenceException(nameof(this.Model));
-            }
+            if (this.Model is null) throw new NullReferenceException(nameof(this.Model));
 
             this.Model.NotifyItemClearing(e.Element.DataContext);
         }
