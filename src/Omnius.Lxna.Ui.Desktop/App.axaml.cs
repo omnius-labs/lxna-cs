@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Omnius.Lxna.Ui.Desktop.Windows.Views.Main;
+using Omnius.Lxna.Ui.Desktop.Views.Windows.Main;
 
 namespace Omnius.Lxna.Ui.Desktop
 {
@@ -15,7 +15,7 @@ namespace Omnius.Lxna.Ui.Desktop
 
         public static new App Current => (App)Application.Current;
 
-        public Window? MainWindow => (this.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        public IClassicDesktopStyleApplicationLifetime? Lifetime => (this.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime);
 
         public override void OnFrameworkInitializationCompleted()
         {

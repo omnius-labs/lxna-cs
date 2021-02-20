@@ -2,9 +2,9 @@ using System.Threading.Tasks;
 using Avalonia.Markup.Xaml;
 using Omnius.Lxna.Components.Models;
 using Omnius.Lxna.Ui.Desktop.Resources;
-using Omnius.Lxna.Ui.Desktop.Windows.Views.Primitives;
+using Omnius.Lxna.Ui.Desktop.Views.Primitives;
 
-namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.Picture
+namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.Picture
 {
     public class PictureWindow : StatefulWindowBase
     {

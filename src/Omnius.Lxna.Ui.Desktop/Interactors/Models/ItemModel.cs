@@ -17,7 +17,7 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly object _lockObject = new object();
+        private readonly object _lockObject = new();
 
         public ItemModel(NestedPath path)
         {
@@ -48,15 +48,11 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
             get => _path;
             private set
             {
-                if (value == NestedPath.Empty)
-                {
-                    this.SetProperty(ref _path, value);
-                    this.Name = string.Empty;
-                    return;
-                }
+                var name = string.Empty;
+                if (value != NestedPath.Empty) name = value.GetName();
 
                 this.SetProperty(ref _path, value);
-                this.Name = value.GetName();
+                this.Name = name;
             }
         }
 

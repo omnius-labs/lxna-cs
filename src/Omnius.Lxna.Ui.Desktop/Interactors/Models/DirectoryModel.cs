@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Channels;
 using Omnius.Lxna.Components;
 using Omnius.Lxna.Components.Models;
 using Omnius.Lxna.Ui.Desktop.Interactors.Models.Primitives;
@@ -30,15 +29,11 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
             get => _path;
             private set
             {
-                if (value == NestedPath.Empty)
-                {
-                    this.SetProperty(ref _path, value);
-                    this.Name = string.Empty;
-                    return;
-                }
+                var name = string.Empty;
+                if (value != NestedPath.Empty) name = value.GetName();
 
                 this.SetProperty(ref _path, value);
-                this.Name = value.GetName();
+                this.Name = name;
             }
         }
 

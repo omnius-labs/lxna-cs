@@ -3,7 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.FileView
+namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
 {
     public class FileViewControl : UserControl
     {

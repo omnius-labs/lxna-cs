@@ -50,7 +50,7 @@ namespace Omnius.Lxna.Components
 
         internal ThumbnailGenerator(ThumbnailGeneratorOptions options)
         {
-            _configPath = options.ConfigPath ?? throw new ArgumentNullException(nameof(options.ConfigPath));
+            _configPath = options.ConfigDirectoryPath ?? throw new ArgumentNullException(nameof(options.ConfigDirectoryPath));
             _concurrency = options.Concurrency;
             _fileSystem = options.FileSystem ?? throw new ArgumentNullException(nameof(options.FileSystem));
             _bytesPool = options.BytesPool ?? BytesPool.Shared;

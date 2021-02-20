@@ -17,16 +17,16 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
 
         private readonly IThumbnailGenerator _thumbnailGenerator;
 
-        private readonly List<ItemModel> _itemModels = new List<ItemModel>();
-        private readonly HashSet<ItemModel> _shownItemModelSet = new HashSet<ItemModel>();
+        private readonly List<ItemModel> _itemModels = new();
+        private readonly HashSet<ItemModel> _shownItemModelSet = new();
 
-        private Task? _task;
+        private ValueTask _task = ValueTask.CompletedTask;
         private CancellationTokenSource? _cancellationTokenSource;
 
-        private readonly CallbackManager _callbackManager = new CallbackManager();
-        private readonly AutoResetEvent _resetEvent = new AutoResetEvent(false);
+        private readonly CallbackManager _callbackManager = new();
+        private readonly AutoResetEvent _resetEvent = new(false);
 
-        private readonly object _lockObject = new object();
+        private readonly object _lockObject = new();
 
         public ThumbnailLoader(IThumbnailGenerator thumbnailGenerator)
         {
@@ -36,13 +36,9 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
         protected override async ValueTask OnDisposeAsync()
         {
             _cancellationTokenSource?.Cancel();
-
-            if (_task is not null)
-            {
-                await _task;
-            }
-
+            await _task;
             _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
         }
 
         public async ValueTask StartAsync(int width, int height, IEnumerable<ItemModel> itemModels)
@@ -57,19 +53,15 @@ namespace Omnius.Lxna.Ui.Desktop.Interactors
             _cancellationTokenSource = new CancellationTokenSource();
             var loadTask = this.LoadAsync(width, height, _cancellationTokenSource.Token);
             var rotateTask = this.RotateAsync(_cancellationTokenSource.Token);
-            _task = Task.WhenAll(loadTask, rotateTask);
+            _task = new ValueTask(Task.WhenAll(loadTask, rotateTask));
         }
 
         public async ValueTask StopAsync()
         {
             _cancellationTokenSource?.Cancel();
-
-            if (_task is not null)
-            {
-                await _task;
-            }
-
+            await _task;
             _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
 
             lock (_lockObject)
             {

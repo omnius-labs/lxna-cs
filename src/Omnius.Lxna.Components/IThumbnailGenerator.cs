@@ -16,7 +16,7 @@ namespace Omnius.Lxna.Components
 
     public class ThumbnailGeneratorOptions
     {
-        public string? ConfigPath { get; init; }
+        public string? ConfigDirectoryPath { get; init; }
 
         public uint Concurrency { get; init; }
 
