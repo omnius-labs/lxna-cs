@@ -4,10 +4,10 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Omnius.Core;
 using Omnius.Lxna.Ui.Desktop.Resources;
-using Omnius.Lxna.Ui.Desktop.Windows.Views.Main.FileView;
-using Omnius.Lxna.Ui.Desktop.Windows.Views.Primitives;
+using Omnius.Lxna.Ui.Desktop.Views.Primitives;
+using Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView;
 
-namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main
+namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main
 {
     public class MainWindow : StatefulWindowBase
     {
@@ -26,11 +26,11 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main
 
         protected override async ValueTask OnInitialize()
         {
-            var configDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "../config");
-            var temporaryDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "../temp");
+            var stateDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "../state/ui-desktop");
+            var temporaryDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "../temp/ui-desktop");
             var bytesPool = BytesPool.Shared;
 
-            _state = await AppState.Factory.CreateAsync(configDirectoryPath, temporaryDirectoryPath, bytesPool);
+            _state = await AppState.Factory.CreateAsync(stateDirectoryPath, temporaryDirectoryPath, bytesPool);
 
             this.Model = new MainWindowModel(_state);
             this.FileViewControl.Model = new FileViewControlModel(_state);

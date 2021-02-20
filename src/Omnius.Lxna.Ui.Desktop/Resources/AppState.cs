@@ -1,9 +1,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx;
 using Omnius.Core;
-using Omnius.Core.Helpers;
 using Omnius.Lxna.Components;
 using Omnius.Lxna.Ui.Desktop.Resources.Models;
 
@@ -11,7 +9,7 @@ namespace Omnius.Lxna.Ui.Desktop.Resources
 {
     public class AppState : AsyncDisposableBase
     {
-        private readonly string _configDirectoryPath;
+        private readonly string _stateDirectoryPath;
         private readonly string _temporaryDirectoryPath;
         private readonly IBytesPool _bytesPool;
 
@@ -19,16 +17,11 @@ namespace Omnius.Lxna.Ui.Desktop.Resources
         private IFileSystem _fileSystem = null!;
         private IThumbnailGenerator _thumbnailGenerator = null!;
 
-        private readonly AsyncReaderWriterLock _asyncLock = new();
-
-        private const string UiSettingsFilePath = "omnius.lxna.ui.desktop/ui_settings/config.json";
-        private const string ThumbnailGeneratorDirPath = "omnius.lxna.components/thumbnail_generator";
-
         public class AppStateFactory
         {
-            public async ValueTask<AppState> CreateAsync(string configDirectoryPath, string temporaryDirectoryPath, IBytesPool bytesPool)
+            public async ValueTask<AppState> CreateAsync(string stateDirectoryPath, string temporaryDirectoryPath, IBytesPool bytesPool)
             {
-                var result = new AppState(configDirectoryPath, temporaryDirectoryPath, bytesPool);
+                var result = new AppState(stateDirectoryPath, temporaryDirectoryPath, bytesPool);
                 await result.InitAsync();
 
                 return result;
@@ -37,29 +30,40 @@ namespace Omnius.Lxna.Ui.Desktop.Resources
 
         public static AppStateFactory Factory { get; } = new();
 
-        private AppState(string configDirectoryPath, string temporaryDirectoryPath, IBytesPool bytesPool)
+        private AppState(string stateDirectoryPath, string temporaryDirectoryPath, IBytesPool bytesPool)
         {
-            _configDirectoryPath = configDirectoryPath;
+            _stateDirectoryPath = stateDirectoryPath;
             _temporaryDirectoryPath = temporaryDirectoryPath;
             _bytesPool = bytesPool;
         }
 
+        private string GetUiSettingsFilePath() => Path.Combine(_stateDirectoryPath, "ui_settings.json");
+
         private async ValueTask InitAsync()
         {
-            var configPath = _configDirectoryPath;
-            DirectoryHelper.CreateDirectory(configPath);
+            _fileSystem = await this.CreateFileSystem(_bytesPool);
 
-            var tempPath = _temporaryDirectoryPath;
-            DirectoryHelper.CreateDirectory(tempPath);
+            _thumbnailGenerator = await this.CreateThumbnailGenerator(_fileSystem);
 
-            _uiSettings = await CreateUiSettings(configPath);
-            _fileSystem = await CreateFileSystem(tempPath, _bytesPool);
-            _thumbnailGenerator = await CreateThumbnailGenerator(configPath, _fileSystem);
+            _uiSettings = await this.CreateUiSettings();
         }
 
-        private static async ValueTask<UiSettings> CreateUiSettings(string configPath, CancellationToken cancellationToken = default)
+        protected override async ValueTask OnDisposeAsync()
         {
-            var uiSettings = await UiSettings.LoadAsync(Path.Combine(configPath, UiSettingsFilePath));
+            await this.SaveAsync();
+
+            await _thumbnailGenerator.DisposeAsync();
+            await _fileSystem.DisposeAsync();
+        }
+
+        private async ValueTask SaveAsync()
+        {
+            await _uiSettings.SaveAsync(this.GetUiSettingsFilePath());
+        }
+
+        private async ValueTask<UiSettings> CreateUiSettings(CancellationToken cancellationToken = default)
+        {
+            var uiSettings = await UiSettings.LoadAsync(this.GetUiSettingsFilePath());
 
             if (uiSettings is null)
             {
@@ -74,44 +78,28 @@ namespace Omnius.Lxna.Ui.Desktop.Resources
             return uiSettings;
         }
 
-        private static async ValueTask<IFileSystem> CreateFileSystem(string tempPath, IBytesPool bytesPool)
+        private async ValueTask<IFileSystem> CreateFileSystem(IBytesPool bytesPool)
         {
             var fileSystemOptions = new FileSystemOptions()
             {
                 ArchiveFileExtractorFactory = ArchiveFileExtractor.Factory,
-                TemporaryDirectoryPath = tempPath,
+                TemporaryDirectoryPath = _temporaryDirectoryPath,
                 BytesPool = bytesPool,
             };
             var fileSystem = await FileSystem.Factory.CreateAsync(fileSystemOptions);
             return fileSystem;
         }
 
-        private static async ValueTask<IThumbnailGenerator> CreateThumbnailGenerator(string configPath, IFileSystem fileSystem)
+        private async ValueTask<IThumbnailGenerator> CreateThumbnailGenerator(IFileSystem fileSystem)
         {
             var thumbnailGeneratorOptions = new ThumbnailGeneratorOptions()
             {
-                ConfigPath = Path.Combine(configPath, ThumbnailGeneratorDirPath),
+                ConfigDirectoryPath = Path.Combine(_stateDirectoryPath, "omnius.lxna.components/thumbnail_generator"),
                 Concurrency = 8,
                 FileSystem = fileSystem,
             };
             var thumbnailGenerator = await ThumbnailGenerator.Factory.CreateAsync(thumbnailGeneratorOptions);
             return thumbnailGenerator;
-        }
-
-        protected override async ValueTask OnDisposeAsync()
-        {
-            await this.SaveAsync();
-
-            await _thumbnailGenerator.DisposeAsync();
-            await _fileSystem.DisposeAsync();
-        }
-
-        private async ValueTask SaveAsync()
-        {
-            var configPath = _configDirectoryPath;
-            DirectoryHelper.CreateDirectory(configPath);
-
-            await _uiSettings.SaveAsync(Path.Combine(configPath, UiSettingsFilePath));
         }
 
         public IBytesPool GetBytesPool() => _bytesPool;

@@ -1,9 +1,8 @@
-using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Omnius.Core;
 using Omnius.Lxna.Ui.Desktop.Resources;
 
-namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main
+namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main
 {
     public class MainWindowModel : AsyncDisposableBase
     {

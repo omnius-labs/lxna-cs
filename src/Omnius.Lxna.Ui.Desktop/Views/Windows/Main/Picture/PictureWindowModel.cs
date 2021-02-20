@@ -7,7 +7,7 @@ using Omnius.Lxna.Ui.Desktop.Resources;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.Picture
+namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.Picture
 {
     public class PictureWindowModel : AsyncDisposableBase
     {

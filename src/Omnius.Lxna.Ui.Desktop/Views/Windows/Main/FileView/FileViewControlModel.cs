@@ -13,18 +13,19 @@ using Omnius.Lxna.Components.Models;
 using Omnius.Lxna.Ui.Desktop.Interactors;
 using Omnius.Lxna.Ui.Desktop.Interactors.Models;
 using Omnius.Lxna.Ui.Desktop.Resources;
-using Omnius.Lxna.Ui.Desktop.Windows.Views.Helpers;
+using Omnius.Lxna.Ui.Desktop.Resources.Models;
+using Omnius.Lxna.Ui.Desktop.Views.Helpers;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.FileView
+namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
 {
     public class FileViewControlModel : AsyncDisposableBase
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly AppState _state;
-
+        private readonly UiSettings _uiSettings;
         private readonly ThumbnailLoader _thumbnailLoader;
 
         private TaskState? _refreshCurrentItemModelsTaskState = null;
@@ -39,13 +40,12 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.FileView
         public FileViewControlModel(AppState state)
         {
             _state = state;
+            _uiSettings = _state.GetUiSettings();
             _thumbnailLoader = new ThumbnailLoader(_state.GetThumbnailGenerator());
 
-            var uiSettings = _state.GetUiSettings();
-
-            this.TreeViewWidth = uiSettings.ToReactivePropertySlimAsSynchronized(n => n.FileView_TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
-            this.Thumbnail_Width = uiSettings.ToReactivePropertySlimAsSynchronized(n => n.Thumbnail_Width).AddTo(_disposable);
-            this.Thumbnail_Height = uiSettings.ToReactivePropertySlimAsSynchronized(n => n.Thumbnail_Height).AddTo(_disposable);
+            this.TreeViewWidth = _uiSettings.ToReactivePropertySlimAsSynchronized(n => n.FileView_TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
+            this.Thumbnail_Width = _uiSettings.ToReactivePropertySlimAsSynchronized(n => n.Thumbnail_Width).AddTo(_disposable);
+            this.Thumbnail_Height = _uiSettings.ToReactivePropertySlimAsSynchronized(n => n.Thumbnail_Height).AddTo(_disposable);
             this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => n).AddTo(_disposable);
             this.SelectedDirectory = new ReactiveProperty<DirectoryModel>().AddTo(_disposable);
             this.SelectedDirectory.Where(n => n is not null).Subscribe(n => this.TreeView_SelectionChanged(n)).AddTo(_disposable);
@@ -112,7 +112,7 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Views.Main.FileView
             else if (await _state.GetFileSystem().ExistsFileAsync(path))
             {
                 var window = new Picture.PictureWindow(_state, path);
-                await window.ShowDialog(App.Current.MainWindow);
+                await window.ShowDialog(App.Current.Lifetime!.MainWindow);
             }
         }
 
