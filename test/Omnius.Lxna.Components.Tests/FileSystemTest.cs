@@ -1,12 +1,12 @@
 using System;
-using Xunit;
-using Omnius.Core.UnitTestToolkit;
-using Omnius.Core;
-using System.Threading.Tasks;
-using Omnius.Lxna.Components.Models;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Omnius.Core;
+using Omnius.Core.UnitTestToolkit;
 using Omnius.Lxna.Components.Internal.Helpers;
+using Omnius.Lxna.Components.Models;
+using Xunit;
 
 namespace Omnius.Lxna.Components
 {
