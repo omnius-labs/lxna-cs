@@ -7,5 +7,6 @@
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.RocketPack.Remoting\Omnius.Core.RocketPack.Remoting.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.RocketPack\Omnius.Core.RocketPack.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core\Omnius.Core.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Collections\Omnius.Core.Collections.csproj" />
   </ItemGroup>
 </Project>
