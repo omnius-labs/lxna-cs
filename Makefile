@@ -1,15 +1,32 @@
+PreviewXamlFile := Views/Windows/Main/MainWindow.axaml
+
 gen-code:
-	docker-compose -f ./docker/dev/docker-compose.yml run --rm devenv sh ./eng/gen-code.sh
+	bash ./eng/gen-code.sh
 
 test:
-	docker-compose -f ./docker/dev/docker-compose.yml run --rm devenv sh ./eng/test.sh
+	dotnet test --no-restore --filter "FullyQualifiedName~Omnius.Lxna"
 
-update:
-	bash ./eng/update.sh
+build:
+	dotnet build
+
+run-designer: build
+	dotnet msbuild ./src/Omnius.Lxna.Ui.Desktop/ /t:Preview /p:XamlFile=$(PreviewXamlFile)
+
+format:
+	dotnet tool run dotnet-format
+
+update-nugut:
+	dotnet tool run nukeeper update
+
+update-dotnet-tool:
+	bash ./eng/update-dotnet-tool.sh
+
+update-sln:
+	bash ./eng/update-sln.sh
 
 clean:
 	rm -rf ./bin
 	rm -rf ./tmp
 	rm -rf ./pub
 
-.PHONY: init-tools gen-code test update format clean
+.PHONY: test build
