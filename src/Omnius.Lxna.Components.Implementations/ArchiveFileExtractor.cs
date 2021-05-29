@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Omnius.Core;
-using Omnius.Core.Io;
+using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Internal.Helpers;
 using SevenZipExtractor;
 
