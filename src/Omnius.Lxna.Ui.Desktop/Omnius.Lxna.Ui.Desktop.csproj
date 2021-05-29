@@ -24,7 +24,7 @@
     <PackageReference Include="Avalonia.Xaml.Interactions" Version="0.10.5.1" />
     <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.10.0" />
     <PackageReference Include="NLog" Version="4.7.10" />
-    <PackageReference Include="NLog.Config" Version="4.7.9" />
+    <PackageReference Include="NLog.Config" Version="4.7.10" />
     <PackageReference Include="ReactiveProperty" Version="7.10.0" />
     <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
   </ItemGroup>
