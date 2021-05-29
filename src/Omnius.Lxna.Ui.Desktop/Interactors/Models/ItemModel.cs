@@ -7,7 +7,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Omnius.Core;
 using Omnius.Core.Collections;
-using Omnius.Core.Io;
+using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Models;
 using Omnius.Lxna.Ui.Desktop.Interactors.Models.Primitives;
 

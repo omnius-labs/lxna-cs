@@ -4,10 +4,6 @@
     <OutputType>WinExe</OutputType>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\home\repos\omnius-labs\Lxna\tmp\bin\win\Omnius.Lxna.Ui.Desktop\Debug\</OutputPath>
-  </PropertyGroup>
-
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
@@ -36,7 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Collections\Omnius.Core.Collections.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Cryptography\Omnius.Core.Cryptography.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Io\Omnius.Core.Io.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Streams\Omnius.Core.Streams.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Network\Omnius.Core.Network.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.RocketPack.Remoting\Omnius.Core.RocketPack.Remoting.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.RocketPack\Omnius.Core.RocketPack.csproj" />
