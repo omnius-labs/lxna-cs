@@ -7,8 +7,12 @@
             "request": "launch",
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/tmp/bin/win/Omnius.Lxna.Ui.Desktop/Debug/net5.0/Omnius.Lxna.Ui.Desktop.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/tmp/bin/win/Omnius.Lxna.Ui.Desktop/Debug/net5.0",
+            "args": [
+                "./demo/ui-desktop/state",
+                "./demo/ui-desktop/temp",
+                "./demo/ui-desktop/logs"
+            ],
+            "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
             "console": "internalConsole"
         }

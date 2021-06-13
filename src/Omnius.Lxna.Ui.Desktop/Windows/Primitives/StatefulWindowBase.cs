@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 
-namespace Omnius.Lxna.Ui.Desktop.Views.Primitives
+namespace Omnius.Lxna.Ui.Desktop.Windows.Primitives
 {
     public abstract class StatefulWindowBase : Window
     {
@@ -20,7 +20,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Primitives
             if (_isInitialized) return;
             _isInitialized = true;
 
-            await this.OnInitialize();
+            await this.OnInitializeAsync();
         }
 
         protected override async void OnClosing(CancelEventArgs e)
@@ -33,15 +33,15 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Primitives
 
             _isDisposing = true;
 
-            await this.OnDispose();
+            await this.OnDisposeAsync();
 
             _isDisposed = true;
 
             this.Close();
         }
 
-        protected abstract ValueTask OnInitialize();
+        protected abstract ValueTask OnInitializeAsync();
 
-        protected abstract ValueTask OnDispose();
+        protected abstract ValueTask OnDisposeAsync();
     }
 }

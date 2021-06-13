@@ -9,23 +9,26 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Nito.AsyncEx;
 using Omnius.Core;
+using Omnius.Lxna.Components;
 using Omnius.Lxna.Components.Models;
+using Omnius.Lxna.Ui.Desktop.Configuration;
+using Omnius.Lxna.Ui.Desktop.Helpers;
 using Omnius.Lxna.Ui.Desktop.Interactors;
-using Omnius.Lxna.Ui.Desktop.Interactors.Models;
-using Omnius.Lxna.Ui.Desktop.Resources;
-using Omnius.Lxna.Ui.Desktop.Resources.Models;
-using Omnius.Lxna.Ui.Desktop.Views.Helpers;
+using Omnius.Lxna.Ui.Desktop.Models;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
+namespace Omnius.Lxna.Ui.Desktop.Windows.Main.FileView
 {
-    public class FileViewControlModel : AsyncDisposableBase
+    public class FileViewControlViewModel : AsyncDisposableBase
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly AppState _state;
-        private readonly UiSettings _uiSettings;
+        private readonly UiState _uiState;
+        private readonly IFileSystem _fileSystem;
+        private readonly IThumbnailGenerator _thumbnailGenerator;
+        private readonly IDialogService _dialogService;
+
         private readonly ThumbnailLoader _thumbnailLoader;
 
         private TaskState? _refreshCurrentItemModelsTaskState = null;
@@ -37,15 +40,18 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private readonly CompositeDisposable _disposable = new();
 
-        public FileViewControlModel(AppState state)
+        public FileViewControlViewModel(UiState uiState, IFileSystem fileSystem, IThumbnailGenerator thumbnailGenerator, IDialogService dialogService)
         {
-            _state = state;
-            _uiSettings = _state.GetUiSettings();
-            _thumbnailLoader = new ThumbnailLoader(_state.GetThumbnailGenerator());
+            _uiState = uiState;
+            _fileSystem = fileSystem;
+            _thumbnailGenerator = thumbnailGenerator;
+            _dialogService = dialogService;
 
-            this.TreeViewWidth = _uiSettings.ToReactivePropertySlimAsSynchronized(n => n.FileView_TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
-            this.Thumbnail_Width = _uiSettings.ToReactivePropertySlimAsSynchronized(n => n.Thumbnail_Width).AddTo(_disposable);
-            this.Thumbnail_Height = _uiSettings.ToReactivePropertySlimAsSynchronized(n => n.Thumbnail_Height).AddTo(_disposable);
+            _thumbnailLoader = new ThumbnailLoader(thumbnailGenerator);
+
+            this.TreeViewWidth = _uiState.ToReactivePropertySlimAsSynchronized(n => n.FileView_TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
+            this.Thumbnail_Width = _uiState.ToReactivePropertySlimAsSynchronized(n => n.Thumbnail_Width).AddTo(_disposable);
+            this.Thumbnail_Height = _uiState.ToReactivePropertySlimAsSynchronized(n => n.Thumbnail_Height).AddTo(_disposable);
             this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => n).AddTo(_disposable);
             this.SelectedDirectory = new ReactiveProperty<DirectoryModel>().AddTo(_disposable);
             this.SelectedDirectory.Where(n => n is not null).Subscribe(n => this.TreeView_SelectionChanged(n)).AddTo(_disposable);
@@ -56,9 +62,9 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
 
         private async void Init()
         {
-            foreach (var drive in await _state.GetFileSystem().FindDirectoriesAsync())
+            foreach (var drive in await _fileSystem.FindDirectoriesAsync())
             {
-                var model = new DirectoryModel(drive, _state.GetFileSystem());
+                var model = new DirectoryModel(drive, _fileSystem);
                 _rootDirectoryModels.Add(model);
             }
         }
@@ -101,7 +107,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
 
             var path = model.Path;
 
-            if (await _state.GetFileSystem().ExistsDirectoryAsync(path))
+            if (await _fileSystem.ExistsDirectoryAsync(path))
             {
                 var directoryViewModel = this.SelectedDirectory.Value.Children.FirstOrDefault(n => n.Path == path);
                 if (directoryViewModel is null) return;
@@ -109,10 +115,9 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
                 this.SelectedDirectory.Value.IsExpanded = true;
                 this.SelectedDirectory.Value = directoryViewModel;
             }
-            else if (await _state.GetFileSystem().ExistsFileAsync(path))
+            else if (await _fileSystem.ExistsFileAsync(path))
             {
-                var window = new Picture.PictureWindow(_state, path);
-                await window.ShowDialog(App.Current.Lifetime!.MainWindow);
+                await _dialogService.OpenPicturePreviewWindowAsync(path);
             }
         }
 
@@ -181,8 +186,8 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
 
                 try
                 {
-                    files.AddRange(await _state.GetFileSystem().FindFilesAsync(path, cancellationToken));
-                    dirs.AddRange(await _state.GetFileSystem().FindDirectoriesAsync(path, cancellationToken));
+                    files.AddRange(await _fileSystem.FindFilesAsync(path, cancellationToken));
+                    dirs.AddRange(await _fileSystem.FindDirectoriesAsync(path, cancellationToken));
                 }
                 catch (UnauthorizedAccessException e)
                 {
@@ -205,8 +210,7 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
                     }
                 });
 
-                var uiSettings = _state.GetUiSettings();
-                await _thumbnailLoader.StartAsync(uiSettings.Thumbnail_Width, uiSettings.Thumbnail_Height, _currentItemModels);
+                await _thumbnailLoader.StartAsync(256, 256, _currentItemModels);
             }
             catch (OperationCanceledException e)
             {

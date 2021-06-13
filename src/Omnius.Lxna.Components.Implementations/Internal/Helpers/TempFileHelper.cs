@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.IO;
 using Omnius.Core.Serialization;
 using Omnius.Core.Serialization.Extensions;
@@ -17,7 +18,7 @@ namespace Omnius.Lxna.Components.Internal.Helpers
             for (; ; )
             {
                 _random.NextBytes(buffer);
-                var randomText = _base16.Value.BytesToString(buffer);
+                var randomText = _base16.Value.BytesToString(new ReadOnlySequence<byte>(buffer));
                 var tempFilePath = Path.Combine(destinationDirectoryPath, randomText + extension);
 
                 try

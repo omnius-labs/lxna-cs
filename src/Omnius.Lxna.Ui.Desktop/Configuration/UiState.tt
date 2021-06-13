@@ -9,7 +9,7 @@
     {
         ("Thumbnail_Width", "int"),
         ("Thumbnail_Height", "int"),
-        ("SearchControl_TreeViewWidth", "double"),
+        ("FileView_TreeViewWidth", "double"),
     };
 
     static string GenFieldName(string name)
@@ -23,9 +23,9 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Omnius.Lxna.Ui.Desktop.Resources.Models
+namespace Omnius.Lxna.Ui.Desktop.Configuration
 {
-    public sealed partial class UiSettings : INotifyPropertyChanged
+    public sealed partial class UiState : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -43,7 +43,7 @@ namespace Omnius.Lxna.Ui.Desktop.Resources.Models
             get => <#= generatedFieldName #>;
             set
             {
-                if (<#= generatedFieldName #> != value)
+                if (!<#= generatedFieldName #>.Equals(value))
                 {
                     <#= generatedFieldName #> = value;
                     this.RaisePropertyChanged(nameof(<#= name #>));
