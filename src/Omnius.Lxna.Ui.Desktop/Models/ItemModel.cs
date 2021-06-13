@@ -9,9 +9,9 @@ using Omnius.Core;
 using Omnius.Core.Collections;
 using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Models;
-using Omnius.Lxna.Ui.Desktop.Interactors.Models.Primitives;
+using Omnius.Lxna.Ui.Desktop.Models.Primitives;
 
-namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
+namespace Omnius.Lxna.Ui.Desktop.Models
 {
     public sealed class ItemModel : BindableBase, IDisposable
     {

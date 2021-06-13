@@ -3,7 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
+namespace Omnius.Lxna.Ui.Desktop.Windows.Main.FileView
 {
     public class FileViewControl : UserControl
     {
@@ -22,9 +22,9 @@ namespace Omnius.Lxna.Ui.Desktop.Views.Windows.Main.FileView
             AvaloniaXamlLoader.Load(this);
         }
 
-        public FileViewControlModel? Model
+        public FileViewControlViewModel? Model
         {
-            get => this.DataContext as FileViewControlModel;
+            get => this.DataContext as FileViewControlViewModel;
             set => this.DataContext = value;
         }
 
