@@ -7,11 +7,22 @@ using Omnius.Core;
 using Omnius.Core.Extensions;
 using Omnius.Lxna.Components;
 using Omnius.Lxna.Components.Models;
-using Omnius.Lxna.Ui.Desktop.Interactors.Models;
+using Omnius.Lxna.Ui.Desktop.Models;
 
 namespace Omnius.Lxna.Ui.Desktop.Interactors
 {
-    public class ThumbnailLoader : AsyncDisposableBase
+    public interface IThumbnailLoader : IAsyncDisposable
+    {
+        void NotifyItemClearing(ItemModel model);
+
+        void NotifyItemPrepared(ItemModel model);
+
+        ValueTask StartAsync(int width, int height, IEnumerable<ItemModel> itemModels);
+
+        ValueTask StopAsync();
+    }
+
+    public class ThumbnailLoader : AsyncDisposableBase, IThumbnailLoader
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 

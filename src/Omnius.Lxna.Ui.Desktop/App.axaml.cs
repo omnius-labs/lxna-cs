@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Omnius.Lxna.Ui.Desktop.Views.Windows.Main;
+using Omnius.Lxna.Ui.Desktop.Windows.Main;
 
 namespace Omnius.Lxna.Ui.Desktop
 {

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using Omnius.Lxna.Components;
 using Omnius.Lxna.Components.Models;
-using Omnius.Lxna.Ui.Desktop.Interactors.Models.Primitives;
+using Omnius.Lxna.Ui.Desktop.Models.Primitives;
 
-namespace Omnius.Lxna.Ui.Desktop.Interactors.Models
+namespace Omnius.Lxna.Ui.Desktop.Models
 {
     public sealed class DirectoryModel : BindableBase
     {
