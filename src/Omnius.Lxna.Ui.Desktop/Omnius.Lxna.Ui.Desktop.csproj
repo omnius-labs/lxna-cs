@@ -27,19 +27,32 @@
     <PackageReference Include="NLog.Config" Version="4.7.10" />
     <PackageReference Include="ReactiveProperty" Version="7.11.0" />
     <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
+    <PackageReference Include="YamlDotNet" Version="11.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Collections\Omnius.Core.Collections.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Cryptography\Omnius.Core.Cryptography.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Streams\Omnius.Core.Streams.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Network\Omnius.Core.Network.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.RocketPack.Remoting\Omnius.Core.RocketPack.Remoting.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Net\Omnius.Core.Net.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Remoting\Omnius.Core.Remoting.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.RocketPack\Omnius.Core.RocketPack.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Serialization\Omnius.Core.Serialization.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core\Omnius.Core.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Utils\Omnius.Core.Utils.csproj" />
+    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Avalonia\Omnius.Core.Avalonia.csproj" />
     <ProjectReference Include="..\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
     <ProjectReference Include="..\Omnius.Lxna.Components.Implementations\Omnius.Lxna.Components.Implementations.csproj" />
   </ItemGroup>
+
+  <Target Name="Preview">
+    <Error Condition="$(XamlFile) == ''" Text="Specify /p:XamlFile=path" />
+    <PropertyGroup>
+      <PreviewerPort Condition="'$(PreviewerPort)' == ''">6001</PreviewerPort>
+      <FullPathToPreviewXaml>$([System.IO.Path]::GetFullPath('$(XamlFile)'))</FullPathToPreviewXaml>
+      <FileUriToPreviewXaml>file:///$(FullPathToPreviewXaml.Replace('\', '/').TrimStart('/'))</FileUriToPreviewXaml>
+    </PropertyGroup>
+    <Exec Command="dotnet exec --runtimeconfig $(ProjectRuntimeConfigFilePath) --depsfile $(ProjectDepsFilePath) $(PkgAvalonia)/tools/netcoreapp2.0/designer/Avalonia.Designer.HostApp.dll --method html --html-url http://127.0.0.1:$(PreviewerPort) --transport $(FileUriToPreviewXaml) $(TargetPath)" />
+  </Target>
 
 </Project>

@@ -2,8 +2,8 @@
 tmp/
 pub/
 patch.txt
-demo/.state/*
-
+demo/*
+!demo/ui-desktop-run.bat
 # Environment
 .env
 
