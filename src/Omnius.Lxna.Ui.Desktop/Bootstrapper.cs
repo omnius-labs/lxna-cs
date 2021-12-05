@@ -1,91 +1,91 @@
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
-using Omnius.Lxna.Components;
 using Omnius.Lxna.Ui.Desktop.Configuration;
 using Omnius.Lxna.Ui.Desktop.Windows;
-using Omnius.Lxna.Ui.Desktop.Windows.Main;
-using Omnius.Lxna.Ui.Desktop.Windows.Main.FileView;
-using Omnius.Lxna.Ui.Desktop.Windows.PicturePreview;
 
-namespace Omnius.Lxna.Ui.Desktop
+namespace Omnius.Lxna.Ui.Desktop;
+
+public partial class Bootstrapper : AsyncDisposableBase
 {
-    public static class Bootstrapper
-    {
-        public static ServiceProvider? ServiceProvider { get; private set; }
+    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static async ValueTask RegisterAsync(string stateDirectoryPath, string temporaryDirectoryPath, CancellationToken cancellationToken = default)
+    private AppConfig? _appConfig;
+
+    private UiStatus? _uiState;
+
+    private Task<ServiceProvider?>? _buildTask;
+    private CancellationTokenSource _cancellationTokenSource = new();
+
+    public static Bootstrapper Instance { get; } = new Bootstrapper();
+
+    private Bootstrapper()
+    {
+    }
+
+    public void Build(AppConfig appConfig)
+    {
+        _appConfig = appConfig;
+        _buildTask = this.BuildAsync(_cancellationTokenSource.Token);
+    }
+
+    private async Task<ServiceProvider?> BuildAsync(CancellationToken cancellationToken = default)
+    {
+        if (_appConfig is null) throw new NullReferenceException(nameof(_appConfig));
+
+        try
         {
             var serviceCollection = new ServiceCollection();
 
-            var bytesPool = BytesPool.Shared;
-            serviceCollection.AddSingleton<IBytesPool>(bytesPool);
+            serviceCollection.AddSingleton(_appConfig);
 
-            var uiState = await LoadUiStateAsync(stateDirectoryPath, cancellationToken);
-            serviceCollection.AddSingleton(uiState);
+            _uiState = await UiStatus.LoadAsync(Path.Combine(_appConfig.StorageDirectoryPath!, "ui_state.json"));
+            serviceCollection.AddSingleton(_uiState);
 
-            var fileSystem = await CreateFileSystem(temporaryDirectoryPath, bytesPool, cancellationToken);
-            serviceCollection.AddSingleton(fileSystem);
+            serviceCollection.AddSingleton<IBytesPool>(BytesPool.Shared);
 
-            var thumbnailGenerator = await CreateThumbnailGenerator(stateDirectoryPath, fileSystem, cancellationToken);
-            serviceCollection.AddSingleton(thumbnailGenerator);
+            serviceCollection.AddSingleton<IIntaractorProvider, IntaractorProvider>();
+            serviceCollection.AddSingleton<IDialogService, DialogService>();
 
             serviceCollection.AddSingleton<IApplicationDispatcher, ApplicationDispatcher>();
             serviceCollection.AddSingleton<IMainWindowProvider, MainWindowProvider>();
-            serviceCollection.AddSingleton<IDialogService, DialogService>();
+            serviceCollection.AddSingleton<IClipboardService, ClipboardService>();
 
             serviceCollection.AddTransient<MainWindowViewModel>();
-            serviceCollection.AddTransient<FileViewControlViewModel>();
-            serviceCollection.AddTransient<PicturePreviewWindowViewModel>();
 
-            ServiceProvider = serviceCollection.BuildServiceProvider();
+            return serviceCollection.BuildServiceProvider();
         }
-
-        private static async ValueTask<UiState> LoadUiStateAsync(string stateDirectoryPath, CancellationToken cancellationToken = default)
+        catch (OperationCanceledException e)
         {
-            var filePath = Path.Combine(stateDirectoryPath, "ui_state.json");
-            var uiState = await UiState.LoadAsync(filePath);
+            _logger.Debug(e);
 
-            if (uiState is null)
-            {
-                uiState = new UiState
-                {
-                    Thumbnail_Width = 256,
-                    Thumbnail_Height = 256,
-                    FileView_TreeViewWidth = 200,
-                };
-
-                await uiState.SaveAsync(filePath);
-            }
-
-            return uiState;
+            return null;
         }
-
-        private static async ValueTask<IFileSystem> CreateFileSystem(string temporaryDirectoryPath, IBytesPool bytesPool, CancellationToken cancellationToken = default)
+        catch (Exception e)
         {
-            var fileSystemOptions = new FileSystemOptions()
-            {
-                ArchiveFileExtractorFactory = ArchiveFileExtractor.Factory,
-                TemporaryDirectoryPath = temporaryDirectoryPath,
-                BytesPool = bytesPool,
-            };
-            var fileSystem = await FileSystem.Factory.CreateAsync(fileSystemOptions);
-            return fileSystem;
-        }
+            _logger.Error(e);
 
-        private static async ValueTask<IThumbnailGenerator> CreateThumbnailGenerator(string stateDirectoryPath, IFileSystem fileSystem, CancellationToken cancellationToken = default)
-        {
-            var thumbnailGeneratorOptions = new ThumbnailGeneratorOptions()
-            {
-                ConfigDirectoryPath = Path.Combine(stateDirectoryPath, "omnius.lxna.components/thumbnail_generator"),
-                Concurrency = 8,
-                FileSystem = fileSystem,
-            };
-            var thumbnailGenerator = await ThumbnailGenerator.Factory.CreateAsync(thumbnailGeneratorOptions);
-            return thumbnailGenerator;
+            throw;
         }
+    }
+
+    protected override async ValueTask OnDisposeAsync()
+    {
+        _cancellationTokenSource.Cancel();
+        await _buildTask!;
+        _cancellationTokenSource.Dispose();
+
+        await this.SaveAsync();
+    }
+
+    public async ValueTask SaveAsync(CancellationToken cancellationToken = default)
+    {
+        if (_uiState is null) throw new NullReferenceException(nameof(_uiState));
+        await _uiState.SaveAsync(Path.Combine(_appConfig!.StorageDirectoryPath!, "ui_state.json"));
+    }
+
+    public async ValueTask<ServiceProvider?> GetServiceProvider()
+    {
+        return await _buildTask!;
     }
 }
