@@ -2,10 +2,14 @@
 tmp/
 pub/
 patch.txt
-demo/*
-!demo/ui-desktop-run.bat
+demo/ui-desktop/logs/
+demo/ui-desktop/storage/
+
 # Environment
 .env
+
+# Mono
+mono_crash.*
 
 # Visual Studio Code
 .vscode/*

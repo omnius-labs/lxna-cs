@@ -18,7 +18,3 @@ enum ThumbnailFormatType : uint8 {
 message ThumbnailContent {
     Image: bytes(capacity: 33554432, recyclable: true),
 }
-
-message ThumbnailGeneratorOptions {
-    Concurrency: uint32,
-}
