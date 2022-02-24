@@ -2,7 +2,9 @@
     - ./refs/core/rpfs/**/*.rpf
     - ./rpfs/**/*.rpf
   CompileTargets:
-    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Models.rpf
-      Output: ./src/Omnius.Lxna.Components/interfaces/Models/_RocketPack/_Generated.cs
-    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Internal.Models.rpf
-      Output: ./src/Omnius.Lxna.Components/implementations/Internal/_RocketPack/_Generated.cs
+    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Storage.Models.rpf
+      Output: ./src/Omnius.Lxna.Components/Storage/Models/_RocketPack/_Generated.cs
+    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Thumbnail.Models.rpf
+      Output: ./src/Omnius.Lxna.Components/Thumbnail/Models/_RocketPack/_Generated.cs
+    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Thumbnail.Internal.Models.rpf
+      Output: ./src/Omnius.Lxna.Components/Thumbnail/implementations/Internal/Models/_RocketPack/_Generated.cs

@@ -1,7 +1,12 @@
+using CommandLine;
+
 namespace Omnius.Lxna.Ui.Desktop;
 
 public class Options
 {
-    [CommandLine.Option("config", Required = true)]
-    public string ConfigPath { get; set; } = string.Empty;
+    [Option('s', "storage")]
+    public string StorageDirectoryPath { get; set; } = "../storage";
+
+    [Option('v', "verbose")]
+    public bool Verbose { get; set; } = false;
 }

@@ -1,6 +1,9 @@
 name: Test
 
-on: [push]
+on:
+  push:
+    branches:
+      - "**"
 
 jobs:
   linux:
@@ -21,12 +24,12 @@ jobs:
         run: dotnet tool restore
       - name: format check
         run: dotnet format --verify-no-changes
-      # - name: Install dependencies
-      #   run: dotnet restore
-      # - name: Build
-      #   run: dotnet build --configuration Release --no-restore
-      # - name: Test
-      #   run: dotnet test --no-restore --verbosity normal --filter "FullyQualifiedName~Omnius.Lxna"
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal --filter "FullyQualifiedName~Omnius.Lxna"
   windows:
     runs-on: windows-latest
     env:
@@ -46,4 +49,4 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
       - name: Test
-        run: dotnet test --no-restore --verbosity normal --filter "FullyQualifiedName~Omnius.Xeus"
+        run: dotnet test --no-restore --verbosity normal --filter "FullyQualifiedName~Omnius.Lxna"
