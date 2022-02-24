@@ -10,12 +10,12 @@
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
-        "requested": "[16.10.0, )",
-        "resolved": "16.10.0",
-        "contentHash": "/9x6TV1SUi+rtKi8UYa7ml7SEWhb0A5FuyeF0nwwUKVjdk5WaWuLPjntHVWoDuYP25KBruoxWxs7WdhDMjWxXw==",
+        "requested": "[17.0.0, )",
+        "resolved": "17.0.0",
+        "contentHash": "fJcnMY3jX1MzJvhGvUWauRhU5eQsOaHdwlrcnI3NabBhbi8WLAkMFI8d0YnewA/+b9q/U7vbhp8Xmh1vJ05FYQ==",
         "dependencies": {
-          "Microsoft.CodeCoverage": "16.10.0",
-          "Microsoft.TestPlatform.TestHost": "16.10.0"
+          "Microsoft.CodeCoverage": "17.0.0",
+          "Microsoft.TestPlatform.TestHost": "17.0.0"
         }
       },
       "xunit": {
@@ -47,21 +47,21 @@
       },
       "Magick.NET-Q16-AnyCPU": {
         "type": "Transitive",
-        "resolved": "8.2.1",
-        "contentHash": "Iny/QHvhGyrxf4yIdrwjSvrk2HSmgsC8VGB4NynhnzyVzxksi4xocbPPiworF58te9zF7k+M57Hbqwzs51seaA==",
+        "resolved": "10.0.0",
+        "contentHash": "C7ILz67Y16Suc5DetFL832Si993T4TAfBa0btKhV08sk8H3IYsjbV/5UL8yS3YOwrLWFhCFll4lBql8Rke/rIA==",
         "dependencies": {
-          "Magick.NET.Core": "8.2.1"
+          "Magick.NET.Core": "10.0.0"
         }
       },
       "Magick.NET.Core": {
         "type": "Transitive",
-        "resolved": "8.2.1",
-        "contentHash": "+GOdMbNrcbhuvIe0uhi4bFCpROKfKLUp5aTuVMD6LzcWb9MRA/paoV9ppLb1f1UIC6yWe2IHLIADSokGiVK+3g=="
+        "resolved": "10.0.0",
+        "contentHash": "9uhWIPL/kujwJL1cmzfE6qZnEgGJcLHDl6s4sCZn2+mh44Fl2sgwcxzRvmbhR6pL6tKFeqwQPv/YeUnKVWOSNQ=="
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
-        "resolved": "16.10.0",
-        "contentHash": "7g0UjAwhEi2OBBv8SDV3wZ6J103cQyZbKVgDy59fnNdlbv0XpUCfdBZiSW5yVK/d2jp6faCdGh7VnI/F2JZO+Q=="
+        "resolved": "17.0.0",
+        "contentHash": "+B+09FPYBtf+cXfZOPIgpnP5mzLq5QdlBo+JEFy9CdqBaWHWE/YMY0Mos9uDsZhcgFegJm9GigAgMyqBZyfq+Q=="
       },
       "Microsoft.CSharp": {
         "type": "Transitive",
@@ -88,8 +88,8 @@
       },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
-        "resolved": "1.1.1",
-        "contentHash": "TMBuzAHpTenGbGgk0SMTwyEkyijY/Eae4ZGsFNYJvAr/LDn1ku3Etp3FPxChmDp5HHF3kzJuoaa08N0xjqAJfQ=="
+        "resolved": "5.0.0",
+        "contentHash": "VyPlqzH2wavqquTcYpkIIAQ6WdenuKoFN0BdYBbCWsclXacSOHNQn66Gt4z5NBqEYW0FAPm5rlvki9ZiCij5xQ=="
       },
       "Microsoft.NETCore.Targets": {
         "type": "Transitive",
@@ -98,8 +98,8 @@
       },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
-        "resolved": "16.10.0",
-        "contentHash": "DYp9eKg3zffZuePhgdUrh5tHkt1YOaSraVH87r4WXDOjag1/n08aFl1vRhWP8y2RoBLTHdcZRTDOhQyYMxAYNg==",
+        "resolved": "17.0.0",
+        "contentHash": "WMugCdPkA8U/BsSRc+3RN+DXcaYSDvp/s0MofVld08iF1O5fek4iKecygk6NruNf1rgJsv4LK71mrwbyeqhzHA==",
         "dependencies": {
           "NuGet.Frameworks": "5.0.0",
           "System.Reflection.Metadata": "1.6.0"
@@ -107,10 +107,10 @@
       },
       "Microsoft.TestPlatform.TestHost": {
         "type": "Transitive",
-        "resolved": "16.10.0",
-        "contentHash": "KAlB2QQRwznIH02WNl9eAuUP6/tn4IbAw4EXrvV1POTUjxuv4Dqg0u3Nn5lC9T3WIHupCHfsTcJMgsJYdi31Ig==",
+        "resolved": "17.0.0",
+        "contentHash": "xkKFzm0hylHF0SlDj78ACYMJC/i8fQ3i16sDDNYoKnjTsstGSQfuSBJ+QT4nqRXk/fOiYTh+iY0KIX5N7HTLuQ==",
         "dependencies": {
-          "Microsoft.TestPlatform.ObjectModel": "16.10.0",
+          "Microsoft.TestPlatform.ObjectModel": "17.0.0",
           "Newtonsoft.Json": "9.0.1"
         }
       },
@@ -126,8 +126,8 @@
       },
       "NeoSmart.AsyncLock": {
         "type": "Transitive",
-        "resolved": "3.1.0",
-        "contentHash": "EYNPz9ZIHdoLSL4hK/86zjBZzHhvZoRdsSWhifEgCoBmKnVa7G+O5iAFbPFkxs1ZXD8d2dzewMs6x2jyxBdU4Q=="
+        "resolved": "3.2.1",
+        "contentHash": "bYIpqtgA5oZWdSgcsGA4XLkKVYuz6Qc+aEVfTYPOIX2rSFbb8NFxHcBb5V62qio8Q6Au/Xn+7ci86VW9vqIk0w=="
       },
       "NETStandard.Library": {
         "type": "Transitive",
@@ -211,8 +211,8 @@
       },
       "NLog": {
         "type": "Transitive",
-        "resolved": "4.7.11",
-        "contentHash": "A7EpoOjWesV5BPx1cOiBndazZq1VGdagIs6oK8ttcRDl5adCMtHiTqnsD5yYaOrMxOQeCjHBf/w3nKzCmhGbgw=="
+        "resolved": "4.7.13",
+        "contentHash": "AvoGpCuq36B+0wY313XA6gC+YeMvk24rqF8P+HS9fInBGOjCzPjpXp2ln9ATZjPOJtXgHfc8zNmTjyswFGLxvg=="
       },
       "NuGet.Frameworks": {
         "type": "Transitive",
@@ -333,8 +333,12 @@
       },
       "SixLabors.ImageSharp": {
         "type": "Transitive",
-        "resolved": "1.0.3",
-        "contentHash": "oRmZEITad+0tL22ZfAbLps6doDV+Z0/oH0dtXLpIBwn1sgai3QxxDQPjohHiDeUp/CTzRKVrFFbc4ZITnL2UBg=="
+        "resolved": "2.0.0",
+        "contentHash": "hZmADrZvn1q9tjPNuuvvl8F8vkz+LFEhnfBkuvwq6Bjgyj3BcOBk6ct4qfssrs25vWIITeH1HkIVdcCYWacpLw==",
+        "dependencies": {
+          "System.Runtime.CompilerServices.Unsafe": "5.0.0",
+          "System.Text.Encoding.CodePages": "5.0.0"
+        }
       },
       "Sprache": {
         "type": "Transitive",
@@ -580,8 +584,8 @@
       },
       "System.IO.Pipelines": {
         "type": "Transitive",
-        "resolved": "5.0.1",
-        "contentHash": "qEePWsaq9LoEEIqhbGe6D5J8c9IqQOUuTzzV6wn1POlfdLkJliZY3OlB0j0f17uMWlqZYjH7txj+2YbyrIA8Yg=="
+        "resolved": "6.0.1",
+        "contentHash": "1j1pZX1ICzEyjafyssU3BzWVxUsaN3zq0wEmGKj3bxINC6NkmS30eEVuZ7k/QX2UKYNCaUch6g46taYKxcpFtw=="
       },
       "System.Linq": {
         "type": "Transitive",
@@ -797,6 +801,11 @@
           "Microsoft.NETCore.Platforms": "1.1.0",
           "Microsoft.NETCore.Targets": "1.1.0"
         }
+      },
+      "System.Runtime.CompilerServices.Unsafe": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "/iUeP3tq1S0XdNNoMz5C9twLSrM/TH+qElHkXWaPvuNOt+99G75NrV0OS2EqHx5wMN7popYjpc8oTjC1y16DLg=="
       },
       "System.Runtime.Extensions": {
         "type": "Transitive",
@@ -1019,6 +1028,14 @@
           "System.Runtime": "4.3.0"
         }
       },
+      "System.Text.Encoding.CodePages": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "NyscU59xX6Uo91qvhOs2Ccho3AR2TnZPomo1Z0K6YpyztBPM/A5VbkzOO19sy3A3i1TtEnTxA7bCe3Us+r5MWg==",
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "5.0.0"
+        }
+      },
       "System.Text.Encoding.Extensions": {
         "type": "Transitive",
         "resolved": "4.3.0",
@@ -1030,10 +1047,22 @@
           "System.Text.Encoding": "4.3.0"
         }
       },
+      "System.Text.Encodings.Web": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "Vg8eB5Tawm1IFqj4TVK1czJX89rhFxJo9ELqc/Eiq0eXy13RK00eubyU6TJE6y+GQXjyV5gSfiewDUZjQgSE0w==",
+        "dependencies": {
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+        }
+      },
       "System.Text.Json": {
         "type": "Transitive",
-        "resolved": "5.0.2",
-        "contentHash": "I47dVIGiV6SfAyppphxqupertT/5oZkYLDCX6vC3HpOI4ZLjyoKAreUoem2ie6G0RbRuFrlqz/PcTQjfb2DOfQ=="
+        "resolved": "6.0.1",
+        "contentHash": "X3cTdM+jna1YyfTUzToW7aVgINFv7R1W4+1+3hua/YCyLjApPoR8fd+2Cep9DbfYjbv+rBx4K6dlmAWEJr9AHg==",
+        "dependencies": {
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0",
+          "System.Text.Encodings.Web": "6.0.0"
+        }
       },
       "System.Text.RegularExpressions": {
         "type": "Transitive",
@@ -1171,24 +1200,23 @@
       "omnius.core": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.11",
-          "NeoSmart.AsyncLock": "3.1.0",
-          "System.IO.Pipelines": "5.0.1"
+          "NLog": "4.7.13",
+          "NeoSmart.AsyncLock": "3.2.1",
+          "System.IO.Pipelines": "6.0.1"
         }
       },
       "omnius.core.collections": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.11",
+          "NLog": "4.7.13",
           "Omnius.Core": "0.0.1-alpha.1",
-          "Omnius.Core.Tasks": "0.0.1-alpha.1",
-          "System.IO.Pipelines": "5.0.1"
+          "Omnius.Core.Tasks": "0.0.1-alpha.1"
         }
       },
       "omnius.core.cryptography": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.11",
+          "NLog": "4.7.13",
           "Omnius.Core": "0.0.1-alpha.1",
           "Omnius.Core.Collections": "0.0.1-alpha.1",
           "Omnius.Core.Pipelines": "0.0.1-alpha.1",
@@ -1200,7 +1228,7 @@
       "omnius.core.net": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.11",
+          "NLog": "4.7.13",
           "Omnius.Core": "0.0.1-alpha.1",
           "Omnius.Core.Collections": "0.0.1-alpha.1",
           "Omnius.Core.Cryptography": "0.0.1-alpha.1",
@@ -1212,14 +1240,14 @@
       "omnius.core.pipelines": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.11",
+          "NLog": "4.7.13",
           "Omnius.Core": "0.0.1-alpha.1"
         }
       },
       "omnius.core.rocketpack": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.11",
+          "NLog": "4.7.13",
           "Omnius.Core": "0.0.1-alpha.1",
           "Omnius.Core.Pipelines": "0.0.1-alpha.1"
         }
@@ -1227,7 +1255,7 @@
       "omnius.core.serialization": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.11",
+          "NLog": "4.7.13",
           "Omnius.Core": "0.0.1-alpha.1",
           "Omnius.Core.Pipelines": "0.0.1-alpha.1",
           "Omnius.Core.RocketPack": "0.0.1-alpha.1"
@@ -1236,7 +1264,7 @@
       "omnius.core.streams": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.11",
+          "NLog": "4.7.13",
           "Omnius.Core": "0.0.1-alpha.1",
           "Omnius.Core.RocketPack": "0.0.1-alpha.1",
           "Omnius.Core.Serialization": "0.0.1-alpha.1"
@@ -1245,7 +1273,7 @@
       "omnius.core.tasks": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.11",
+          "NLog": "4.7.13",
           "Omnius.Core": "0.0.1-alpha.1"
         }
       },
@@ -1253,15 +1281,15 @@
         "type": "Project",
         "dependencies": {
           "DiffPlex": "1.7.0",
-          "NLog": "4.7.11",
-          "System.Text.Json": "5.0.2"
+          "NLog": "4.7.13",
+          "System.Text.Json": "6.0.1"
         }
       },
       "omnius.lxna.components": {
         "type": "Project",
         "dependencies": {
           "LiteDB": "5.0.11",
-          "Magick.NET-Q16-AnyCPU": "8.2.1",
+          "Magick.NET-Q16-AnyCPU": "10.0.0",
           "NLog": "4.7.10",
           "Omnius.Core": "0.0.1-alpha.1",
           "Omnius.Core.Collections": "0.0.1-alpha.1",
@@ -1271,7 +1299,7 @@
           "Omnius.Core.Serialization": "0.0.1-alpha.1",
           "Omnius.Core.Streams": "0.0.1-alpha.1",
           "SevenZipExtractor": "1.0.15",
-          "SixLabors.ImageSharp": "1.0.3"
+          "SixLabors.ImageSharp": "2.0.0"
         }
       }
     }

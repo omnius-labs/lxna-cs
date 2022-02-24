@@ -6,17 +6,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/tmp/bin/win/Omnius.Lxna.Ui.Desktop/Debug/net5.0/Omnius.Lxna.Ui.Desktop.dll",
-            "args": [
-                "--config",
-                "./demo/ui-desktop/config.yml",
-                "--storage",
-                "./demo/ui-desktop/storage",
-                "--logs",
-                "./demo/ui-desktop/logs",
-                "-v"
-            ],
-            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/tmp/bin/win-vscode/Omnius.Lxna.Ui.Desktop/Debug/net6.0/Omnius.Lxna.Ui.Desktop.dll",
+            "args": ["-s", "./storage", "-v", "true"],
+            "cwd": "${workspaceFolder}/demo/ui-desktop",
             "stopAtEntry": false,
             "console": "internalConsole"
         }
