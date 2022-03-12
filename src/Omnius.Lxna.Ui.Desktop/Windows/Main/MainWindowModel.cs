@@ -16,9 +16,11 @@ public class MainWindowModel : MainWindowModelBase
 
     private readonly CompositeDisposable _disposable = new();
 
-    public MainWindowModel(UiStatus uiState, FileExplorerViewModel FileExplorerViewModel)
+    public MainWindowModel(UiStatus uiStatus, FileExplorerViewModel FileExplorerViewModel)
     {
-        _uiStatus = uiState;
+        _uiStatus = uiStatus;
+
+        this.Status = _uiStatus.MainWindow ??= new MainWindowStatus();
         this.FileExplorerViewModel = FileExplorerViewModel;
     }
 

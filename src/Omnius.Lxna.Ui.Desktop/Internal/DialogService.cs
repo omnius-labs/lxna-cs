@@ -1,11 +1,16 @@
 using Avalonia.Controls;
+using Microsoft.Extensions.DependencyInjection;
+using Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
 using Omnius.Core.Avalonia;
+using Omnius.Lxna.Components.Storages;
 
 namespace Omnius.Lxna.Ui.Desktop.Internal;
 
 public interface IDialogService
 {
-    ValueTask<IEnumerable<string>> ShowOpenFileWindowAsync();
+    ValueTask<IEnumerable<string>> ShowOpenFileWindowAsync(CancellationToken cancellationToken = default);
+
+    ValueTask ShowPicturePreviewWindowAsync(IFile file, CancellationToken cancellationToken = default);
 }
 
 public class DialogService : IDialogService
@@ -21,7 +26,7 @@ public class DialogService : IDialogService
         _clipboardService = clipboardService;
     }
 
-    public async ValueTask<IEnumerable<string>> ShowOpenFileWindowAsync()
+    public async ValueTask<IEnumerable<string>> ShowOpenFileWindowAsync(CancellationToken cancellationToken = default)
     {
         return await _applicationDispatcher.InvokeAsync(async () =>
         {
@@ -30,5 +35,20 @@ public class DialogService : IDialogService
 
             return await dialog.ShowAsync(_mainWindowProvider.GetMainWindow());
         }) ?? Enumerable.Empty<string>();
+    }
+
+    public async ValueTask ShowPicturePreviewWindowAsync(IFile file, CancellationToken cancellationToken = default)
+    {
+        await _applicationDispatcher.InvokeAsync(async () =>
+        {
+            var window = new PicturePreviewWindow();
+            var serviceProvider = Bootstrapper.Instance.GetServiceProvider();
+
+            var viewModel = serviceProvider.GetRequiredService<PicturePreviewWindowModel>();
+            await viewModel.InitializeAsync(file, cancellationToken);
+            window.ViewModel = viewModel;
+
+            await window.ShowDialog(_mainWindowProvider.GetMainWindow());
+        });
     }
 }

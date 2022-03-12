@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
@@ -71,6 +72,7 @@ public partial class Bootstrapper : AsyncDisposableBase
 
             serviceCollection.AddTransient<MainWindowModel>();
             serviceCollection.AddTransient<FileExplorerViewModel>();
+            serviceCollection.AddTransient<PicturePreviewWindowModel>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }

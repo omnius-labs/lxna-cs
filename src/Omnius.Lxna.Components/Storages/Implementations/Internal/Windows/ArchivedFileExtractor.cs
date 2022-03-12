@@ -138,8 +138,7 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
         {
             var memoryStream = new RecyclableMemoryStream(_bytesPool);
             entry.Extract(memoryStream);
-            await memoryStream.FlushAsync(cancellationToken);
-
+            memoryStream.Flush();
             memoryStream.Seek(0, SeekOrigin.Begin);
             return memoryStream;
         }
@@ -162,7 +161,7 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
         if (_fileEntryMap.TryGetValue(path, out var entry))
         {
             entry.Extract(stream);
-            await stream.FlushAsync(cancellationToken);
+            stream.Flush();
             return;
         }
 

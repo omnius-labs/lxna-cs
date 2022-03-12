@@ -21,14 +21,15 @@ public abstract class PicturePreviewWindowModelBase : AsyncDisposableBase
 
 public class PicturePreviewWindowModel : PicturePreviewWindowModelBase
 {
-    private readonly UiStatus _uiState;
+    private readonly UiStatus _uiStatus;
 
     private readonly CompositeDisposable _disposable = new();
 
-    public PicturePreviewWindowModel(UiStatus uiState)
+    public PicturePreviewWindowModel(UiStatus uiStatus)
     {
-        _uiState = uiState;
+        _uiStatus = uiStatus;
 
+        this.Status = _uiStatus.PicturePreview ??= new PicturePreviewWindowStatus();
         this.Source = new ReactivePropertySlim<Bitmap>().AddTo(_disposable);
     }
 
