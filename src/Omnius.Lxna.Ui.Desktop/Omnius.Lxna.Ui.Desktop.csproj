@@ -51,7 +51,6 @@
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Utils\Omnius.Core.Utils.csproj" />
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Avalonia\Omnius.Core.Avalonia.csproj" />
     <ProjectReference Include="..\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
-    <ProjectReference Include="..\Omnius.Lxna.Intaractors\Omnius.Lxna.Intaractors.csproj" />
   </ItemGroup>
 
   <ItemGroup>

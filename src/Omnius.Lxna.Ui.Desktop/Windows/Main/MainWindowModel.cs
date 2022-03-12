@@ -3,23 +3,23 @@ using Omnius.Lxna.Ui.Desktop.Configuration;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
-public abstract class MainWindowViewModelBase : AsyncDisposableBase
+public abstract class MainWindowModelBase : AsyncDisposableBase
 {
     public MainWindowStatus? Status { get; protected set; }
 
-    public FileViewControlViewModelBase? FileViewControlViewModel { get; protected set; }
+    public FileExplorerViewModelBase? FileExplorerViewModel { get; protected set; }
 }
 
-public class MainWindowViewModel : MainWindowViewModelBase
+public class MainWindowModel : MainWindowModelBase
 {
     private readonly UiStatus _uiStatus;
 
     private readonly CompositeDisposable _disposable = new();
 
-    public MainWindowViewModel(UiStatus uiState, FileViewControlViewModel fileViewControlViewModel)
+    public MainWindowModel(UiStatus uiState, FileExplorerViewModel FileExplorerViewModel)
     {
         _uiStatus = uiState;
-        this.FileViewControlViewModel = fileViewControlViewModel;
+        this.FileExplorerViewModel = FileExplorerViewModel;
     }
 
     protected override async ValueTask OnDisposeAsync()

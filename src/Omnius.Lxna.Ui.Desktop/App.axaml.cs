@@ -98,7 +98,7 @@ public class App : Application
             await Bootstrapper.Instance.BuildAsync(databaseDirectoryPath);
 
             var serviceProvider = Bootstrapper.Instance.GetServiceProvider();
-            var viewModel = serviceProvider.GetRequiredService<MainWindowViewModel>();
+            var viewModel = serviceProvider.GetRequiredService<MainWindowModel>();
             this.MainWindow!.ViewModel = viewModel;
         }
         catch (Exception e)

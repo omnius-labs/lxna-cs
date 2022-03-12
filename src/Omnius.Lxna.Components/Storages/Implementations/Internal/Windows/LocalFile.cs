@@ -65,7 +65,11 @@ internal sealed class LocalFile : IFile
     {
         if (!ArchivedFileExtractor.IsSupported(_physicalPath)) return null;
 
-        _extractedFileExtractor ??= await ArchivedFileExtractor.CreateAsync(_bytesPool, _physicalPath, cancellationToken);
-        return new ArchivedDirectory(_bytesPool, _extractedFileExtractor, NestedPath.Union(this.LogicalPath, new NestedPath("")), _tempPath);
+        return new ArchivedDirectory(_bytesPool, this.InternalCreateExtractor, NestedPath.Union(this.LogicalPath, new NestedPath("")), _tempPath);
+    }
+
+    private async ValueTask<ArchivedFileExtractor> InternalCreateExtractor(CancellationToken cancellationToken)
+    {
+        return _extractedFileExtractor ??= await ArchivedFileExtractor.CreateAsync(_bytesPool, _physicalPath, cancellationToken);
     }
 }

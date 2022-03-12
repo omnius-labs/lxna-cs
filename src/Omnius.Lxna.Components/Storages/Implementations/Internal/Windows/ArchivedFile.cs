@@ -81,9 +81,16 @@ public sealed class ArchivedFile : IFile
         {
             if (!ArchivedFileExtractor.IsSupported(_relativePath)) return null;
 
+            return new ArchivedDirectory(_bytesPool, this.InternalCreateExtractor, NestedPath.Union(this.LogicalPath, new NestedPath("")), _tempPath);
+        }
+    }
+
+    private async ValueTask<ArchivedFileExtractor> InternalCreateExtractor(CancellationToken cancellationToken)
+    {
+        using (await _asyncLock.LockAsync(cancellationToken))
+        {
             var physicalPath = await this.GetPhysicalPathAsync(cancellationToken);
-            _extractedFileExtractor ??= await ArchivedFileExtractor.CreateAsync(_bytesPool, physicalPath, cancellationToken);
-            return new ArchivedDirectory(_bytesPool, _extractedFileExtractor, NestedPath.Union(this.LogicalPath, new NestedPath("")), _tempPath);
+            return _extractedFileExtractor ??= await ArchivedFileExtractor.CreateAsync(_bytesPool, physicalPath, cancellationToken);
         }
     }
 }

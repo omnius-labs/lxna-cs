@@ -5,17 +5,17 @@ using Omnius.Core.Avalonia;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
-public interface IFileViewControlCommands
+public interface IFileExplorerViewCommands
 {
     void ScrollToTop();
 }
 
-public class FileViewControl : StatefulUserControl<FileViewControlViewModelBase>, IFileViewControlCommands
+public class FileExplorerView : StatefulUserControl<FileExplorerViewModelBase>, IFileExplorerViewCommands
 {
     private readonly ScrollViewer _scrollViewer;
     private readonly ItemsRepeater _itemsRepeater;
 
-    public FileViewControl()
+    public FileExplorerView()
     {
         this.InitializeComponent();
 
@@ -39,7 +39,7 @@ public class FileViewControl : StatefulUserControl<FileViewControlViewModelBase>
         _scrollViewer.ScrollToHome();
     }
 
-    private void OnViewModelChanged(FileViewControlViewModelBase? viewModel)
+    private void OnViewModelChanged(FileExplorerViewModelBase? viewModel)
     {
         viewModel?.SetViewCommands(this);
     }

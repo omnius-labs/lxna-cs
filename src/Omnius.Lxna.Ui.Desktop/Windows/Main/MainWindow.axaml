@@ -10,7 +10,7 @@
         Width="800"
         Height="500"
         FontFamily="Meiryo UI, Lucida Grande, Ubuntu"
-        x:DataType="local:MainWindowViewModel"
+        x:DataType="local:MainWindowModelBase"
         mc:Ignorable="d"
         d:DesignWidth="800"
         d:DesignHeight="450" >
@@ -28,7 +28,7 @@
             <ListBoxItem />
         </ListBox>
         <Grid Grid.Column="1">
-            <local:FileViewControl DataContext="{Binding FileViewControlViewModel}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <local:FileExplorerView DataContext="{Binding FileExplorerViewModel}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </Grid>
     </Grid>
 </Window>
