@@ -5,16 +5,28 @@ using Omnius.Core.Avalonia;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
-public class FileViewControl : StatefulUserControl<FileViewControlViewModelBase>
+public interface IFileViewControlCommands
 {
+    void ScrollToTop();
+}
+
+public class FileViewControl : StatefulUserControl<FileViewControlViewModelBase>, IFileViewControlCommands
+{
+    private readonly ScrollViewer _scrollViewer;
+    private readonly ItemsRepeater _itemsRepeater;
+
     public FileViewControl()
     {
         this.InitializeComponent();
 
-        var itemsRepeater = this.FindControl<ItemsRepeater>("ItemsRepeater");
-        itemsRepeater.DoubleTapped += this.ItemsRepeater_DoubleTapped;
-        itemsRepeater.ElementPrepared += this.ItemsRepeater_ElementPrepared;
-        itemsRepeater.ElementClearing += this.ItemsRepeater_ElementClearing;
+        _scrollViewer = this.FindControl<ScrollViewer>("ScrollViewer");
+        _itemsRepeater = this.FindControl<ItemsRepeater>("ItemsRepeater");
+
+        this.GetObservable(ViewModelProperty).Subscribe(this.OnViewModelChanged);
+
+        _itemsRepeater.DoubleTapped += this.ItemsRepeater_DoubleTapped;
+        _itemsRepeater.ElementPrepared += this.ItemsRepeater_ElementPrepared;
+        _itemsRepeater.ElementClearing += this.ItemsRepeater_ElementClearing;
     }
 
     private void InitializeComponent()
@@ -22,24 +34,34 @@ public class FileViewControl : StatefulUserControl<FileViewControlViewModelBase>
         AvaloniaXamlLoader.Load(this);
     }
 
+    public void ScrollToTop()
+    {
+        _scrollViewer.ScrollToHome();
+    }
+
+    private void OnViewModelChanged(FileViewControlViewModelBase? viewModel)
+    {
+        viewModel?.SetViewCommands(this);
+    }
+
     private void ItemsRepeater_DoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (e.Source is IDataContextProvider control)
         {
             if (control.DataContext is null) return;
-            this.ViewModel?.NotifyItemDoubleTapped(control.DataContext);
+            this.ViewModel?.NotifyThumbnailDoubleTapped(control.DataContext);
         }
     }
 
     private void ItemsRepeater_ElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
     {
         if (e.Element.DataContext is null) return;
-        this.ViewModel?.NotifyItemPrepared(e.Element.DataContext);
+        this.ViewModel?.NotifyThumbnailPrepared(e.Element.DataContext);
     }
 
     private void ItemsRepeater_ElementClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
     {
         if (e.Element.DataContext is null) return;
-        this.ViewModel?.NotifyItemClearing(e.Element.DataContext);
+        this.ViewModel?.NotifyThumbnailClearing(e.Element.DataContext);
     }
 }

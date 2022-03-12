@@ -28,4 +28,10 @@
     <ProjectReference Include="..\..\refs\core\src\Omnius.Core\Omnius.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets/directory.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

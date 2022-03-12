@@ -12,6 +12,8 @@ public sealed partial class UiStatus
 
     public MainWindowStatus? MainWindow { get; set; }
 
+    public PicturePreviewWindowStatus? PicturePreview { get; set; }
+
     public static async ValueTask<UiStatus> LoadAsync(string configPath)
     {
         UiStatus? result = null;
