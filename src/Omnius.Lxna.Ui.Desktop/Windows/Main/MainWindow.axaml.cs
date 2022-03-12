@@ -6,7 +6,7 @@ using Omnius.Lxna.Ui.Desktop.Configuration;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
-public partial class MainWindow : StatefulWindowBase<MainWindowViewModelBase>
+public partial class MainWindow : StatefulWindowBase<MainWindowModelBase>
 {
     public MainWindow()
     : base()
@@ -27,7 +27,7 @@ public partial class MainWindow : StatefulWindowBase<MainWindowViewModelBase>
         AvaloniaXamlLoader.Load(this);
     }
 
-    private void OnViewModelChanged(MainWindowViewModelBase? viewModel)
+    private void OnViewModelChanged(MainWindowModelBase? viewModel)
     {
         if (viewModel?.Status is MainWindowStatus status)
         {

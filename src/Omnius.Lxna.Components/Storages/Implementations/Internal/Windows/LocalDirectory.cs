@@ -44,6 +44,7 @@ internal sealed class LocalDirectory : IDirectory
     {
         foreach (var path in Directory.EnumerateDirectories(_physicalPath, "*", new EnumerationOptions() { RecurseSubdirectories = false }))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             yield return new LocalDirectory(_bytesPool, PathHelper.Normalize(path), _tempPath);
         }
     }
@@ -52,6 +53,7 @@ internal sealed class LocalDirectory : IDirectory
     {
         foreach (var path in Directory.EnumerateFiles(_physicalPath, "*", new EnumerationOptions() { RecurseSubdirectories = false }))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             yield return new LocalFile(_bytesPool, PathHelper.Normalize(path), _tempPath);
         }
     }

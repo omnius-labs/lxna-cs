@@ -8,14 +8,14 @@ namespace Omnius.Lxna.Components.Storages.Internal.Windows;
 internal sealed class ArchivedDirectory : IDirectory
 {
     private readonly string _relativePath;
-    private readonly ArchivedFileExtractor _extractor;
+    private readonly Func<CancellationToken, ValueTask<ArchivedFileExtractor>> _createExtractor;
     private readonly string _tempPath;
     private readonly IBytesPool _bytesPool;
 
-    internal ArchivedDirectory(IBytesPool bytesPool, ArchivedFileExtractor extractor, NestedPath logicalPath, string tempPath)
+    internal ArchivedDirectory(IBytesPool bytesPool, Func<CancellationToken, ValueTask<ArchivedFileExtractor>> createExtractor, NestedPath logicalPath, string tempPath)
     {
         _relativePath = logicalPath.GetLastPath();
-        _extractor = extractor;
+        _createExtractor = createExtractor;
         _tempPath = tempPath;
         _bytesPool = bytesPool;
 
@@ -33,27 +33,35 @@ internal sealed class ArchivedDirectory : IDirectory
 
     public async ValueTask<bool> ExistsFileAsync(string name, CancellationToken cancellationToken = default)
     {
-        return await _extractor.ExistsFileAsync(PathHelper.Combine(_relativePath, name), cancellationToken);
+        var extractor = await _createExtractor.Invoke(cancellationToken);
+        return await extractor.ExistsFileAsync(PathHelper.Combine(_relativePath, name), cancellationToken);
     }
 
     public async ValueTask<bool> ExistsDirectoryAsync(string name, CancellationToken cancellationToken = default)
     {
-        return await _extractor.ExistsDirectoryAsync(PathHelper.Combine(_relativePath, name), cancellationToken);
+        var extractor = await _createExtractor.Invoke(cancellationToken);
+        return await extractor.ExistsDirectoryAsync(PathHelper.Combine(_relativePath, name), cancellationToken);
     }
 
     public async IAsyncEnumerable<IDirectory> FindDirectoriesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        foreach (var name in await _extractor.FindDirectoriesAsync(_relativePath, cancellationToken))
+        var extractor = await _createExtractor.Invoke(cancellationToken);
+
+        foreach (var name in await extractor.FindDirectoriesAsync(_relativePath, cancellationToken))
         {
-            yield return new ArchivedDirectory(_bytesPool, _extractor, NestedPath.Combine(this.LogicalPath, name), _tempPath);
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return new ArchivedDirectory(_bytesPool, _createExtractor, NestedPath.Combine(this.LogicalPath, name), _tempPath);
         }
     }
 
     public async IAsyncEnumerable<IFile> FindFilesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        foreach (var name in await _extractor.FindFilesAsync(_relativePath, cancellationToken))
+        var extractor = await _createExtractor.Invoke(cancellationToken);
+
+        foreach (var name in await extractor.FindFilesAsync(_relativePath, cancellationToken))
         {
-            yield return new ArchivedFile(_bytesPool, _extractor, NestedPath.Combine(this.LogicalPath, name), _tempPath);
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return new ArchivedFile(_bytesPool, extractor, NestedPath.Combine(this.LogicalPath, name), _tempPath);
         }
     }
 }

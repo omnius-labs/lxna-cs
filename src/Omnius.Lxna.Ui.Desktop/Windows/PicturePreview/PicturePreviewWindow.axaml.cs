@@ -6,7 +6,7 @@ using Omnius.Lxna.Ui.Desktop.Configuration;
 
 namespace Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
 
-public partial class PicturePreviewWindow : StatefulWindowBase<PicturePreviewWindowViewModelBase>
+public partial class PicturePreviewWindow : StatefulWindowBase<PicturePreviewWindowModelBase>
 {
     private string? _result = null;
 
@@ -26,7 +26,7 @@ public partial class PicturePreviewWindow : StatefulWindowBase<PicturePreviewWin
 
     public string? GetResult() => _result;
 
-    private void OnViewModelChanged(PicturePreviewWindowViewModelBase? viewModel)
+    private void OnViewModelChanged(PicturePreviewWindowModelBase? viewModel)
     {
         if (viewModel?.Status is PicturePreviewWindowStatus status)
         {

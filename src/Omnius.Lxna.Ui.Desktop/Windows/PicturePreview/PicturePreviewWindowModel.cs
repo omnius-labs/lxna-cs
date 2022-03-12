@@ -6,7 +6,7 @@ using Reactive.Bindings;
 
 namespace Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
 
-public abstract class PicturePreviewWindowViewModelBase : AsyncDisposableBase
+public abstract class PicturePreviewWindowModelBase : AsyncDisposableBase
 {
     public abstract ValueTask InitializeAsync(IFile file, CancellationToken cancellationToken = default);
 
@@ -19,13 +19,13 @@ public abstract class PicturePreviewWindowViewModelBase : AsyncDisposableBase
     public AsyncReactiveCommand? CancelCommand { get; protected set; }
 }
 
-public class PicturePreviewWindowViewModel : PicturePreviewWindowViewModelBase
+public class PicturePreviewWindowModel : PicturePreviewWindowModelBase
 {
     private readonly UiStatus _uiState;
 
     private readonly CompositeDisposable _disposable = new();
 
-    public PicturePreviewWindowViewModel(UiStatus uiState)
+    public PicturePreviewWindowModel(UiStatus uiState)
     {
         _uiState = uiState;
 
