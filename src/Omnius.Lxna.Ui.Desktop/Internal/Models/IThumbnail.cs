@@ -1,19 +1,21 @@
 using Avalonia.Media.Imaging;
-using Omnius.Lxna.Components.Thumbnail.Models;
+using Omnius.Lxna.Components.ThumbnailGenerators.Models;
 
 namespace Omnius.Lxna.Ui.Desktop.Internal.Models;
 
-public interface IThumbnail : IDisposable
+public interface IThumbnail<out T> : IDisposable
 {
+    T Target { get; }
+
     string Name { get; }
 
-    Bitmap? Thumbnail { get; }
+    Bitmap? Image { get; }
 
-    bool IsRotatableThumbnail { get; }
+    bool IsRotatable { get; }
 
-    ValueTask SetThumbnailAsync(IEnumerable<ThumbnailContent> thumbnailContents, CancellationToken cancellationToken = default);
+    void Set(IEnumerable<ThumbnailContent> thumbnailContents);
 
-    ValueTask ClearThumbnailAsync(CancellationToken cancellationToken = default);
+    void Clear();
 
-    ValueTask<bool> TryRotateThumbnailAsync(CancellationToken cancellationToken = default);
+    bool TryRotate();
 }

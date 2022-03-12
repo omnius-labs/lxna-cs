@@ -1,6 +1,6 @@
 using Avalonia.Media.Imaging;
 using Omnius.Core;
-using Omnius.Lxna.Components.Storage;
+using Omnius.Lxna.Components.Storages;
 using Omnius.Lxna.Ui.Desktop.Configuration;
 using Reactive.Bindings;
 
