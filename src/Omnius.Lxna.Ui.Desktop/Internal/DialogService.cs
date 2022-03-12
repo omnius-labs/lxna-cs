@@ -29,6 +29,6 @@ public class DialogService : IDialogService
             dialog.AllowMultiple = true;
 
             return await dialog.ShowAsync(_mainWindowProvider.GetMainWindow());
-        });
+        }) ?? Enumerable.Empty<string>();
     }
 }
