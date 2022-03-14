@@ -1,6 +1,7 @@
 using Omnius.Core;
 using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Storages.Internal.Windows.Helpers;
+using SharpCompress.Archives;
 
 namespace Omnius.Lxna.Components.Storages.Internal.Windows;
 
@@ -13,8 +14,8 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
     private readonly string _archiveFilePath;
     private readonly IBytesPool _bytesPool;
 
-    private SevenZipExtractor.ArchiveFile _archiveFile = null!;
-    private readonly Dictionary<string, SevenZipExtractor.Entry> _fileEntryMap = new();
+    private IArchive _archiveFile = null!;
+    private readonly Dictionary<string, IArchiveEntry> _fileEntryMap = new();
     private readonly HashSet<string> _dirSet = new();
 
     private readonly Random _random = new();
@@ -37,7 +38,7 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
     {
         await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
-        _archiveFile = new SevenZipExtractor.ArchiveFile(_archiveFilePath);
+        _archiveFile = ArchiveFactory.Open(_archiveFilePath);
         this.ComputeFilesAndDirs(cancellationToken);
     }
 
@@ -45,16 +46,18 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
     {
         foreach (var entry in _archiveFile.Entries)
         {
+            if (entry is null) continue;
+
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (entry.IsFolder)
+            if (entry.IsDirectory)
             {
-                var dirPath = PathHelper.Normalize(entry.FileName);
+                var dirPath = PathHelper.Normalize(entry.Key).TrimEnd('/');
                 _dirSet.Add(dirPath);
             }
             else
             {
-                var filePath = PathHelper.Normalize(entry.FileName);
+                var filePath = PathHelper.Normalize(entry.Key);
                 _fileEntryMap.Add(filePath, entry);
             }
         }
@@ -96,7 +99,7 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
     {
         if (_fileEntryMap.TryGetValue(path, out var entry))
         {
-            return entry.LastWriteTime.ToUniversalTime();
+            return entry.LastModifiedTime?.ToUniversalTime() ?? DateTime.MinValue;
         }
 
         throw new FileNotFoundException();
@@ -137,7 +140,7 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
         if (_fileEntryMap.TryGetValue(path, out var entry))
         {
             var memoryStream = new RecyclableMemoryStream(_bytesPool);
-            entry.Extract(memoryStream);
+            entry.WriteTo(memoryStream);
             memoryStream.Flush();
             memoryStream.Seek(0, SeekOrigin.Begin);
             return memoryStream;
@@ -160,7 +163,7 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
     {
         if (_fileEntryMap.TryGetValue(path, out var entry))
         {
-            entry.Extract(stream);
+            entry.WriteTo(stream);
             stream.Flush();
             return;
         }

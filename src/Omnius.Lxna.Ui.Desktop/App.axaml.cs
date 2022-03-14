@@ -25,8 +25,8 @@ public class App : Application
         {
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler((_, e) => _logger.Error(e));
 
-            this.ApplicationLifetime.Startup += (_, _) => this.Startup();
-            this.ApplicationLifetime.Exit += (_, _) => this.Exit();
+            this.ApplicationLifetime!.Startup += (_, _) => this.Startup();
+            this.ApplicationLifetime!.Exit += (_, _) => this.Exit();
         }
 
         AvaloniaXamlLoader.Load(this);

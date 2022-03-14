@@ -99,15 +99,6 @@
           "Avalonia": "0.10.12"
         }
       },
-      "Citrus.Avalonia": {
-        "type": "Direct",
-        "requested": "[1.5.1, )",
-        "resolved": "1.5.1",
-        "contentHash": "PM0H6E580PUgn4LbJiRFUvYXSBNFmViGyxBC0/dXlMs0k3q8bTwJvInFs0qPX873jGfeHKdq6dxD4OTLlx8aBA==",
-        "dependencies": {
-          "Avalonia": "0.10.6"
-        }
-      },
       "CommandLineParser": {
         "type": "Direct",
         "requested": "[2.8.0, )",
@@ -448,10 +439,10 @@
         "resolved": "8.0.3",
         "contentHash": "f+KnptDVfhaAgWgwvx6ywnsht/JDH5TQfXFfd6ugCQHnR0OEWjjEgwp9EzqUmrkHFvu01fbKRDeJ85xdDgVs4w=="
       },
-      "SevenZipExtractor": {
+      "SharpCompress": {
         "type": "Transitive",
-        "resolved": "1.0.15",
-        "contentHash": "UdFBcqteOQNWqtfpChv16OJ+SCVWw4kdDAtFBeHxOYAxlvIGv6ZM7iWv/WOUyvbaU+dj9LtWpuXaVRD6x31few=="
+        "resolved": "0.30.1",
+        "contentHash": "XqD4TpfyYGa7QTPzaGlMVbcecKnXy4YmYLDWrU+JIj7IuRNl7DH2END+Ll7ekWIY8o3dAMWLFDE1xdhfIWD1nw=="
       },
       "ShimSkiaSharp": {
         "type": "Transitive",
@@ -1027,7 +1018,7 @@
           "Omnius.Core.RocketPack": "0.0.1-alpha.1",
           "Omnius.Core.Serialization": "0.0.1-alpha.1",
           "Omnius.Core.Streams": "0.0.1-alpha.1",
-          "SevenZipExtractor": "1.0.15",
+          "SharpCompress": "0.30.1",
           "SixLabors.ImageSharp": "2.0.0"
         }
       }
