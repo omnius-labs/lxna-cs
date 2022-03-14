@@ -27,7 +27,6 @@
     <PackageReference Include="Avalonia.Xaml.Interactions" Version="0.10.12" />
     <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.10.12" />
     <PackageReference Include="Avalonia" Version="0.10.12" />
-    <PackageReference Include="Citrus.Avalonia" Version="1.5.1" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="Generator.Equals" Version="2.2.3" />
     <PackageReference Include="GitInfo" Version="2.2.0" />
