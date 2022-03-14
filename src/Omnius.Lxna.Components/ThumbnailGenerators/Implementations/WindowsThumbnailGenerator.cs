@@ -1,7 +1,7 @@
 using Omnius.Core;
 using Omnius.Lxna.Components.Storages;
-using Omnius.Lxna.Components.ThumbnailGenerators.Models;
 using Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common;
+using Omnius.Lxna.Components.ThumbnailGenerators.Models;
 
 namespace Omnius.Lxna.Components.ThumbnailGenerators;
 
