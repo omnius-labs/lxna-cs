@@ -86,12 +86,12 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
             var files = new List<IThumbnail<IFile>>();
             var dirs = new List<IThumbnail<IDirectory>>();
 
-            await foreach (var file in directory.FindFilesAsync(cancellationToken))
+            foreach (var file in await directory.FindFilesAsync(cancellationToken))
             {
                 files.Add(new Thumbnail<IFile>(file, file.Name));
             }
 
-            await foreach (var dir in directory.FindDirectoriesAsync(cancellationToken))
+            foreach (var dir in await directory.FindDirectoriesAsync(cancellationToken))
             {
                 dirs.Add(new Thumbnail<IDirectory>(dir, dir.Name));
             }
@@ -116,10 +116,10 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
             await Task.Delay(1).ConfigureAwait(false);
 
             using var canceledTokenSource = new CancellationTokenSource();
-            using var canceledActionListener = _canceledActionPipe.Listener.Listen(() => canceledTokenSource.Cancel());
+            using var canceledActionListener = _canceledActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => canceledTokenSource.Cancel()));
 
             using var changedEvent = new AutoResetEvent(true);
-            using var changedActionListener1 = _changedActionPipe.Listener.Listen(() => changedEvent.Set());
+            using var changedActionListener1 = _changedActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => changedEvent.Set()));
 
             for (; ; )
             {
@@ -129,7 +129,7 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
                 var hiddenModels = _models.Where(n => !shownModelSet.Contains(n)).ToArray();
 
                 using var changedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(canceledTokenSource.Token);
-                using var changedActionListener2 = _changedActionPipe.Listener.Listen(() => changedTokenSource.Cancel());
+                using var changedActionListener2 = _changedActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => changedTokenSource.Cancel()));
 
                 try
                 {
@@ -174,7 +174,7 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var options = new ThumbnailGeneratorGetThumbnailOptions(width, height, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 30);
+            var options = new ThumbnailGeneratorGetThumbnailOptions(width, height, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 5);
 
             if (model is Thumbnail<IFile> fileThumbnail)
             {
@@ -210,7 +210,7 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
             await Task.Delay(1).ConfigureAwait(false);
 
             using var canceledTokenSource = new CancellationTokenSource();
-            using var canceledActionListener = _canceledActionPipe.Listener.Listen(() => canceledTokenSource.Cancel());
+            using var canceledActionListener = _canceledActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => canceledTokenSource.Cancel()));
 
             for (; ; )
             {

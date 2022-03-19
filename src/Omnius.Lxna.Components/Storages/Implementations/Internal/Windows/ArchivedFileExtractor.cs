@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using Omnius.Core;
 using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Storages.Internal.Windows.Helpers;
@@ -38,38 +40,72 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
     {
         await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
-        _archiveFile = ArchiveFactory.Open(_archiveFilePath);
+        _archiveFile = this.CreateArchive();
         this.ComputeFilesAndDirs(cancellationToken);
+    }
+
+    private IArchive CreateArchive()
+    {
+        if (CultureInfo.CurrentCulture.Name == "ja-JP")
+        {
+            if (Path.GetExtension(_archiveFilePath).IndexOf(".zip", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            {
+                var options = new SharpCompress.Readers.ReaderOptions();
+                var encoding = Encoding.GetEncoding(932);
+                options.ArchiveEncoding = new SharpCompress.Common.ArchiveEncoding();
+                options.ArchiveEncoding.CustomDecoder = (data, x, y) =>
+                {
+                    return encoding.GetString(data);
+                };
+                return SharpCompress.Archives.Zip.ZipArchive.Open(_archiveFilePath, options);
+            }
+        }
+
+        return ArchiveFactory.Open(_archiveFilePath);
     }
 
     private void ComputeFilesAndDirs(CancellationToken cancellationToken = default)
     {
-        foreach (var entry in _archiveFile.Entries)
+        try
         {
-            if (entry is null) continue;
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (entry.IsDirectory)
+            foreach (var entry in _archiveFile.Entries)
             {
-                var dirPath = PathHelper.Normalize(entry.Key).TrimEnd('/');
-                _dirSet.Add(dirPath);
+                if (entry is null) continue;
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (entry.IsDirectory)
+                {
+                    var dirPath = PathHelper.Normalize(entry.Key).TrimEnd('/');
+                    _dirSet.Add(dirPath);
+                }
+                else
+                {
+                    var filePath = PathHelper.Normalize(entry.Key);
+                    _fileEntryMap.Add(filePath, entry);
+                }
             }
-            else
+
+            foreach (var filePath in _fileEntryMap.Keys)
             {
-                var filePath = PathHelper.Normalize(entry.Key);
-                _fileEntryMap.Add(filePath, entry);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                foreach (var dirPath in PathHelper.ExtractDirectories(filePath))
+                {
+                    _dirSet.Add(dirPath);
+                }
             }
         }
-
-        foreach (var filePath in _fileEntryMap.Keys)
+        catch (OperationCanceledException)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            throw;
+        }
+        catch (Exception e)
+        {
+            _dirSet.Clear();
+            _fileEntryMap.Clear();
 
-            foreach (var dirPath in PathHelper.ExtractDirectories(filePath))
-            {
-                _dirSet.Add(dirPath);
-            }
+            _logger.Error(e);
         }
     }
 
@@ -140,9 +176,12 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
         if (_fileEntryMap.TryGetValue(path, out var entry))
         {
             var memoryStream = new RecyclableMemoryStream(_bytesPool);
-            entry.WriteTo(memoryStream);
-            memoryStream.Flush();
-            memoryStream.Seek(0, SeekOrigin.Begin);
+            using var neverCloseStream = new NeverCloseStream(memoryStream);
+            using var cancellableStream = new CancellableStream(neverCloseStream, cancellationToken);
+            entry.WriteTo(cancellableStream);
+            cancellableStream.Flush();
+            cancellableStream.Seek(0, SeekOrigin.Begin);
+
             return memoryStream;
         }
 
@@ -163,8 +202,10 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
     {
         if (_fileEntryMap.TryGetValue(path, out var entry))
         {
-            entry.WriteTo(stream);
-            stream.Flush();
+            using var neverCloseStream = new NeverCloseStream(stream);
+            using var cancellableStream = new CancellableStream(neverCloseStream, cancellationToken);
+            entry.WriteTo(cancellableStream);
+            cancellableStream.Flush();
             return;
         }
 

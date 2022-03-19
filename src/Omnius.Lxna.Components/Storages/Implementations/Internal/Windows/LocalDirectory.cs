@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Omnius.Core;
 using Omnius.Lxna.Components.Storages.Internal.Windows.Helpers;
 using Omnius.Lxna.Components.Storages.Models;
@@ -40,21 +39,29 @@ internal sealed class LocalDirectory : IDirectory
         return Directory.Exists(System.IO.Path.Combine(_physicalPath, name));
     }
 
-    public async IAsyncEnumerable<IDirectory> FindDirectoriesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<IDirectory>> FindDirectoriesAsync(CancellationToken cancellationToken = default)
     {
+        var results = new List<IDirectory>();
+
         foreach (var path in Directory.EnumerateDirectories(_physicalPath, "*", new EnumerationOptions() { RecurseSubdirectories = false }))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            yield return new LocalDirectory(_bytesPool, PathHelper.Normalize(path), _tempPath);
+            results.Add(new LocalDirectory(_bytesPool, PathHelper.Normalize(path), _tempPath));
         }
+
+        return results;
     }
 
-    public async IAsyncEnumerable<IFile> FindFilesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<IFile>> FindFilesAsync(CancellationToken cancellationToken = default)
     {
+        var results = new List<IFile>();
+
         foreach (var path in Directory.EnumerateFiles(_physicalPath, "*", new EnumerationOptions() { RecurseSubdirectories = false }))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            yield return new LocalFile(_bytesPool, PathHelper.Normalize(path), _tempPath);
+            results.Add(new LocalFile(_bytesPool, PathHelper.Normalize(path), _tempPath));
         }
+
+        return results;
     }
 }

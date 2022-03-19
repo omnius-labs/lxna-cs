@@ -9,15 +9,15 @@ public sealed class DirectoryTreeViewModel : TreeViewModelBase, IDisposable
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly IDirectory _directory;
-    private readonly IActionCaller<DirectoryTreeViewModel> _loadAction;
+    private readonly IDirectory _model;
+    private readonly IActionCaller<TreeViewModelBase> _isExpandedChangedAction;
 
     private bool _isLoaded;
 
-    public DirectoryTreeViewModel(TreeViewModelBase? parent, IDirectory directory, IActionCaller<DirectoryTreeViewModel> loadAction) : base(parent)
+    public DirectoryTreeViewModel(TreeViewModelBase? parent, IDirectory model, IActionCaller<TreeViewModelBase> isExpandedChangedAction) : base(parent)
     {
-        _directory = directory;
-        _loadAction = loadAction;
+        _model = model;
+        _isExpandedChangedAction = isExpandedChangedAction;
 
         this.Children = new[] { EmptyTreeViewModel.Default }.Cast<TreeViewModelBase>().ToImmutableArray();
     }
@@ -34,12 +34,14 @@ public sealed class DirectoryTreeViewModel : TreeViewModelBase, IDisposable
 
         this.Children = this.Children.Clear();
 
-        _directory.Dispose();
+        _model.Dispose();
     }
 
-    public IDirectory Directory => _directory;
+    public IDirectory Model => _model;
 
-    public string Name => _directory.Name;
+    public string Name => _model.Name;
+
+    public bool IsLoaded => _isLoaded;
 
     public override bool TryAdd(object value)
     {
@@ -59,12 +61,7 @@ public sealed class DirectoryTreeViewModel : TreeViewModelBase, IDisposable
         set
         {
             this.SetProperty(ref _isExpanded, value);
-
-            if (_isExpanded && !_isLoaded)
-            {
-                _loadAction.Call(this);
-                _isLoaded = true;
-            }
+            _isExpandedChangedAction.Call(this);
         }
     }
 
@@ -72,7 +69,18 @@ public sealed class DirectoryTreeViewModel : TreeViewModelBase, IDisposable
 
     public void SetChildren(IEnumerable<IDirectory> children)
     {
-        foreach (var child in this.Children)
+        var builder = ImmutableArray.CreateBuilder<TreeViewModelBase>();
+
+        foreach (var child in children)
+        {
+            builder.Add(new DirectoryTreeViewModel(this, child, _isExpandedChangedAction));
+        }
+
+        var oldChildren = this.Children;
+        this.Children = builder.ToImmutable();
+        this.RaisePropertyChanged(nameof(this.Children));
+
+        foreach (var child in oldChildren)
         {
             if (child is IDisposable disposable)
             {
@@ -80,15 +88,23 @@ public sealed class DirectoryTreeViewModel : TreeViewModelBase, IDisposable
             }
         }
 
-        var builder = ImmutableArray.CreateBuilder<TreeViewModelBase>();
+        _isLoaded = true;
+    }
 
-        foreach (var child in children)
+    public void ResetChildren()
+    {
+        var oldChildren = this.Children;
+        this.Children = new[] { EmptyTreeViewModel.Default }.Cast<TreeViewModelBase>().ToImmutableArray();
+        this.RaisePropertyChanged(nameof(this.Children));
+
+        foreach (var child in oldChildren)
         {
-            builder.Add(new DirectoryTreeViewModel(this, child, _loadAction));
+            if (child is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
 
-        this.Children = builder.ToImmutable();
-
-        this.RaisePropertyChanged(nameof(this.Children));
+        _isLoaded = false;
     }
 }

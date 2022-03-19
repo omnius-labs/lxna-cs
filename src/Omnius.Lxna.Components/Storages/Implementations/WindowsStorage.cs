@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Omnius.Core;
 using Omnius.Lxna.Components.Storages.Internal.Windows.Helpers;
 
@@ -15,11 +14,16 @@ internal sealed class WindowsStorage : IStorage
         _bytesPool = bytesPool;
     }
 
-    public async IAsyncEnumerable<IDirectory> FindDirectoriesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<IDirectory>> FindDirectoriesAsync(CancellationToken cancellationToken = default)
     {
+        var results = new List<IDirectory>();
+
         foreach (var drive in Directory.GetLogicalDrives())
         {
-            yield return new Internal.Windows.LocalDirectory(_bytesPool, PathHelper.Normalize(drive), _tempPath);
+            cancellationToken.ThrowIfCancellationRequested();
+            results.Add(new Internal.Windows.LocalDirectory(_bytesPool, PathHelper.Normalize(drive), _tempPath));
         }
+
+        return results;
     }
 }

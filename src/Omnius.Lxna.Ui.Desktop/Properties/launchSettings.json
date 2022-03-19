@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Omnius.Lxna.Ui.Desktop": {
+      "commandName": "Project",
+      "commandLineArgs": "\"-s\" \"./storage\" \"-v\" \"true\"",
+      "workingDirectory": "../../demo/ui-desktop"
+    }
+  }
+}

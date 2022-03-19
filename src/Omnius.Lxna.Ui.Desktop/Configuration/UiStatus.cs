@@ -1,3 +1,4 @@
+using Omnius.Core.Avalonia;
 using Omnius.Core.Avalonia.Models;
 using Omnius.Core.Helpers;
 using Omnius.Core.Utils;
@@ -11,6 +12,8 @@ public sealed partial class UiStatus
     public int Version { get; init; }
 
     public MainWindowStatus? MainWindow { get; set; }
+
+    public FileExplorerViewStatus? FileExplorerView { get; set; }
 
     public PicturePreviewWindowStatus? PicturePreview { get; set; }
 
@@ -44,6 +47,16 @@ public sealed class MainWindowStatus
     public WindowStatus? Window { get; set; }
 }
 
+public sealed class FileExplorerViewStatus : BindableBase
+{
+    private double _treeViewWidth;
+
+    public double TreeViewWidth
+    {
+        get => _treeViewWidth;
+        set => this.SetProperty(ref _treeViewWidth, value);
+    }
+}
 
 public sealed class PicturePreviewWindowStatus
 {
