@@ -6,19 +6,24 @@ using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
 using Omnius.Core.Pipelines;
 using Omnius.Lxna.Components.Storages;
+using Omnius.Lxna.Components.Storages.Models;
 using Omnius.Lxna.Ui.Desktop.Configuration;
+using Omnius.Lxna.Ui.Desktop.Helpers;
 using Omnius.Lxna.Ui.Desktop.Interactors.Internal;
 using Omnius.Lxna.Ui.Desktop.Internal;
 using Omnius.Lxna.Ui.Desktop.Internal.Models;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
 public abstract class FileExplorerViewModelBase : AsyncDisposableBase
 {
+    public FileExplorerViewStatus? Status { get; protected set; }
+
     public ReadOnlyReactivePropertySlim<bool>? IsWaiting { get; protected set; }
 
-    public ReactiveCommand? CancelWait { get; protected set; }
+    public ReactiveCommand? CancelWaitCommand { get; protected set; }
 
     public ReactivePropertySlim<GridLength>? TreeViewWidth { get; protected set; }
 
@@ -26,11 +31,11 @@ public abstract class FileExplorerViewModelBase : AsyncDisposableBase
 
     public ReactivePropertySlim<int>? ThumbnailHeight { get; protected set; }
 
-    public ReadOnlyReactiveCollection<DirectoryTreeViewModel>? RootDirectories { get; protected set; }
+    public ReadOnlyReactiveCollection<TreeViewModelBase>? RootTreeViewModels { get; protected set; }
 
-    public ReactivePropertySlim<DirectoryTreeViewModel>? SelectedDirectory { get; protected set; }
+    public ReactivePropertySlim<TreeViewModelBase>? SelectedTreeViewModel { get; protected set; }
 
-    public ReadOnlyObservableCollection<IThumbnail<object>>? CurrentItems { get; protected set; }
+    public ReadOnlyObservableCollection<IThumbnail<object>>? Thumbnails { get; protected set; }
 
     public abstract void SetViewCommands(IFileExplorerViewCommands commands);
 
@@ -45,7 +50,6 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly UiStatus _uiStatus;
     private readonly IStorage _storage;
     private readonly IThumbnailsViewer _thumbnailsViewer;
     private readonly IApplicationDispatcher _applicationDispatcher;
@@ -53,10 +57,11 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
 
     private IFileExplorerViewCommands? _commands;
 
-    private readonly ObservableCollection<DirectoryTreeViewModel> _rootDirectoryModels = new();
-    private readonly ObservableCollection<IThumbnail<object>> _currentItems = new();
+    private readonly ObservableCollection<TreeViewModelBase> _rootTreeViewModels = new();
+    private readonly ObservableCollection<IThumbnail<object>> _thumbnails = new();
+    private NestedPath? _wantSelectedChildDirectoryLogicalPath = null;
 
-    private ActionPipe<DirectoryTreeViewModel> _loadDirectoryActionPipe = new();
+    private ActionPipe<TreeViewModelBase> _isExpandedChangedActionPipe = new();
     private ActionPipe _cancelWaitActionPipe = new();
 
     private readonly ReactivePropertySlim<bool> _isBusy;
@@ -67,35 +72,35 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
 
     public FileExplorerViewModel(UiStatus uiStatus, IStorage storage, IThumbnailsViewer thumbnailsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
     {
-        _uiStatus = uiStatus;
         _storage = storage;
         _thumbnailsViewer = thumbnailsViewer;
         _applicationDispatcher = applicationDispatcher;
         _dialogService = dialogService;
 
-        _loadDirectoryActionPipe.Listener.Listen(v => this.OnLoadDirectory(v)).AddTo(_disposable);
+        this.Status = uiStatus.FileExplorerView ??= new FileExplorerViewStatus();
 
         _isBusy = new ReactivePropertySlim<bool>(false).AddTo(_disposable);
-
         this.IsWaiting = _isBusy.DelayWhen(TimeSpan.FromMilliseconds(500), x => x).ToReadOnlyReactivePropertySlim().AddTo(_disposable);
-        this.CancelWait = new ReactiveCommand().AddTo(_disposable);
-        this.CancelWait.Subscribe(() => this.OnCancelWait()).AddTo(_disposable);
-        this.TreeViewWidth = new ReactivePropertySlim<GridLength>(new GridLength(200)).AddTo(_disposable);
+        this.CancelWaitCommand = new ReactiveCommand().AddTo(_disposable);
+        this.CancelWaitCommand.Subscribe(() => this.OnCancelWait()).AddTo(_disposable);
+        this.TreeViewWidth = this.Status.ToReactivePropertySlimAsSynchronized(n => n.TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
         this.ThumbnailWidth = new ReactivePropertySlim<int>(256).AddTo(_disposable);
         this.ThumbnailHeight = new ReactivePropertySlim<int>(256).AddTo(_disposable);
-        this.RootDirectories = _rootDirectoryModels.ToReadOnlyReactiveCollection(n => n).AddTo(_disposable);
-        this.SelectedDirectory = new ReactivePropertySlim<DirectoryTreeViewModel>().AddTo(_disposable);
-        this.SelectedDirectory.Where(n => n is not null).Subscribe(n => this.OnCurrentDirectoryChanged(n)).AddTo(_disposable);
-        this.CurrentItems = new ReadOnlyObservableCollection<IThumbnail<object>>(_currentItems);
+        this.RootTreeViewModels = _rootTreeViewModels.ToReadOnlyReactiveCollection(n => n).AddTo(_disposable);
+        this.SelectedTreeViewModel = new ReactivePropertySlim<TreeViewModelBase>().AddTo(_disposable);
+        this.SelectedTreeViewModel.Where(n => n is not null).Subscribe(n => this.OnSelectedTreeViewModelChanged(n)).AddTo(_disposable);
+        this.Thumbnails = new ReadOnlyObservableCollection<IThumbnail<object>>(_thumbnails);
+
+        _isExpandedChangedActionPipe.Listener.Listen(v => this.OnIsExpandedChanged(v)).AddTo(_disposable);
 
         this.Init();
     }
 
     private async void Init()
     {
-        await foreach (var directory in _storage.FindDirectoriesAsync())
+        foreach (var directory in await _storage.FindDirectoriesAsync())
         {
-            _rootDirectoryModels.Add(new DirectoryTreeViewModel(null, directory, _loadDirectoryActionPipe.Caller));
+            _rootTreeViewModels.Add(new DirectoryTreeViewModel(null, directory, _isExpandedChangedActionPipe.Caller));
         }
     }
 
@@ -113,9 +118,17 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
 
     public override async void NotifyThumbnailDoubleTapped(object item)
     {
-        if (item is IThumbnail<IFile> model)
+        if (item is IThumbnail<IFile> fileThumbnail)
         {
-            await _dialogService.ShowPicturePreviewWindowAsync(model.Target);
+            await _dialogService.ShowPicturePreviewWindowAsync(fileThumbnail.Target);
+        }
+        else if (item is IThumbnail<IDirectory> directoryThumbnail)
+        {
+            if (this.SelectedTreeViewModel!.Value is DirectoryTreeViewModel selectedTreeViewModel)
+            {
+                _wantSelectedChildDirectoryLogicalPath = directoryThumbnail.Target.LogicalPath;
+                selectedTreeViewModel.IsExpanded = true;
+            }
         }
     }
 
@@ -140,115 +153,151 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
         _cancelWaitActionPipe.Caller.Call();
     }
 
-    private async void OnLoadDirectory(DirectoryTreeViewModel directoryViewModel)
+    private async void OnIsExpandedChanged(TreeViewModelBase treeViewModel)
     {
         await Task.Delay(1).ConfigureAwait(false);
 
-        using (await _asyncLock.LockAsync())
+        if (treeViewModel is DirectoryTreeViewModel directoryTreeViewModel)
         {
-            await _applicationDispatcher.InvokeAsync(() =>
-            {
-                _isBusy!.Value = true;
-            });
-
-            IDirectory[]? children = null;
-
-            try
-            {
-                using var cancellationTokenSource = new CancellationTokenSource();
-                using var unregister = _cancelWaitActionPipe.Listener.Listen(() => cancellationTokenSource.Cancel());
-
-                children = await this.FindDirectories(directoryViewModel.Directory, cancellationTokenSource.Token);
-            }
-            catch (OperationCanceledException)
+            using (await _asyncLock.LockAsync())
             {
                 await _applicationDispatcher.InvokeAsync(() =>
                 {
-                    directoryViewModel.IsExpanded = false;
-                    _isBusy!.Value = false;
+                    _isBusy!.Value = true;
                 });
 
-                return;
-            }
+                if (!directoryTreeViewModel.IsLoaded)
+                {
+                    IDirectory[]? children = null;
 
-            await _applicationDispatcher.InvokeAsync(() =>
-            {
-                directoryViewModel.SetChildren(children);
-                _isBusy!.Value = false;
-            });
+                    try
+                    {
+                        using var cancellationTokenSource = new CancellationTokenSource();
+                        using var unregister = _cancelWaitActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => cancellationTokenSource.Cancel()));
+
+                        children = await this.FindDirectories(directoryTreeViewModel.Model, cancellationTokenSource.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        await _applicationDispatcher.InvokeAsync(() =>
+                        {
+                            directoryTreeViewModel.IsExpanded = false;
+                            _isBusy!.Value = false;
+                        });
+
+                        return;
+                    }
+
+                    await _applicationDispatcher.InvokeAsync(() =>
+                    {
+                        directoryTreeViewModel.SetChildren(children);
+                    });
+                }
+
+                await _applicationDispatcher.InvokeAsync(() =>
+                {
+                    if (_wantSelectedChildDirectoryLogicalPath is NestedPath childDirectoryLogicalPath)
+                    {
+                        if (childDirectoryLogicalPath != directoryTreeViewModel.Model.LogicalPath)
+                        {
+                            foreach (var child in directoryTreeViewModel.Children.OfType<DirectoryTreeViewModel>())
+                            {
+                                if (child.Model.LogicalPath != _wantSelectedChildDirectoryLogicalPath) continue;
+                                this.SelectedTreeViewModel!.Value = child;
+
+                                break;
+                            }
+                        }
+
+                        _wantSelectedChildDirectoryLogicalPath = null;
+                    }
+                    else
+                    {
+                        this.SelectedTreeViewModel!.Value = directoryTreeViewModel;
+                    }
+
+                    _isBusy!.Value = false;
+                });
+            }
         }
     }
 
     private async Task<IDirectory[]> FindDirectories(IDirectory directory, CancellationToken cancellationToken = default)
     {
-        var children = new List<IDirectory>();
+        var dirs = new List<IDirectory>();
 
-        await foreach (var dir in directory.FindDirectoriesAsync(cancellationToken))
+        foreach (var dir in await directory.FindDirectoriesAsync(cancellationToken))
         {
-            children.Add(dir);
+            dirs.Add(dir);
         }
 
-        await foreach (var file in directory.FindFilesAsync(cancellationToken))
+        var archives = new List<IDirectory>();
+
+        foreach (var file in await directory.FindFilesAsync(cancellationToken))
         {
             if (!file.Attributes.HasFlag(Components.Storages.FileAttributes.Archive)) continue;
 
-            var dir = await file.TryConvertToDirectoryAsync(cancellationToken);
-            if (dir is null) continue;
+            var archive = await file.TryConvertToDirectoryAsync(cancellationToken);
+            if (archive is null) continue;
 
-            children.Add(dir);
+            archives.Add(archive);
         }
 
-        children.Sort((x, y) => x.Name.CompareTo(y.Name));
+        dirs.Sort((x, y) => x.Name.CompareTo(y.Name));
+        archives.Sort((x, y) => x.Name.CompareTo(y.Name));
 
-        return children.ToArray();
+        return CollectionHelper.Unite(dirs, archives).ToArray();
     }
 
-    private async void OnCurrentDirectoryChanged(DirectoryTreeViewModel directoryViewModel)
+    private async void OnSelectedTreeViewModelChanged(TreeViewModelBase treeViewModel)
     {
         await Task.Delay(1).ConfigureAwait(false);
 
-        using (await _asyncLock.LockAsync())
+        if (treeViewModel is DirectoryTreeViewModel directoryTreeViewModel)
         {
-            await _applicationDispatcher.InvokeAsync(() =>
-            {
-                _isBusy!.Value = true;
-            });
-
-            ThumbnailsViewerStartResult result = default;
-
-            try
-            {
-                using var cancellationTokenSource = new CancellationTokenSource();
-                using var unregister = _cancelWaitActionPipe.Listener.Listen(() => cancellationTokenSource.Cancel());
-
-                result = await _thumbnailsViewer.StartAsync(directoryViewModel.Directory, 256, 256, TimeSpan.FromSeconds(1), cancellationTokenSource.Token);
-            }
-            catch (OperationCanceledException)
+            using (await _asyncLock.LockAsync())
             {
                 await _applicationDispatcher.InvokeAsync(() =>
                 {
-                    _isBusy!.Value = false;
+                    _isBusy!.Value = true;
                 });
 
-                return;
-            }
+                ThumbnailsViewerStartResult result = default;
 
-            await _applicationDispatcher.InvokeAsync(() =>
-            {
-                _commands!.ScrollToTop();
-
-                var oldModels = this.CurrentItems!.ToArray();
-
-                _currentItems.Clear();
-                _currentItems.AddRange(CollectionHelper.Unite<IThumbnail<object>>(result.FileThumbnails, result.DirectoryThumbnails));
-
-                foreach (var model in oldModels)
+                try
                 {
-                    model.Dispose();
+                    using var cancellationTokenSource = new CancellationTokenSource();
+                    using var unregister = _cancelWaitActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => cancellationTokenSource.Cancel()));
+
+                    result = await _thumbnailsViewer.StartAsync(directoryTreeViewModel.Model, 256, 256, TimeSpan.FromSeconds(1), cancellationTokenSource.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    await _applicationDispatcher.InvokeAsync(() =>
+                    {
+                        _isBusy!.Value = false;
+                    });
+
+                    return;
                 }
 
-                _isBusy!.Value = false;
-            });
+                await _applicationDispatcher.InvokeAsync(() =>
+                {
+                    _commands!.ScrollToTop();
+
+                    var oldModels = this.Thumbnails!.ToArray();
+
+                    _thumbnails.Clear();
+                    _thumbnails.AddRange(CollectionHelper.Unite<IThumbnail<object>>(result.DirectoryThumbnails, result.FileThumbnails));
+
+                    foreach (var model in oldModels)
+                    {
+                        model.Dispose();
+                    }
+
+                    _isBusy!.Value = false;
+                });
+            }
         }
     }
 }

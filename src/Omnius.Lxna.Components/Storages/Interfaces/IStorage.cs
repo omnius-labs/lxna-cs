@@ -2,5 +2,5 @@ namespace Omnius.Lxna.Components.Storages;
 
 public interface IStorage
 {
-    IAsyncEnumerable<IDirectory> FindDirectoriesAsync(CancellationToken cancellationToken = default);
+    ValueTask<IEnumerable<IDirectory>> FindDirectoriesAsync(CancellationToken cancellationToken = default);
 }

@@ -12,7 +12,7 @@ public interface IDirectory : IDisposable
 
     ValueTask<bool> ExistsDirectoryAsync(string name, CancellationToken cancellationToken = default);
 
-    IAsyncEnumerable<IDirectory> FindDirectoriesAsync(CancellationToken cancellationToken = default);
+    ValueTask<IEnumerable<IDirectory>> FindDirectoriesAsync(CancellationToken cancellationToken = default);
 
-    IAsyncEnumerable<IFile> FindFilesAsync(CancellationToken cancellationToken = default);
+    ValueTask<IEnumerable<IFile>> FindFilesAsync(CancellationToken cancellationToken = default);
 }

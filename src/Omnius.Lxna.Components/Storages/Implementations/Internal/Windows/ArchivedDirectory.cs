@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Omnius.Core;
 using Omnius.Lxna.Components.Storages.Internal.Windows.Helpers;
 using Omnius.Lxna.Components.Storages.Models;
@@ -43,25 +42,33 @@ internal sealed class ArchivedDirectory : IDirectory
         return await extractor.ExistsDirectoryAsync(PathHelper.Combine(_relativePath, name), cancellationToken);
     }
 
-    public async IAsyncEnumerable<IDirectory> FindDirectoriesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<IDirectory>> FindDirectoriesAsync(CancellationToken cancellationToken = default)
     {
         var extractor = await _createExtractor.Invoke(cancellationToken);
+
+        var results = new List<IDirectory>();
 
         foreach (var name in await extractor.FindDirectoriesAsync(_relativePath, cancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            yield return new ArchivedDirectory(_bytesPool, _createExtractor, NestedPath.Combine(this.LogicalPath, name), _tempPath);
+            results.Add(new ArchivedDirectory(_bytesPool, _createExtractor, NestedPath.Combine(this.LogicalPath, name), _tempPath));
         }
+
+        return results;
     }
 
-    public async IAsyncEnumerable<IFile> FindFilesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<IFile>> FindFilesAsync(CancellationToken cancellationToken = default)
     {
         var extractor = await _createExtractor.Invoke(cancellationToken);
+
+        var results = new List<IFile>();
 
         foreach (var name in await extractor.FindFilesAsync(_relativePath, cancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            yield return new ArchivedFile(_bytesPool, extractor, NestedPath.Combine(this.LogicalPath, name), _tempPath);
+            results.Add(new ArchivedFile(_bytesPool, extractor, NestedPath.Combine(this.LogicalPath, name), _tempPath));
         }
+
+        return results;
     }
 }

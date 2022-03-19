@@ -3,6 +3,7 @@ using Omnius.Core;
 using Omnius.Lxna.Components.Storages;
 using Omnius.Lxna.Ui.Desktop.Configuration;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
 
@@ -21,15 +22,11 @@ public abstract class PicturePreviewWindowModelBase : AsyncDisposableBase
 
 public class PicturePreviewWindowModel : PicturePreviewWindowModelBase
 {
-    private readonly UiStatus _uiStatus;
-
     private readonly CompositeDisposable _disposable = new();
 
     public PicturePreviewWindowModel(UiStatus uiStatus)
     {
-        _uiStatus = uiStatus;
-
-        this.Status = _uiStatus.PicturePreview ??= new PicturePreviewWindowStatus();
+        this.Status = uiStatus.PicturePreview ??= new PicturePreviewWindowStatus();
         this.Source = new ReactivePropertySlim<Bitmap>().AddTo(_disposable);
     }
 
