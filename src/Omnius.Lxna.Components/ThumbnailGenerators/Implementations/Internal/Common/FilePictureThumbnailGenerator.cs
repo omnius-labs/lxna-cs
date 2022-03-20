@@ -158,31 +158,39 @@ public sealed class FilePictureThumbnailGenerator : AsyncDisposableBase
 
     private void InternalImageSharpConvertImage(Stream inStream, Stream outStream, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
     {
-        using var image = SixLabors.ImageSharp.Image.Load(inStream);
-        image.Mutate(x =>
+        try
         {
-            var resizeOptions = new ResizeOptions
+            using var image = SixLabors.ImageSharp.Image.Load(inStream);
+            image.Mutate(x =>
             {
-                Position = AnchorPositionMode.Center,
-                Size = new SixLabors.ImageSharp.Size(width, height),
-                Mode = resizeType switch
+                var resizeOptions = new ResizeOptions
                 {
-                    ThumbnailResizeType.Pad => ResizeMode.Pad,
-                    ThumbnailResizeType.Crop => ResizeMode.Crop,
-                    _ => throw new NotSupportedException(),
-                },
-            };
+                    Position = AnchorPositionMode.Center,
+                    Size = new SixLabors.ImageSharp.Size(width, height),
+                    Mode = resizeType switch
+                    {
+                        ThumbnailResizeType.Pad => ResizeMode.Pad,
+                        ThumbnailResizeType.Crop => ResizeMode.Crop,
+                        _ => throw new NotSupportedException(),
+                    },
+                };
 
-            x.Resize(resizeOptions);
-        });
+                x.Resize(resizeOptions);
+            });
 
-        if (formatType == ThumbnailFormatType.Png)
-        {
-            var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
-            image.Save(outStream, encoder);
-            return;
+            if (formatType == ThumbnailFormatType.Png)
+            {
+                var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
+                image.Save(outStream, encoder);
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
         }
-
-        throw new NotSupportedException();
+        catch (Exception e)
+        {
+            throw new NotSupportedException(e.GetType().ToString(), e);
+        }
     }
 }
