@@ -80,7 +80,7 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
         this.Status = uiStatus.FileExplorerView ??= new FileExplorerViewStatus();
 
         _isBusy = new ReactivePropertySlim<bool>(false).AddTo(_disposable);
-        this.IsWaiting = _isBusy.DelayWhen(TimeSpan.FromMilliseconds(500), x => x).ToReadOnlyReactivePropertySlim().AddTo(_disposable);
+        this.IsWaiting = _isBusy.ToReadOnlyReactivePropertySlim().AddTo(_disposable);
         this.CancelWaitCommand = new ReactiveCommand().AddTo(_disposable);
         this.CancelWaitCommand.Subscribe(() => this.OnCancelWait()).AddTo(_disposable);
         this.TreeViewWidth = this.Status.ToReactivePropertySlimAsSynchronized(n => n.TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
