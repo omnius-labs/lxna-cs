@@ -174,7 +174,7 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var options = new ThumbnailGeneratorGetThumbnailOptions(width, height, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 5);
+            var options = new ThumbnailGeneratorGetThumbnailOptions(width, height, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 10);
 
             if (model is Thumbnail<IFile> fileThumbnail)
             {
