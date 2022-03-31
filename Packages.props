@@ -23,8 +23,8 @@
     <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Update="NeoSmart.AsyncLock" Version="3.2.1" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Update="NLog.Config" Version="4.7.13" />
-    <PackageReference Update="NLog" Version="4.7.13" />
+    <PackageReference Update="NLog.Config" Version="4.7.15" />
+    <PackageReference Update="NLog" Version="4.7.15" />
     <PackageReference Update="ReactiveProperty" Version="8.0.3" />
     <PackageReference Update="SharpCompress" Version="0.30.1" />
     <PackageReference Update="SixLabors.ImageSharp" Version="2.0.0" />

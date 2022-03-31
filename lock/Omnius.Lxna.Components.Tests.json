@@ -220,8 +220,8 @@
       },
       "NLog": {
         "type": "Transitive",
-        "resolved": "4.7.13",
-        "contentHash": "AvoGpCuq36B+0wY313XA6gC+YeMvk24rqF8P+HS9fInBGOjCzPjpXp2ln9ATZjPOJtXgHfc8zNmTjyswFGLxvg=="
+        "resolved": "4.7.15",
+        "contentHash": "vXMmsK17hXnMsKd8BdCrJzvb8JMT0+cPgBGRfnqcXIb6y8b6RMIZexO4hMhQgifcTHgU7dbubvCR5A5wX6Ne+A=="
       },
       "NuGet.Frameworks": {
         "type": "Transitive",
@@ -1312,7 +1312,7 @@
         "dependencies": {
           "LiteDB": "5.0.11",
           "Magick.NET-Q16-AnyCPU": "10.0.0",
-          "NLog": "4.7.13",
+          "NLog": "4.7.15",
           "Omnius.Core": "0.0.1-alpha.1",
           "Omnius.Core.Collections": "0.0.1-alpha.1",
           "Omnius.Core.Cryptography": "0.0.1-alpha.1",
