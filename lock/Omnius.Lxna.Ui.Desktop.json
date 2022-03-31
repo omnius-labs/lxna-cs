@@ -1010,7 +1010,7 @@
         "dependencies": {
           "LiteDB": "5.0.11",
           "Magick.NET-Q16-AnyCPU": "10.0.0",
-          "NLog": "4.7.10",
+          "NLog": "4.7.13",
           "Omnius.Core": "0.0.1-alpha.1",
           "Omnius.Core.Collections": "0.0.1-alpha.1",
           "Omnius.Core.Cryptography": "0.0.1-alpha.1",

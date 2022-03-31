@@ -54,8 +54,6 @@ internal sealed class ThumbnailGeneratorRepository : IDisposable
 
         public async ValueTask<ThumbnailCache?> FindOneAsync(NestedPath filePath, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
         {
-            await Task.Delay(1).ConfigureAwait(false);
-
             using (await _asyncLock.LockAsync())
             {
                 var id = new ThumbnailCacheIdEntity()
@@ -80,8 +78,6 @@ internal sealed class ThumbnailGeneratorRepository : IDisposable
 
         public async ValueTask InsertAsync(ThumbnailCache entity)
         {
-            await Task.Delay(1).ConfigureAwait(false);
-
             using (await _asyncLock.LockAsync())
             {
                 var id = new ThumbnailCacheIdEntity()
