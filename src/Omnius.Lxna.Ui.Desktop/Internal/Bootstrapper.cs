@@ -15,12 +15,7 @@ public partial class Bootstrapper : AsyncDisposableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private string? _databaseDirectoryPath;
-
-    private UiStatus? _uiStatus;
-    private IThumbnailGenerator? _thumbnailGenerator;
-    private IStorage? _storage;
-
+    private LxnaEnvironment? _lxnaEnvironment;
     private ServiceProvider? _serviceProvider;
 
     public static Bootstrapper Instance { get; } = new Bootstrapper();
@@ -31,38 +26,34 @@ public partial class Bootstrapper : AsyncDisposableBase
     {
     }
 
-    public async ValueTask BuildAsync(string databaseDirectoryPath, CancellationToken cancellationToken = default)
+    public async ValueTask BuildAsync(LxnaEnvironment environment, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(databaseDirectoryPath);
+        ArgumentNullException.ThrowIfNull(environment);
 
-        _databaseDirectoryPath = databaseDirectoryPath;
-
-        var tempDirectoryPath = Path.Combine(databaseDirectoryPath, "temp");
+        var tempDirectoryPath = Path.Combine(environment.DatabaseDirectoryPath, "temp");
         if (Directory.Exists(tempDirectoryPath)) Directory.Delete(tempDirectoryPath, true);
         DirectoryHelper.CreateDirectory(tempDirectoryPath);
 
         try
         {
-            _uiStatus = await UiStatus.LoadAsync(Path.Combine(_databaseDirectoryPath, UI_STATUS_FILE_NAME));
-
             var bytesPool = BytesPool.Shared;
+
+            var uiStatus = await UiStatus.LoadAsync(Path.Combine(environment.DatabaseDirectoryPath, UI_STATUS_FILE_NAME));
 
             var storageFactoryOptions = new WindowsStorageFactoryOptions(tempDirectoryPath);
             var storageFactory = new WindowsStorageFactory(bytesPool, storageFactoryOptions);
-            _storage = await storageFactory.CreateAsync(cancellationToken);
+            var storage = await storageFactory.CreateAsync(cancellationToken);
 
-            var thumbnailGeneratorFactoryOptions = new WindowsThumbnailGeneratorFatcoryOptions(Path.Combine(databaseDirectoryPath, "thumbnail_generator"), 12);
+            var thumbnailGeneratorFactoryOptions = new WindowsThumbnailGeneratorFatcoryOptions(Path.Combine(environment.DatabaseDirectoryPath, "thumbnail_generator"), Math.Max(2, Environment.ProcessorCount / 2));
             var thumbnailGeneratorFactory = new WindowsThumbnailGeneratorFactory(bytesPool, thumbnailGeneratorFactoryOptions);
-            _thumbnailGenerator = await thumbnailGeneratorFactory.CreateAsync(cancellationToken);
+            var thumbnailGenerator = await thumbnailGeneratorFactory.CreateAsync(cancellationToken);
 
             var serviceCollection = new ServiceCollection();
 
-            serviceCollection.AddSingleton(_uiStatus);
-
             serviceCollection.AddSingleton<IBytesPool>(bytesPool);
-            serviceCollection.AddSingleton<IStorage>(_storage);
-            serviceCollection.AddSingleton<IThumbnailGenerator>(_thumbnailGenerator);
-
+            serviceCollection.AddSingleton(uiStatus);
+            serviceCollection.AddSingleton<IStorage>(storage);
+            serviceCollection.AddSingleton<IThumbnailGenerator>(thumbnailGenerator);
             serviceCollection.AddSingleton<IThumbnailsViewer, ThumbnailsViewer>();
 
             serviceCollection.AddSingleton<IApplicationDispatcher, ApplicationDispatcher>();
@@ -92,7 +83,14 @@ public partial class Bootstrapper : AsyncDisposableBase
 
     protected override async ValueTask OnDisposeAsync()
     {
-        if (_databaseDirectoryPath is not null && _uiStatus is not null) await _uiStatus.SaveAsync(Path.Combine(_databaseDirectoryPath, UI_STATUS_FILE_NAME));
+        if (_lxnaEnvironment is null) return;
+        if (_serviceProvider is null) return;
+
+        var uiStatus = _serviceProvider.GetRequiredService<UiStatus>();
+        await uiStatus.SaveAsync(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, UI_STATUS_FILE_NAME));
+
+        await _serviceProvider.GetRequiredService<IThumbnailGenerator>().DisposeAsync();
+        await _serviceProvider.GetRequiredService<IThumbnailsViewer>().DisposeAsync();
     }
 
     public ServiceProvider GetServiceProvider()

@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Omnius.Core.Helpers;
+using Omnius.Lxna.Ui.Desktop.Configuration;
 using Omnius.Lxna.Ui.Desktop.Internal;
 using Omnius.Lxna.Ui.Desktop.Windows.Main;
 
@@ -17,15 +18,11 @@ public class App : Application
 
     private FileStream? _lockFileStream;
 
-    public static new App? Current => Application.Current as App;
-
     public override void Initialize()
     {
         if (!this.IsDesignMode)
         {
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler((_, e) => _logger.Error(e));
-
-            this.ApplicationLifetime!.Startup += (_, _) => this.Startup();
             this.ApplicationLifetime!.Exit += (_, _) => this.Exit();
         }
 
@@ -34,18 +31,12 @@ public class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        if (base.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            desktop.MainWindow = new MainWindow();
-
-            if (this.IsDesignMode)
-            {
-                // desktop.MainWindow.DataContext = new MainWindowDesignViewModel();
-            }
-        }
+        this.Startup();
 
         base.OnFrameworkInitializationCompleted();
     }
+
+    public static new App? Current => Application.Current as App;
 
     public new IClassicDesktopStyleApplicationLifetime? ApplicationLifetime => base.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
 
@@ -73,38 +64,40 @@ public class App : Application
         }
     }
 
-    private async void Startup()
+    private void Startup()
     {
         var parsedResult = CommandLine.Parser.Default.ParseArguments<Options>(Environment.GetCommandLineArgs());
-        parsedResult = await parsedResult.WithParsedAsync(this.RunAsync);
+        parsedResult = parsedResult.WithParsed(this.Run);
         parsedResult.WithNotParsed(this.HandleParseError);
     }
 
-    private async Task RunAsync(Options options)
+    private async void Run(Options options)
     {
         try
         {
             DirectoryHelper.CreateDirectory(options.StorageDirectoryPath);
 
-            var databaseDirectoryPath = Path.Combine(options.StorageDirectoryPath, "db");
-            var logsDirectoryPath = Path.Combine(options.StorageDirectoryPath, "logs");
+            var lxnaEnvironment = new LxnaEnvironment(options.StorageDirectoryPath, Path.Combine(options.StorageDirectoryPath, "db"), Path.Combine(options.StorageDirectoryPath, "logs"));
 
-            DirectoryHelper.CreateDirectory(databaseDirectoryPath!);
-            DirectoryHelper.CreateDirectory(logsDirectoryPath!);
+            DirectoryHelper.CreateDirectory(lxnaEnvironment.DatabaseDirectoryPath);
+            DirectoryHelper.CreateDirectory(lxnaEnvironment.LogsDirectoryPath);
 
-            SetLogsDirectory(logsDirectoryPath);
+            SetLogsDirectory(lxnaEnvironment.LogsDirectoryPath);
 
             if (options.Verbose) ChangeLogLevel(NLog.LogLevel.Trace);
 
-            _lockFileStream = new FileStream(Path.Combine(options.StorageDirectoryPath, "lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose);
+            _lockFileStream = new FileStream(Path.Combine(lxnaEnvironment.StorageDirectoryPath, "lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose);
 
             _logger.Info("Starting...");
             _logger.Info("AssemblyInformationalVersion: {0}", Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion);
 
-            await Bootstrapper.Instance.BuildAsync(databaseDirectoryPath);
+            this.MainWindow = new MainWindow(Path.Combine(lxnaEnvironment.DatabaseDirectoryPath, "windows", "main"));
+
+            await Bootstrapper.Instance.BuildAsync(lxnaEnvironment);
 
             var serviceProvider = Bootstrapper.Instance.GetServiceProvider();
             var viewModel = serviceProvider.GetRequiredService<MainWindowModel>();
+
             this.MainWindow!.ViewModel = viewModel;
         }
         catch (Exception e)
