@@ -1,11 +1,10 @@
 using Omnius.Core.Avalonia;
-using Omnius.Core.Avalonia.Models;
 using Omnius.Core.Helpers;
 using Omnius.Core.Utils;
 
 namespace Omnius.Lxna.Ui.Desktop.Configuration;
 
-public sealed partial class UiStatus
+public sealed class UiStatus
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -42,9 +41,8 @@ public sealed partial class UiStatus
     }
 }
 
-public sealed class MainWindowStatus
+public sealed class MainWindowStatus : BindableBase
 {
-    public WindowStatus? Window { get; set; }
 }
 
 public sealed class FileExplorerViewStatus : BindableBase
@@ -58,7 +56,6 @@ public sealed class FileExplorerViewStatus : BindableBase
     }
 }
 
-public sealed class PicturePreviewWindowStatus
+public sealed class PicturePreviewWindowStatus : BindableBase
 {
-    public WindowStatus? Window { get; set; }
 }

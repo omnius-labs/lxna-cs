@@ -12,8 +12,6 @@ public abstract class MainWindowModelBase : AsyncDisposableBase
 
 public class MainWindowModel : MainWindowModelBase
 {
-    private readonly CompositeDisposable _disposable = new();
-
     public MainWindowModel(UiStatus uiStatus, FileExplorerViewModel FileExplorerViewModel)
     {
         this.Status = uiStatus.MainWindow ??= new MainWindowStatus();
@@ -22,6 +20,6 @@ public class MainWindowModel : MainWindowModelBase
 
     protected override async ValueTask OnDisposeAsync()
     {
-        _disposable.Dispose();
+        if (this.FileExplorerViewModel is not null) await this.FileExplorerViewModel.DisposeAsync();
     }
 }

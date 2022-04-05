@@ -1,8 +1,6 @@
-using System.ComponentModel;
 using Avalonia;
 using Avalonia.Markup.Xaml;
 using Omnius.Core.Avalonia;
-using Omnius.Lxna.Ui.Desktop.Configuration;
 
 namespace Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
 
@@ -14,8 +12,17 @@ public partial class PicturePreviewWindow : StatefulWindowBase<PicturePreviewWin
         : base()
     {
         this.InitializeComponent();
-        this.GetObservable(ViewModelProperty).Subscribe(this.OnViewModelChanged);
-        this.Closing += new EventHandler<CancelEventArgs>((_, _) => this.OnClosing());
+    }
+
+    public PicturePreviewWindow(string configDirectoryPath)
+        : base(configDirectoryPath)
+    {
+        this.InitializeComponent();
+
+#if DEBUG
+        this.AttachDevTools();
+#endif
+
         this.Closed += new EventHandler((_, _) => this.OnClosed());
     }
 
@@ -25,22 +32,6 @@ public partial class PicturePreviewWindow : StatefulWindowBase<PicturePreviewWin
     }
 
     public string? GetResult() => _result;
-
-    private void OnViewModelChanged(PicturePreviewWindowModelBase? viewModel)
-    {
-        if (viewModel?.Status is PicturePreviewWindowStatus status)
-        {
-            this.SetWindowStatus(status.Window);
-        }
-    }
-
-    private void OnClosing()
-    {
-        if (this.ViewModel?.Status is PicturePreviewWindowStatus status)
-        {
-            status.Window = this.GetWindowStatus();
-        }
-    }
 
     private async void OnClosed()
     {
