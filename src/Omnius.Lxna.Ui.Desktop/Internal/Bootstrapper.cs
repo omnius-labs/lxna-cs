@@ -30,7 +30,9 @@ public partial class Bootstrapper : AsyncDisposableBase
     {
         ArgumentNullException.ThrowIfNull(environment);
 
-        var tempDirectoryPath = Path.Combine(environment.DatabaseDirectoryPath, "temp");
+        _lxnaEnvironment = environment;
+
+        var tempDirectoryPath = Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "temp");
         if (Directory.Exists(tempDirectoryPath)) Directory.Delete(tempDirectoryPath, true);
         DirectoryHelper.CreateDirectory(tempDirectoryPath);
 
@@ -38,13 +40,13 @@ public partial class Bootstrapper : AsyncDisposableBase
         {
             var bytesPool = BytesPool.Shared;
 
-            var uiStatus = await UiStatus.LoadAsync(Path.Combine(environment.DatabaseDirectoryPath, UI_STATUS_FILE_NAME));
+            var uiStatus = await UiStatus.LoadAsync(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, UI_STATUS_FILE_NAME));
 
             var storageFactoryOptions = new WindowsStorageFactoryOptions(tempDirectoryPath);
             var storageFactory = new WindowsStorageFactory(bytesPool, storageFactoryOptions);
             var storage = await storageFactory.CreateAsync(cancellationToken);
 
-            var thumbnailGeneratorFactoryOptions = new WindowsThumbnailGeneratorFatcoryOptions(Path.Combine(environment.DatabaseDirectoryPath, "thumbnail_generator"), Math.Max(2, Environment.ProcessorCount / 2));
+            var thumbnailGeneratorFactoryOptions = new WindowsThumbnailGeneratorFatcoryOptions(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "thumbnail_generator"), Math.Max(2, Environment.ProcessorCount / 2));
             var thumbnailGeneratorFactory = new WindowsThumbnailGeneratorFactory(bytesPool, thumbnailGeneratorFactoryOptions);
             var thumbnailGenerator = await thumbnailGeneratorFactory.CreateAsync(cancellationToken);
 
