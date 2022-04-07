@@ -26,11 +26,11 @@ public partial class Bootstrapper : AsyncDisposableBase
     {
     }
 
-    public async ValueTask BuildAsync(LxnaEnvironment environment, CancellationToken cancellationToken = default)
+    public async ValueTask BuildAsync(LxnaEnvironment lxnaEnvironment, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(environment);
+        ArgumentNullException.ThrowIfNull(lxnaEnvironment);
 
-        _lxnaEnvironment = environment;
+        _lxnaEnvironment = lxnaEnvironment;
 
         var tempDirectoryPath = Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "temp");
         if (Directory.Exists(tempDirectoryPath)) Directory.Delete(tempDirectoryPath, true);
