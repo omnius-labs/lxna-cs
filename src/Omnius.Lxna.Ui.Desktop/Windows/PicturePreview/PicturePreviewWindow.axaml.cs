@@ -6,8 +6,6 @@ namespace Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
 
 public partial class PicturePreviewWindow : StatefulWindowBase<PicturePreviewWindowModelBase>
 {
-    private string? _result = null;
-
     public PicturePreviewWindow()
         : base()
     {
@@ -30,8 +28,6 @@ public partial class PicturePreviewWindow : StatefulWindowBase<PicturePreviewWin
     {
         AvaloniaXamlLoader.Load(this);
     }
-
-    public string? GetResult() => _result;
 
     private async void OnClosed()
     {

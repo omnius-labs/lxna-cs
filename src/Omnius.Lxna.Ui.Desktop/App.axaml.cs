@@ -102,7 +102,7 @@ public class App : Application
         }
         catch (Exception e)
         {
-            _logger.Error(e);
+            _logger.Error(e, "Unexpected Exception");
         }
     }
 
