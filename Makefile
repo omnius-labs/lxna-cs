@@ -4,6 +4,7 @@ gen-code:
 	bash ./eng/gen-code.sh
 
 test:
+	dotnet format --verify-no-changes
 	dotnet test --filter "FullyQualifiedName~Omnius.Lxna"
 
 build:
