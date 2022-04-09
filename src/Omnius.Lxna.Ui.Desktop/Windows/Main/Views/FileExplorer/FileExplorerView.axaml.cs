@@ -7,26 +7,28 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
 public interface IFileExplorerViewCommands
 {
-    void ScrollToTop();
+    void ThumbnailsScrollToTop();
 }
 
 public class FileExplorerView : StatefulUserControl<FileExplorerViewModelBase>, IFileExplorerViewCommands
 {
-    private readonly ScrollViewer _scrollViewer;
-    private readonly ItemsRepeater _itemsRepeater;
+    private readonly ItemsRepeater _treeNodesRepeater;
+    private readonly ScrollViewer _thumbnailsViewer;
+    private readonly ItemsRepeater _thumbnailsRepeater;
 
     public FileExplorerView()
     {
         this.InitializeComponent();
 
-        _scrollViewer = this.FindControl<ScrollViewer>("ScrollViewer");
-        _itemsRepeater = this.FindControl<ItemsRepeater>("ItemsRepeater");
+        _treeNodesRepeater = this.FindControl<ItemsRepeater>("TreeNodesRepeater");
+        _thumbnailsViewer = this.FindControl<ScrollViewer>("ThumbnailsViewer");
+        _thumbnailsRepeater = this.FindControl<ItemsRepeater>("ThumbnailsRepeater");
 
         this.GetObservable(ViewModelProperty).Subscribe(this.OnViewModelChanged);
-
-        _itemsRepeater.DoubleTapped += this.ItemsRepeater_DoubleTapped;
-        _itemsRepeater.ElementPrepared += this.ItemsRepeater_ElementPrepared;
-        _itemsRepeater.ElementClearing += this.ItemsRepeater_ElementClearing;
+        _treeNodesRepeater.Tapped += this.OnTreeNodeTapped;
+        _thumbnailsRepeater.DoubleTapped += this.OnThumbnailDoubleTapped;
+        _thumbnailsRepeater.ElementPrepared += this.OnThumbnailPrepared;
+        _thumbnailsRepeater.ElementClearing += this.OnThumbnailClearing;
     }
 
     private void InitializeComponent()
@@ -34,9 +36,9 @@ public class FileExplorerView : StatefulUserControl<FileExplorerViewModelBase>, 
         AvaloniaXamlLoader.Load(this);
     }
 
-    public void ScrollToTop()
+    public void ThumbnailsScrollToTop()
     {
-        _scrollViewer.ScrollToHome();
+        _thumbnailsViewer.ScrollToHome();
     }
 
     private void OnViewModelChanged(FileExplorerViewModelBase? viewModel)
@@ -44,7 +46,16 @@ public class FileExplorerView : StatefulUserControl<FileExplorerViewModelBase>, 
         viewModel?.SetViewCommands(this);
     }
 
-    private void ItemsRepeater_DoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void OnTreeNodeTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (e.Source is IDataContextProvider control)
+        {
+            if (control.DataContext is null) return;
+            this.ViewModel?.NotifyTreeNodeTapped(control.DataContext);
+        }
+    }
+
+    private void OnThumbnailDoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (e.Source is IDataContextProvider control)
         {
@@ -53,13 +64,13 @@ public class FileExplorerView : StatefulUserControl<FileExplorerViewModelBase>, 
         }
     }
 
-    private void ItemsRepeater_ElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
+    private void OnThumbnailPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
     {
         if (e.Element.DataContext is null) return;
         this.ViewModel?.NotifyThumbnailPrepared(e.Element.DataContext);
     }
 
-    private void ItemsRepeater_ElementClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
+    private void OnThumbnailClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
     {
         if (e.Element.DataContext is null) return;
         this.ViewModel?.NotifyThumbnailClearing(e.Element.DataContext);

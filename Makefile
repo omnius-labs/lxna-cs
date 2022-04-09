@@ -14,10 +14,7 @@ run-designer: build
 	dotnet msbuild ./src/Omnius.Lxna.Ui.Desktop/ /t:Preview /p:XamlFile=$(PreviewXamlFile)
 
 format:
-	dotnet tool run dotnet-format
-
-update-nugut:
-	dotnet tool run nukeeper update
+	dotnet format
 
 update-dotnet-tool:
 	bash ./eng/update-dotnet-tool.sh
