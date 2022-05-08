@@ -2,8 +2,7 @@
 tmp/
 pub/
 patch.txt
-demo/ui-desktop/logs/
-demo/ui-desktop/storage/
+demo/*/storage/
 
 # Environment
 .env
@@ -15,6 +14,7 @@ mono_crash.*
 .vscode/*
 !.vscode/tasks.json
 !.vscode/launch.json
+!.vscode/settings.json
 
 # Tool Runtime Dir
 /[Tt]ools/
