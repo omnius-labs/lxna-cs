@@ -13,6 +13,7 @@ public class LevelPaddingConverter : IValueConverter
         {
             return new Thickness(20 * level, 0, 0, 0);
         }
+
         return new Thickness();
     }
 
