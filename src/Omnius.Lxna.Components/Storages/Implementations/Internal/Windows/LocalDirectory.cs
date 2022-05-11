@@ -24,7 +24,6 @@ internal sealed class LocalDirectory : IDirectory
 
     public NestedPath LogicalPath { get; }
 
-
     public void Dispose()
     {
     }
