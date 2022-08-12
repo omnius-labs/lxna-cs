@@ -11,14 +11,14 @@ public readonly partial struct NestedPath : global::Omnius.Core.RocketPack.IRock
     static NestedPath()
     {
         global::Omnius.Core.RocketPack.IRocketMessage<global::Omnius.Lxna.Components.Storages.Models.NestedPath>.Formatter = new ___CustomFormatter();
-        global::Omnius.Core.RocketPack.IRocketMessage<global::Omnius.Lxna.Components.Storages.Models.NestedPath>.Empty = new global::Omnius.Lxna.Components.Storages.Models.NestedPath(global::System.Array.Empty<string>());
+        global::Omnius.Core.RocketPack.IRocketMessage<global::Omnius.Lxna.Components.Storages.Models.NestedPath>.Empty = new global::Omnius.Lxna.Components.Storages.Models.NestedPath(global::System.Array.Empty<global::Omnius.Core.RocketPack.Utf8String>());
     }
 
     private readonly int ___hashCode;
 
     public static readonly int MaxValuesCount = 32;
 
-    public NestedPath(string[] values)
+    public NestedPath(global::Omnius.Core.RocketPack.Utf8String[] values)
     {
         if (values is null) throw new global::System.ArgumentNullException("values");
         if (values.Length > 32) throw new global::System.ArgumentOutOfRangeException("values");
@@ -28,19 +28,19 @@ public readonly partial struct NestedPath : global::Omnius.Core.RocketPack.IRock
             if (n.Length > 8192) throw new global::System.ArgumentOutOfRangeException("n");
         }
 
-        this.Values = new global::Omnius.Core.Collections.ReadOnlyListSlim<string>(values);
+        this.Values = new global::Omnius.Core.Collections.ReadOnlyListSlim<global::Omnius.Core.RocketPack.Utf8String>(values);
 
         {
             var ___h = new global::System.HashCode();
             foreach (var n in values)
             {
-                if (n != default) ___h.Add(n.GetHashCode());
+                if (!n.IsEmpty) ___h.Add(n.GetHashCode());
             }
             ___hashCode = ___h.ToHashCode();
         }
     }
 
-    public global::Omnius.Core.Collections.ReadOnlyListSlim<string> Values { get; }
+    public global::Omnius.Core.Collections.ReadOnlyListSlim<global::Omnius.Core.RocketPack.Utf8String> Values { get; }
 
     public static global::Omnius.Lxna.Components.Storages.Models.NestedPath Import(global::System.Buffers.ReadOnlySequence<byte> sequence, global::Omnius.Core.IBytesPool bytesPool)
     {
@@ -90,11 +90,11 @@ public readonly partial struct NestedPath : global::Omnius.Core.RocketPack.IRock
         {
             if (rank > 256) throw new global::System.FormatException();
 
-            string[] p_values = global::System.Array.Empty<string>();
+            global::Omnius.Core.RocketPack.Utf8String[] p_values = global::System.Array.Empty<global::Omnius.Core.RocketPack.Utf8String>();
 
             {
                 var length = r.GetUInt32();
-                p_values = new string[length];
+                p_values = new global::Omnius.Core.RocketPack.Utf8String[length];
                 for (int i = 0; i < p_values.Length; i++)
                 {
                     p_values[i] = r.GetString(8192);

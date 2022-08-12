@@ -1,11 +1,16 @@
 using Omnius.Core.Helpers;
-using Omnius.Lxna.Components.Storages.Internal.Windows.Helpers;
+using Omnius.Core.RocketPack;
+using Omnius.Lxna.Components.Storages.Internal.Helpers;
 
 namespace Omnius.Lxna.Components.Storages.Models;
 
 public readonly partial struct NestedPath : IComparable<NestedPath>
 {
-    public NestedPath(string path) : this(new[] { path })
+    public NestedPath(string path) : this(new[] { new Utf8String(path) })
+    {
+    }
+
+    public NestedPath(string[] values) : this(values.Select(n => new Utf8String(n)).ToArray())
     {
     }
 
@@ -18,13 +23,13 @@ public readonly partial struct NestedPath : IComparable<NestedPath>
 
     public string GetName()
     {
-        var lastPath = this.Values.Where(n => !string.IsNullOrEmpty(n)).LastOrDefault() ?? string.Empty;
-        return lastPath.TrimEnd('/').Split('/')[^1];
+        var lastPath = this.Values.Where(n => !string.IsNullOrEmpty(n)).LastOrDefault() ?? Utf8String.Empty;
+        return lastPath.ToString().TrimEnd('/').Split('/')[^1];
     }
 
     public string GetExtension()
     {
-        var lastPath = this.Values.Where(n => !string.IsNullOrEmpty(n)).LastOrDefault() ?? string.Empty;
+        var lastPath = this.Values.Where(n => !string.IsNullOrEmpty(n)).LastOrDefault() ?? Utf8String.Empty;
         return System.IO.Path.GetExtension(lastPath);
     }
 
@@ -41,6 +46,6 @@ public readonly partial struct NestedPath : IComparable<NestedPath>
     public static NestedPath Combine(NestedPath originalPath, string relativePath)
     {
         var lastPath = PathHelper.Combine(originalPath.GetLastPath(), relativePath);
-        return new NestedPath(originalPath.Values[..^1].Append(lastPath).ToArray());
+        return new NestedPath(originalPath.Values[..^1].Append(new Utf8String(lastPath)).ToArray());
     }
 }

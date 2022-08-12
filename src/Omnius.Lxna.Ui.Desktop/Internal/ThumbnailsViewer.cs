@@ -4,8 +4,8 @@ using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
 using Omnius.Core.Pipelines;
 using Omnius.Lxna.Components.Storages;
-using Omnius.Lxna.Components.ThumbnailGenerators;
-using Omnius.Lxna.Components.ThumbnailGenerators.Models;
+using Omnius.Lxna.Components.Thumbnails;
+using Omnius.Lxna.Components.Thumbnails.Models;
 using Omnius.Lxna.Ui.Desktop.Internal.Models;
 
 namespace Omnius.Lxna.Ui.Desktop.Interactors.Internal;
@@ -36,7 +36,8 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly IThumbnailGenerator _thumbnailGenerator;
+    private readonly IDirectoryThumbnailGenerator _directoryThumbnailGenerator;
+    private readonly IFileThumbnailGenerator _fileThumbnailGenerator;
     private readonly IApplicationDispatcher _applicationDispatcher;
 
     private ImmutableArray<IThumbnail<object>> _models = ImmutableArray<IThumbnail<object>>.Empty;
@@ -48,9 +49,10 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
 
     private readonly AsyncLock _asyncLock = new();
 
-    public ThumbnailsViewer(IThumbnailGenerator thumbnailGenerator, IApplicationDispatcher applicationDispatcher)
+    public ThumbnailsViewer(IDirectoryThumbnailGenerator directoryThumbnailGenerator, IFileThumbnailGenerator fileThumbnailGenerator, IApplicationDispatcher applicationDispatcher)
     {
-        _thumbnailGenerator = thumbnailGenerator;
+        _directoryThumbnailGenerator = directoryThumbnailGenerator;
+        _fileThumbnailGenerator = fileThumbnailGenerator;
         _applicationDispatcher = applicationDispatcher;
     }
 
@@ -174,13 +176,12 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var options = new ThumbnailGeneratorGetThumbnailOptions(width, height, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 10);
-
-            if (model is Thumbnail<IFile> fileThumbnail)
+            if (model is Thumbnail<IDirectory> dirThumbnail)
             {
-                var result = await _thumbnailGenerator.GetThumbnailAsync(fileThumbnail.Target, options, cacheOnly, cancellationToken).ConfigureAwait(false);
+                var options = new DirectoryThumbnailOptions(width, height, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 10);
+                var result = await _directoryThumbnailGenerator.GenerateAsync(dirThumbnail.Target, options, cacheOnly, cancellationToken).ConfigureAwait(false);
 
-                if (result.Status == ThumbnailGeneratorGetThumbnailResultStatus.Succeeded)
+                if (result.Status == DirectoryThumbnailResultStatus.Succeeded)
                 {
                     await _applicationDispatcher.InvokeAsync(() =>
                     {
@@ -188,11 +189,12 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
                     });
                 }
             }
-            else if (model is Thumbnail<IDirectory> dirThumbnail)
+            else if (model is Thumbnail<IFile> fileThumbnail)
             {
-                var result = await _thumbnailGenerator.GetThumbnailAsync(dirThumbnail.Target, options, cacheOnly, cancellationToken).ConfigureAwait(false);
+                var options = new FileThumbnailOptions(width, height, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 10);
+                var result = await _fileThumbnailGenerator.GenerateAsync(fileThumbnail.Target, options, cacheOnly, cancellationToken).ConfigureAwait(false);
 
-                if (result.Status == ThumbnailGeneratorGetThumbnailResultStatus.Succeeded)
+                if (result.Status == FileThumbnailResultStatus.Succeeded)
                 {
                     await _applicationDispatcher.InvokeAsync(() =>
                     {
