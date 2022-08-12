@@ -4,7 +4,7 @@ using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
 using Omnius.Lxna.Components.Storages;
-using Omnius.Lxna.Components.ThumbnailGenerators;
+using Omnius.Lxna.Components.Thumbnails;
 using Omnius.Lxna.Ui.Desktop.Configuration;
 using Omnius.Lxna.Ui.Desktop.Interactors.Internal;
 using Omnius.Lxna.Ui.Desktop.Windows.Main;
@@ -42,20 +42,22 @@ public partial class Bootstrapper : AsyncDisposableBase
 
             var uiStatus = await UiStatus.LoadAsync(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, UI_STATUS_FILE_NAME));
 
-            var storageFactoryOptions = new WindowsStorageFactoryOptions(tempDirectoryPath);
-            var storageFactory = new WindowsStorageFactory(bytesPool, storageFactoryOptions);
-            var storage = await storageFactory.CreateAsync(cancellationToken);
+            var storageOptions = new LxnaStorageOptions(tempDirectoryPath);
+            var storage = await LxnaStorage.CreateAsync(bytesPool, storageOptions, cancellationToken);
 
-            var thumbnailGeneratorFactoryOptions = new WindowsThumbnailGeneratorFatcoryOptions(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "thumbnail_generator"), Math.Max(2, Environment.ProcessorCount / 2));
-            var thumbnailGeneratorFactory = new WindowsThumbnailGeneratorFactory(bytesPool, thumbnailGeneratorFactoryOptions);
-            var thumbnailGenerator = await thumbnailGeneratorFactory.CreateAsync(cancellationToken);
+            var directoryThumbnailGeneratorOptions = new DirectoryThumbnailGeneratorOptions(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "directory_thumbnail_generator"), Math.Max(2, Environment.ProcessorCount / 2));
+            var directoryThumbnailGenerator = await DirectoryThumbnailGenerator.CreateAsync(bytesPool, directoryThumbnailGeneratorOptions, cancellationToken);
+
+            var fileThumbnailGeneratorOptions = new FileThumbnailGeneratorOptions(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "file_thumbnail_generator"), Math.Max(2, Environment.ProcessorCount / 2));
+            var fileThumbnailGenerator = await FileThumbnailGenerator.CreateAsync(bytesPool, fileThumbnailGeneratorOptions, cancellationToken);
 
             var serviceCollection = new ServiceCollection();
 
             serviceCollection.AddSingleton<IBytesPool>(bytesPool);
             serviceCollection.AddSingleton(uiStatus);
             serviceCollection.AddSingleton<IStorage>(storage);
-            serviceCollection.AddSingleton<IThumbnailGenerator>(thumbnailGenerator);
+            serviceCollection.AddSingleton<IDirectoryThumbnailGenerator>(directoryThumbnailGenerator);
+            serviceCollection.AddSingleton<IFileThumbnailGenerator>(fileThumbnailGenerator);
             serviceCollection.AddSingleton<IThumbnailsViewer, ThumbnailsViewer>();
 
             serviceCollection.AddSingleton<IApplicationDispatcher, ApplicationDispatcher>();
@@ -91,7 +93,8 @@ public partial class Bootstrapper : AsyncDisposableBase
         var uiStatus = _serviceProvider.GetRequiredService<UiStatus>();
         await uiStatus.SaveAsync(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, UI_STATUS_FILE_NAME));
 
-        await _serviceProvider.GetRequiredService<IThumbnailGenerator>().DisposeAsync();
+        await _serviceProvider.GetRequiredService<IDirectoryThumbnailGenerator>().DisposeAsync();
+        await _serviceProvider.GetRequiredService<IFileThumbnailGenerator>().DisposeAsync();
         await _serviceProvider.GetRequiredService<IThumbnailsViewer>().DisposeAsync();
     }
 

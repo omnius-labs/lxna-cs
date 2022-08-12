@@ -4,7 +4,7 @@
   CompileTargets:
     - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Storages.Models.rpf
       Output: ./src/Omnius.Lxna.Components/Storages/Models/_RocketPack/_Generated.cs
-    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.ThumbnailGenerators.Models.rpf
-      Output: ./src/Omnius.Lxna.Components/ThumbnailGenerators/Models/_RocketPack/_Generated.cs
-    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common.Models.rpf
-      Output: ./src/Omnius.Lxna.Components/ThumbnailGenerators/implementations/Internal/Common/Models/_RocketPack/_Generated.cs
+    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Thumbnail.Models.rpf
+      Output: ./src/Omnius.Lxna.Components/Thumbnail/Models/_RocketPack/_Generated.cs
+    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Thumbnail.Internal.Common.Models.rpf
+      Output: ./src/Omnius.Lxna.Components/Thumbnail/implementations/Internal/Common/Models/_RocketPack/_Generated.cs
