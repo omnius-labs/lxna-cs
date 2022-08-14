@@ -25,9 +25,9 @@ public abstract class FileExplorerViewModelBase : AsyncDisposableBase
 
     public ReactiveCommand? CancelWaitCommand { get; protected set; }
 
-    public RootTreeNodeModel? RootTree { get; protected set; }
+    public RootTreeNodeModel? RootTreeNode { get; protected set; }
 
-    public ReactivePropertySlim<TreeNodeModel>? SelectedTree { get; protected set; }
+    public ReactivePropertySlim<TreeNodeModel>? SelectedTreeNode { get; protected set; }
 
     public ReactivePropertySlim<GridLength>? TreeViewWidth { get; protected set; }
 
@@ -84,10 +84,10 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
         this.IsWaiting = _isBusy.DelayWhen(TimeSpan.FromMilliseconds(500), n => n).ToReadOnlyReactivePropertySlim().AddTo(_disposable);
         this.CancelWaitCommand = new ReactiveCommand().AddTo(_disposable);
         this.CancelWaitCommand.Subscribe(() => this.OnCancelWait()).AddTo(_disposable);
-        this.RootTree = new RootTreeNodeModel(_isExpandedChangedActionPipe.Caller);
-        this.RootTree.Name = "/";
-        this.SelectedTree = new ReactivePropertySlim<TreeNodeModel>().AddTo(_disposable);
-        this.SelectedTree.Where(n => n is not null).Subscribe(n => this.OnSelectedTreeViewModelChanged(n)).AddTo(_disposable);
+        this.RootTreeNode = new RootTreeNodeModel(_isExpandedChangedActionPipe.Caller);
+        this.RootTreeNode.Name = "/";
+        this.SelectedTreeNode = new ReactivePropertySlim<TreeNodeModel>().AddTo(_disposable);
+        this.SelectedTreeNode.Where(n => n is not null).Subscribe(n => this.OnSelectedTreeViewModelChanged(n)).AddTo(_disposable);
         this.TreeViewWidth = this.Status.ToReactivePropertySlimAsSynchronized(n => n.TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
         this.Thumbnails = new ReadOnlyObservableCollection<IThumbnail<object>>(_thumbnails);
         this.ThumbnailWidth = new ReactivePropertySlim<int>(256).AddTo(_disposable);
@@ -105,7 +105,7 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
             var child = new TreeNodeModel(_isExpandedChangedActionPipe.Caller);
             child.Name = directory.Name;
             child.Tag = directory;
-            this.RootTree!.AddChild(child);
+            this.RootTreeNode!.AddChild(child);
         }
     }
 
@@ -125,7 +125,7 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
     {
         if (item is TreeNodeModel node && node.Tag is IDirectory directory)
         {
-            this.SelectedTree!.Value = node;
+            this.SelectedTreeNode!.Value = node;
         }
     }
 
@@ -137,7 +137,7 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
         }
         else if (item is IThumbnail<IDirectory> directoryThumbnail)
         {
-            if (this.SelectedTree!.Value is TreeNodeModel selectedTree)
+            if (this.SelectedTreeNode!.Value is TreeNodeModel selectedTree)
             {
                 _wantSelectingLogicalPath = directoryThumbnail.Target.LogicalPath;
                 selectedTree.IsExpanded = true;
@@ -225,7 +225,7 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
                                 if (child.Tag is IDirectory selectedDirectory)
                                 {
                                     if (selectedDirectory.LogicalPath != _wantSelectingLogicalPath) continue;
-                                    this.SelectedTree!.Value = child;
+                                    this.SelectedTreeNode!.Value = child;
                                     break;
                                 }
                             }
@@ -235,7 +235,7 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
                     }
                     else
                     {
-                        this.SelectedTree!.Value = expendedTree;
+                        this.SelectedTreeNode!.Value = expendedTree;
                     }
 
                     _isBusy!.Value = false;
@@ -271,17 +271,25 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
         return CollectionHelper.Unite(dirs, archives).ToArray();
     }
 
-    private async void OnSelectedTreeViewModelChanged(TreeNodeModel treeViewModel)
+    private async void OnSelectedTreeViewModelChanged(TreeNodeModel selectedTreeNode)
     {
         await Task.Delay(1).ConfigureAwait(false);
 
-        if (treeViewModel.Tag is IDirectory selectedDirectory)
+        if (selectedTreeNode.Tag is IDirectory selectedDirectory)
         {
             using (await _asyncLock.LockAsync())
             {
                 await _applicationDispatcher.InvokeAsync(() =>
                 {
                     _isBusy!.Value = true;
+
+                    selectedTreeNode.IsSelected = true;
+
+                    foreach (var treeNode in this.RootTreeNode!.VisibleChildren)
+                    {
+                        if (treeNode == selectedTreeNode) continue;
+                        treeNode.IsSelected = false;
+                    }
                 });
 
                 ThumbnailsViewerStartResult result = default;

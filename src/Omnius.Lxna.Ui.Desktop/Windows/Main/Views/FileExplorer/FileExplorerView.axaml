@@ -4,7 +4,7 @@
         xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
         xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
         xmlns:local="clr-namespace:Omnius.Lxna.Ui.Desktop.Windows.Main;assembly=Omnius.Lxna.Ui.Desktop"
-        xmlns:lc="clr-namespace:Omnius.Lxna.Ui.Desktop.Converters;assembly=Omnius.Lxna.Ui.Desktop"
+        xmlns:c="clr-namespace:Omnius.Core.Avalonia.Converters;assembly=Omnius.Core.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:progRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
@@ -15,7 +15,7 @@
         d:DesignHeight="450" >
 
     <UserControl.Resources>
-        <lc:LevelPaddingConverter x:Key="LevelPaddingConverter"/>
+        <c:LevelPaddingConverter x:Key="LevelPaddingConverter"/>
     </UserControl.Resources>
     <Panel>
         <Panel ZIndex="1" IsEnabled="{Binding IsWaiting.Value}" IsVisible="{Binding IsWaiting.Value}">
@@ -31,15 +31,18 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <ItemsRepeater x:Name="TreeNodesRepeater" Items="{Binding RootTree.VisibleChildren}">
+                <ItemsRepeater x:Name="TreeNodesRepeater" Items="{Binding RootTreeNode.VisibleChildren}">
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
-                            <Border Padding="{Binding Level, Converter={StaticResource LevelPaddingConverter}}">
-                                <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsExpanded}" VerticalAlignment="Center" />
-                                    <TextBlock Focusable="True" Text="{Binding Name}" Margin="5 0 0 0" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Border>
+                            <Panel>
+                                <Border IsVisible="{Binding IsSelected}" IsHitTestVisible="False" Background="Gray" />
+                                <Border Padding="{Binding Level, Converter={StaticResource LevelPaddingConverter}, ConverterParameter=30}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding IsExpanded}" VerticalAlignment="Center" />
+                                        <TextBlock Focusable="True" Text="{Binding Name}" Margin="5 0 0 0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                            </Panel>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>
