@@ -265,8 +265,8 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
             archives.Add(archive);
         }
 
-        dirs.Sort((x, y) => x.Name.CompareTo(y.Name));
-        archives.Sort((x, y) => x.Name.CompareTo(y.Name));
+        dirs.Sort((x, y) => LogicalStringComparer.Instance.Compare(x.Name, y.Name));
+        archives.Sort((x, y) => LogicalStringComparer.Instance.Compare(x.Name, y.Name));
 
         return CollectionHelper.Unite(dirs, archives).ToArray();
     }
