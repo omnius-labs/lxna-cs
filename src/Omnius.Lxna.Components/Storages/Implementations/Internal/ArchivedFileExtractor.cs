@@ -53,9 +53,9 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
                 var options = new SharpCompress.Readers.ReaderOptions();
                 var encoding = Encoding.GetEncoding(932);
                 options.ArchiveEncoding = new SharpCompress.Common.ArchiveEncoding();
-                options.ArchiveEncoding.CustomDecoder = (data, x, y) =>
+                options.ArchiveEncoding.CustomDecoder = (data, index, count) =>
                 {
-                    return encoding.GetString(data);
+                    return encoding.GetString(data, index, count);
                 };
                 return SharpCompress.Archives.Zip.ZipArchive.Open(_archiveFilePath, options);
             }
