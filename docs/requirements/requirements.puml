@@ -1,0 +1,13 @@
+@startmindmap requirements
+* FileStorage
+** Operations
+*** Execute
+*** Cut
+*** Copy
+*** Paste
+*** Move
+*** Delete
+** View
+*** Thumbnail
+*** Slideshow
+@endmindmap

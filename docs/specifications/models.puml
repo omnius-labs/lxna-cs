@@ -1,0 +1,17 @@
+@startmindmap models
+* Directory
+** LocalDirectory
+** ArchivedDirectory
+* File
+** LocalFile
+** ArchivedFile
+* Thumbnail
+** Path
+** ResizeType
+*** Pad
+*** Crop
+** FormatType
+*** Png
+** Width
+** Height
+@endmindmap

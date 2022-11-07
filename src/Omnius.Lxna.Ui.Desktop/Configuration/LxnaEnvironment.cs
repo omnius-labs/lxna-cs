@@ -10,8 +10,6 @@ public sealed class LxnaEnvironment
     }
 
     public string StorageDirectoryPath { get; }
-
     public string DatabaseDirectoryPath { get; }
-
     public string LogsDirectoryPath { get; }
 }
