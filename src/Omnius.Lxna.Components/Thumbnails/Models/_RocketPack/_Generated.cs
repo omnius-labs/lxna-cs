@@ -85,7 +85,7 @@ public sealed partial class ThumbnailContent : global::Omnius.Core.RocketPack.IR
 
     private sealed class ___CustomFormatter : global::Omnius.Core.RocketPack.IRocketMessageFormatter<global::Omnius.Lxna.Components.Thumbnails.Models.ThumbnailContent>
     {
-        public void Serialize(ref global::Omnius.Core.RocketPack.RocketMessageWriter w, in global::Omnius.Lxna.Components.Thumbnails.Models.ThumbnailContent value, in int rank)
+        public void Serialize(ref global::Omnius.Core.RocketPack.RocketMessageWriter w, scoped in global::Omnius.Lxna.Components.Thumbnails.Models.ThumbnailContent value, scoped in int rank)
         {
             if (rank > 256) throw new global::System.FormatException();
 
@@ -96,7 +96,7 @@ public sealed partial class ThumbnailContent : global::Omnius.Core.RocketPack.IR
             }
             w.Write((uint)0);
         }
-        public global::Omnius.Lxna.Components.Thumbnails.Models.ThumbnailContent Deserialize(ref global::Omnius.Core.RocketPack.RocketMessageReader r, in int rank)
+        public global::Omnius.Lxna.Components.Thumbnails.Models.ThumbnailContent Deserialize(ref global::Omnius.Core.RocketPack.RocketMessageReader r, scoped in int rank)
         {
             if (rank > 256) throw new global::System.FormatException();
 

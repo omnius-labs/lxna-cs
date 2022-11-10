@@ -74,7 +74,7 @@ internal sealed partial class FileMeta : global::Omnius.Core.RocketPack.IRocketM
 
     private sealed class ___CustomFormatter : global::Omnius.Core.RocketPack.IRocketMessageFormatter<global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.FileMeta>
     {
-        public void Serialize(ref global::Omnius.Core.RocketPack.RocketMessageWriter w, in global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.FileMeta value, in int rank)
+        public void Serialize(ref global::Omnius.Core.RocketPack.RocketMessageWriter w, scoped in global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.FileMeta value, scoped in int rank)
         {
             if (rank > 256) throw new global::System.FormatException();
 
@@ -95,7 +95,7 @@ internal sealed partial class FileMeta : global::Omnius.Core.RocketPack.IRocketM
             }
             w.Write((uint)0);
         }
-        public global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.FileMeta Deserialize(ref global::Omnius.Core.RocketPack.RocketMessageReader r, in int rank)
+        public global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.FileMeta Deserialize(ref global::Omnius.Core.RocketPack.RocketMessageReader r, scoped in int rank)
         {
             if (rank > 256) throw new global::System.FormatException();
 
@@ -206,7 +206,7 @@ internal sealed partial class ThumbnailMeta : global::Omnius.Core.RocketPack.IRo
 
     private sealed class ___CustomFormatter : global::Omnius.Core.RocketPack.IRocketMessageFormatter<global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.ThumbnailMeta>
     {
-        public void Serialize(ref global::Omnius.Core.RocketPack.RocketMessageWriter w, in global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.ThumbnailMeta value, in int rank)
+        public void Serialize(ref global::Omnius.Core.RocketPack.RocketMessageWriter w, scoped in global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.ThumbnailMeta value, scoped in int rank)
         {
             if (rank > 256) throw new global::System.FormatException();
 
@@ -232,7 +232,7 @@ internal sealed partial class ThumbnailMeta : global::Omnius.Core.RocketPack.IRo
             }
             w.Write((uint)0);
         }
-        public global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.ThumbnailMeta Deserialize(ref global::Omnius.Core.RocketPack.RocketMessageReader r, in int rank)
+        public global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.ThumbnailMeta Deserialize(ref global::Omnius.Core.RocketPack.RocketMessageReader r, scoped in int rank)
         {
             if (rank > 256) throw new global::System.FormatException();
 
@@ -359,7 +359,7 @@ internal sealed partial class ThumbnailCache : global::Omnius.Core.RocketPack.IR
 
     private sealed class ___CustomFormatter : global::Omnius.Core.RocketPack.IRocketMessageFormatter<global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.ThumbnailCache>
     {
-        public void Serialize(ref global::Omnius.Core.RocketPack.RocketMessageWriter w, in global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.ThumbnailCache value, in int rank)
+        public void Serialize(ref global::Omnius.Core.RocketPack.RocketMessageWriter w, scoped in global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.ThumbnailCache value, scoped in int rank)
         {
             if (rank > 256) throw new global::System.FormatException();
 
@@ -384,7 +384,7 @@ internal sealed partial class ThumbnailCache : global::Omnius.Core.RocketPack.IR
             }
             w.Write((uint)0);
         }
-        public global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.ThumbnailCache Deserialize(ref global::Omnius.Core.RocketPack.RocketMessageReader r, in int rank)
+        public global::Omnius.Lxna.Components.Thumbnails.Internal.Common.Models.ThumbnailCache Deserialize(ref global::Omnius.Core.RocketPack.RocketMessageReader r, scoped in int rank)
         {
             if (rank > 256) throw new global::System.FormatException();
 
