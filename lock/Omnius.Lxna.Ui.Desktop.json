@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    "net6.0": {
+    "net7.0": {
       "Avalonia": {
         "type": "Direct",
         "requested": "[0.10.12, )",
@@ -451,8 +451,8 @@
       },
       "SharpCompress": {
         "type": "Transitive",
-        "resolved": "0.30.1",
-        "contentHash": "XqD4TpfyYGa7QTPzaGlMVbcecKnXy4YmYLDWrU+JIj7IuRNl7DH2END+Ll7ekWIY8o3dAMWLFDE1xdhfIWD1nw=="
+        "resolved": "0.32.2",
+        "contentHash": "MSt6TKAg2c0uFFDtf7oACB4DfvXKq5Cvot2e0wjy5nAiVujpIRQ8laiIqCU/VMRGyytasGzg+nODKTkkDjbr/g=="
       },
       "ShimSkiaSharp": {
         "type": "Transitive",
@@ -972,123 +972,123 @@
       "omnius.core": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.13",
-          "NeoSmart.AsyncLock": "3.2.1",
-          "System.IO.Pipelines": "6.0.1"
+          "NLog": "[4.7.13, )",
+          "NeoSmart.AsyncLock": "[3.2.1, )",
+          "System.IO.Pipelines": "[6.0.1, )"
         }
       },
       "omnius.core.avalonia": {
         "type": "Project",
         "dependencies": {
-          "Avalonia": "0.10.12",
-          "Avalonia.AvaloniaEdit": "0.10.12.2",
-          "Avalonia.Controls.DataGrid": "0.10.12",
-          "Avalonia.Desktop": "0.10.12",
-          "Avalonia.Skia": "0.10.12",
-          "Avalonia.Xaml.Behaviors": "0.10.12",
-          "Avalonia.Xaml.Interactions": "0.10.12",
-          "Avalonia.Xaml.Interactivity": "0.10.12",
-          "NLog": "4.7.13",
-          "Omnius.Core": "0.0.1-alpha.1",
-          "Omnius.Core.Pipelines": "0.0.1-alpha.1",
-          "Omnius.Core.Utils": "0.0.1-alpha.1"
+          "Avalonia": "[0.10.12, )",
+          "Avalonia.AvaloniaEdit": "[0.10.12.2, )",
+          "Avalonia.Controls.DataGrid": "[0.10.12, )",
+          "Avalonia.Desktop": "[0.10.12, )",
+          "Avalonia.Skia": "[0.10.12, )",
+          "Avalonia.Xaml.Behaviors": "[0.10.12, )",
+          "Avalonia.Xaml.Interactions": "[0.10.12, )",
+          "Avalonia.Xaml.Interactivity": "[0.10.12, )",
+          "NLog": "[4.7.13, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Utils": "[0.0.1-alpha.1, )"
         }
       },
       "omnius.core.collections": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.13",
-          "Omnius.Core": "0.0.1-alpha.1",
-          "Omnius.Core.Tasks": "0.0.1-alpha.1"
+          "NLog": "[4.7.13, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Tasks": "[0.0.1-alpha.1, )"
         }
       },
       "omnius.core.cryptography": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.13",
-          "Omnius.Core": "0.0.1-alpha.1",
-          "Omnius.Core.Collections": "0.0.1-alpha.1",
-          "Omnius.Core.Pipelines": "0.0.1-alpha.1",
-          "Omnius.Core.RocketPack": "0.0.1-alpha.1",
-          "Omnius.Core.Serialization": "0.0.1-alpha.1",
-          "Omnius.Core.Streams": "0.0.1-alpha.1"
+          "NLog": "[4.7.13, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Streams": "[0.0.1-alpha.1, )"
         }
       },
       "omnius.core.net": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.13",
-          "Omnius.Core": "0.0.1-alpha.1",
-          "Omnius.Core.Collections": "0.0.1-alpha.1",
-          "Omnius.Core.Cryptography": "0.0.1-alpha.1",
-          "Omnius.Core.RocketPack": "0.0.1-alpha.1",
-          "Omnius.Core.Serialization": "0.0.1-alpha.1",
-          "Sprache": "2.3.1"
+          "NLog": "[4.7.13, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Cryptography": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )",
+          "Sprache": "[2.3.1, )"
         }
       },
       "omnius.core.pipelines": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.13",
-          "Omnius.Core": "0.0.1-alpha.1"
+          "NLog": "[4.7.13, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )"
         }
       },
       "omnius.core.rocketpack": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.13",
-          "Omnius.Core": "0.0.1-alpha.1",
-          "Omnius.Core.Pipelines": "0.0.1-alpha.1"
+          "NLog": "[4.7.13, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )"
         }
       },
       "omnius.core.serialization": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.13",
-          "Omnius.Core": "0.0.1-alpha.1",
-          "Omnius.Core.Pipelines": "0.0.1-alpha.1",
-          "Omnius.Core.RocketPack": "0.0.1-alpha.1"
+          "NLog": "[4.7.13, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )"
         }
       },
       "omnius.core.streams": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.13",
-          "Omnius.Core": "0.0.1-alpha.1",
-          "Omnius.Core.RocketPack": "0.0.1-alpha.1",
-          "Omnius.Core.Serialization": "0.0.1-alpha.1"
+          "NLog": "[4.7.13, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )"
         }
       },
       "omnius.core.tasks": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.13",
-          "Omnius.Core": "0.0.1-alpha.1"
+          "NLog": "[4.7.13, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )"
         }
       },
       "omnius.core.utils": {
         "type": "Project",
         "dependencies": {
-          "NLog": "4.7.13",
-          "Newtonsoft.Json": "13.0.1",
-          "YamlDotNet": "11.2.1"
+          "NLog": "[4.7.13, )",
+          "Newtonsoft.Json": "[13.0.1, )",
+          "YamlDotNet": "[11.2.1, )"
         }
       },
       "omnius.lxna.components": {
         "type": "Project",
         "dependencies": {
-          "LiteDB": "5.0.11",
-          "Magick.NET-Q16-AnyCPU": "10.0.0",
-          "NLog": "4.7.15",
-          "Omnius.Core": "0.0.1-alpha.1",
-          "Omnius.Core.Collections": "0.0.1-alpha.1",
-          "Omnius.Core.Cryptography": "0.0.1-alpha.1",
-          "Omnius.Core.Net": "0.0.1-alpha.1",
-          "Omnius.Core.RocketPack": "0.0.1-alpha.1",
-          "Omnius.Core.Serialization": "0.0.1-alpha.1",
-          "Omnius.Core.Streams": "0.0.1-alpha.1",
-          "SharpCompress": "0.30.1",
-          "SixLabors.ImageSharp": "2.0.0"
+          "LiteDB": "[5.0.11, )",
+          "Magick.NET-Q16-AnyCPU": "[10.0.0, )",
+          "NLog": "[4.7.15, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Cryptography": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Net": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Streams": "[0.0.1-alpha.1, )",
+          "SharpCompress": "[0.32.2, )",
+          "SixLabors.ImageSharp": "[2.0.0, )"
         }
       }
     }

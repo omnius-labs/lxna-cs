@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <LangVersion>preview</LangVersion>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
@@ -30,7 +30,7 @@
     <PackageProjectUrl>https://github.com/omnius-labs/lxna</PackageProjectUrl>
     <RepositoryUrl>https://github.com/omnius-labs/lxna</RepositoryUrl>
     <PackageTags>Lxna</PackageTags>
-    <Copyright>Copyright (c) 2019 Lyrise</Copyright>
+    <Copyright>Copyright (c) 2023 Lyrise</Copyright>
     <RepositoryType>git</RepositoryType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

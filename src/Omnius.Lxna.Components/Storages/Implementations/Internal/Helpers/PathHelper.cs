@@ -21,18 +21,18 @@ internal static unsafe class PathHelper
         return path.Replace(@"\", "/");
     }
 
-    public static bool IsCurrentDirectory(string currentDirectoryPath, string targetPath)
+    public static bool IsParentDirectory(string parentDirPath, string targetPath)
     {
-        var dirSpan = currentDirectoryPath.AsSpan().TrimEnd('/');
+        var parentDirSpan = parentDirPath.AsSpan().TrimEnd('/');
         var targetSpan = targetPath.AsSpan().TrimEnd('/');
 
-        if ((dirSpan.Length + 1) > targetSpan.Length) return false;
+        if ((parentDirSpan.Length + 1) > targetSpan.Length) return false;
 
-        if (dirSpan.Length > 0)
+        if (parentDirSpan.Length > 0)
         {
-            if (!targetSpan.StartsWith(dirSpan) || targetPath[dirSpan.Length] != '/') return false;
+            if (!targetSpan.StartsWith(parentDirSpan) || targetPath[parentDirSpan.Length] != '/') return false;
 
-            targetSpan = targetSpan[(dirSpan.Length + 1)..];
+            targetSpan = targetSpan[(parentDirSpan.Length + 1)..];
         }
 
         return !targetSpan.Contains('/');

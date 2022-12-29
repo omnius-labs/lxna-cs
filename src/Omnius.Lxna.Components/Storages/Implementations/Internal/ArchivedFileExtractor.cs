@@ -147,7 +147,7 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
 
         foreach (var dirPath in _dirSet)
         {
-            if (PathHelper.IsCurrentDirectory(path, dirPath))
+            if (PathHelper.IsParentDirectory(path, dirPath))
             {
                 results.Add(Path.GetFileName(dirPath));
             }
@@ -162,7 +162,7 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
 
         foreach (var filePath in _fileEntryMap.Keys)
         {
-            if (PathHelper.IsCurrentDirectory(path, filePath))
+            if (PathHelper.IsParentDirectory(path, filePath))
             {
                 results.Add(Path.GetFileName(filePath));
             }
