@@ -14,7 +14,9 @@
         <StyleInclude Source="avares://Avalonia.Themes.Fluent/Controls/TitleBar.xaml"/>
         <StyleInclude Source="avares://Avalonia.Themes.Fluent/Controls/CaptionButtons.xaml"/>
         <StyleInclude Source="avares://AvaloniaProgressRing/Styles/ProgressRing.xaml"/>
-        <StyleInclude Source="/Styles/Base.xaml"/>
+        <StyleInclude Source="/Styles/Base.xaml"
+        />
         <StyleInclude Source="/Styles/SideBar.xaml" />
+        <StyleInclude Source="/Styles/OptionMenu.xaml" />
     </Application.Styles>
 </Application>

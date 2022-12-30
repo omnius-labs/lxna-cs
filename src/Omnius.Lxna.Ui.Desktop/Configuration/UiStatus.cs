@@ -9,12 +9,10 @@ public sealed class UiStatus
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     public int Version { get; init; }
-
     public MainWindowStatus? MainWindow { get; set; }
-
-    public FileExplorerViewStatus? FileExplorerView { get; set; }
-
+    public ExplorerViewStatus? ExplorerView { get; set; }
     public PicturePreviewWindowStatus? PicturePreview { get; set; }
+    public SettingsWindowStatus? SettingsWindow { get; set; }
 
     public static async ValueTask<UiStatus> LoadAsync(string configPath)
     {
@@ -45,7 +43,7 @@ public sealed class MainWindowStatus : BindableBase
 {
 }
 
-public sealed class FileExplorerViewStatus : BindableBase
+public sealed class ExplorerViewStatus : BindableBase
 {
     private double _treeViewWidth;
 
@@ -57,5 +55,9 @@ public sealed class FileExplorerViewStatus : BindableBase
 }
 
 public sealed class PicturePreviewWindowStatus : BindableBase
+{
+}
+
+public sealed class SettingsWindowStatus
 {
 }

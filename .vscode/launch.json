@@ -2,13 +2,24 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "design-ui-desktop (win)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "design-build",
+            "program": "${workspaceFolder}/tmp/bin/win-vscode-design/Omnius.Lxna.Ui.Desktop/Debug/net7.0/Omnius.Lxna.Ui.Desktop.dll",
+            "cwd": "${workspaceFolder}/demo",
+            "args": ["-d", "Main"],
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
             "name": "ui-desktop (Win)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/tmp/bin/win-vscode/Omnius.Lxna.Ui.Desktop/Debug/net6.0/Omnius.Lxna.Ui.Desktop.dll",
+            "program": "${workspaceFolder}/tmp/bin/win-vscode/Omnius.Lxna.Ui.Desktop/Debug/net7.0/Omnius.Lxna.Ui.Desktop.dll",
             "args": ["-s", "./storage", "-v", "true"],
-            "cwd": "${workspaceFolder}/demo/ui-desktop",
+            "cwd": "${workspaceFolder}/demo",
             "stopAtEntry": false,
             "console": "internalConsole"
         }

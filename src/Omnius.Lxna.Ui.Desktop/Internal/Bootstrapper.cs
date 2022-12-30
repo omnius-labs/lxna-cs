@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
+using Omnius.Axis.Ui.Desktop.Windows.Dialogs.PicturePreview;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
@@ -53,6 +53,7 @@ public partial class Bootstrapper : AsyncDisposableBase
 
             var serviceCollection = new ServiceCollection();
 
+            serviceCollection.AddSingleton(_lxnaEnvironment);
             serviceCollection.AddSingleton<IBytesPool>(bytesPool);
             serviceCollection.AddSingleton(uiStatus);
             serviceCollection.AddSingleton<IStorage>(storage);
@@ -66,20 +67,18 @@ public partial class Bootstrapper : AsyncDisposableBase
             serviceCollection.AddSingleton<IDialogService, DialogService>();
 
             serviceCollection.AddTransient<MainWindowModel>();
-            serviceCollection.AddTransient<FileExplorerViewModel>();
+            serviceCollection.AddTransient<ExplorerViewModel>();
             serviceCollection.AddTransient<PicturePreviewWindowModel>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }
         catch (OperationCanceledException e)
         {
-            _logger.Debug(e);
-
-            throw;
+            _logger.Debug(e, "Operation Canceled");
         }
         catch (Exception e)
         {
-            _logger.Error(e);
+            _logger.Error(e, "Unexpected Exception");
 
             throw;
         }

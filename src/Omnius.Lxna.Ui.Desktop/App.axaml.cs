@@ -20,11 +20,8 @@ public class App : Application
 
     public override void Initialize()
     {
-        if (!this.IsDesignMode)
-        {
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler((_, e) => _logger.Error(e));
-            this.ApplicationLifetime!.Exit += (_, _) => this.Exit();
-        }
+        AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler((_, e) => _logger.Error(e));
+        this.ApplicationLifetime!.Exit += (_, _) => this.Exit();
 
         AvaloniaXamlLoader.Load(this);
     }
@@ -40,17 +37,7 @@ public class App : Application
 
     public new IClassicDesktopStyleApplicationLifetime? ApplicationLifetime => base.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
 
-    public MainWindow? MainWindow
-    {
-        get => this.ApplicationLifetime?.MainWindow as MainWindow;
-        set
-        {
-            if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifeTime)
-            {
-                lifeTime.MainWindow = value;
-            }
-        }
-    }
+    public MainWindow? MainWindow => this.ApplicationLifetime?.MainWindow as MainWindow;
 
     public bool IsDesignMode
     {
@@ -66,18 +53,65 @@ public class App : Application
 
     private void Startup()
     {
-        var parsedResult = CommandLine.Parser.Default.ParseArguments<Options>(Environment.GetCommandLineArgs());
-        parsedResult = parsedResult.WithParsed(this.Run);
-        parsedResult.WithNotParsed(this.HandleParseError);
+        if (this.IsDesignMode)
+        {
+            var parsedResult = CommandLine.Parser.Default.ParseArguments<DesignModeArgs>(Environment.GetCommandLineArgs());
+            parsedResult.WithParsed(this.OnDesignModeArgsParsed);
+        }
+        else
+        {
+            var parsedResult = CommandLine.Parser.Default.ParseArguments<NormalModeArgs>(Environment.GetCommandLineArgs());
+            parsedResult.WithParsed(this.OnNormalModeArgsParsed);
+        }
     }
 
-    private async void Run(Options options)
+    public class DesignModeArgs
+    {
+        [Option('d', "design")]
+        public string DesignTargetName { get; set; } = "Main";
+    }
+
+    private async void OnDesignModeArgsParsed(DesignModeArgs args)
+    {
+        if (this.IsDesignMode)
+        {
+            if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifeTime)
+            {
+                switch (args.DesignTargetName)
+                {
+                    case "Main":
+                        var mainWindow = new MainWindow();
+                        mainWindow.ViewModel = new MainWindowDesignModel();
+                        lifeTime.MainWindow = mainWindow;
+                        break;
+                }
+            }
+
+            return;
+        }
+    }
+
+    public class NormalModeArgs
+    {
+        [Option('s', "storage")]
+        public string StorageDirectoryPath { get; set; } = "../storage";
+
+        [Option('v', "verbose")]
+        public bool Verbose { get; set; } = false;
+    }
+
+    private async void OnNormalModeArgsParsed(NormalModeArgs options)
     {
         try
         {
             DirectoryHelper.CreateDirectory(options.StorageDirectoryPath);
 
-            var lxnaEnvironment = new LxnaEnvironment(options.StorageDirectoryPath, Path.Combine(options.StorageDirectoryPath, "db"), Path.Combine(options.StorageDirectoryPath, "logs"));
+            var lxnaEnvironment = new LxnaEnvironment()
+            {
+                StorageDirectoryPath = options.StorageDirectoryPath,
+                DatabaseDirectoryPath = Path.Combine(options.StorageDirectoryPath, "db"),
+                LogsDirectoryPath = Path.Combine(options.StorageDirectoryPath, "logs"),
+            };
 
             DirectoryHelper.CreateDirectory(lxnaEnvironment.DatabaseDirectoryPath);
             DirectoryHelper.CreateDirectory(lxnaEnvironment.LogsDirectoryPath);
@@ -86,31 +120,26 @@ public class App : Application
 
             if (options.Verbose) ChangeLogLevel(NLog.LogLevel.Trace);
 
-            _lockFileStream = new FileStream(Path.Combine(lxnaEnvironment.StorageDirectoryPath, "lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose);
+            _lockFileStream = new FileStream(Path.Combine(options.StorageDirectoryPath, "lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose);
 
             _logger.Info("Starting...");
             _logger.Info("AssemblyInformationalVersion: {0}", Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion);
 
-            this.MainWindow = new MainWindow(Path.Combine(lxnaEnvironment.DatabaseDirectoryPath, "windows", "main"));
+            var mainWindow = new MainWindow(Path.Combine(lxnaEnvironment.DatabaseDirectoryPath, "windows", "main"));
+
+            if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
+            {
+                lifetime.MainWindow = mainWindow;
+            }
 
             await Bootstrapper.Instance.BuildAsync(lxnaEnvironment);
 
             var serviceProvider = Bootstrapper.Instance.GetServiceProvider();
-            var viewModel = serviceProvider.GetRequiredService<MainWindowModel>();
-
-            this.MainWindow!.ViewModel = viewModel;
+            mainWindow.ViewModel = serviceProvider.GetRequiredService<MainWindowModel>();
         }
         catch (Exception e)
         {
             _logger.Error(e, "Unexpected Exception");
-        }
-    }
-
-    private void HandleParseError(IEnumerable<Error> errs)
-    {
-        foreach (var err in errs)
-        {
-            _logger.Error(err);
         }
     }
 

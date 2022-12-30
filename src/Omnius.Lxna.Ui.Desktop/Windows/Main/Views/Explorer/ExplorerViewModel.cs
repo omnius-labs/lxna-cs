@@ -17,9 +17,9 @@ using Reactive.Bindings.Extensions;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
-public abstract class FileExplorerViewModelBase : AsyncDisposableBase
+public abstract class ExplorerViewModelBase : AsyncDisposableBase
 {
-    public FileExplorerViewStatus? Status { get; protected set; }
+    public ExplorerViewStatus? Status { get; protected set; }
 
     public ReadOnlyReactivePropertySlim<bool>? IsWaiting { get; protected set; }
 
@@ -37,7 +37,7 @@ public abstract class FileExplorerViewModelBase : AsyncDisposableBase
 
     public ReactivePropertySlim<int>? ThumbnailHeight { get; protected set; }
 
-    public abstract void SetViewCommands(IFileExplorerViewCommands commands);
+    public abstract void SetViewCommands(IExplorerViewCommands commands);
 
     public abstract void NotifyTreeNodeTapped(object item);
 
@@ -48,7 +48,7 @@ public abstract class FileExplorerViewModelBase : AsyncDisposableBase
     public abstract void NotifyThumbnailClearing(object item);
 }
 
-public class FileExplorerViewModel : FileExplorerViewModelBase
+public class ExplorerViewModel : ExplorerViewModelBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -57,7 +57,7 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
     private readonly IApplicationDispatcher _applicationDispatcher;
     private readonly IDialogService _dialogService;
 
-    private IFileExplorerViewCommands? _commands;
+    private IExplorerViewCommands? _commands;
 
     private readonly ObservableCollection<IThumbnail<object>> _thumbnails = new();
     private NestedPath? _wantSelectingLogicalPath = null;
@@ -71,14 +71,14 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
 
     private readonly CompositeDisposable _disposable = new();
 
-    public FileExplorerViewModel(UiStatus uiStatus, IStorage storage, IThumbnailsViewer thumbnailsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
+    public ExplorerViewModel(UiStatus uiStatus, IStorage storage, IThumbnailsViewer thumbnailsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
     {
         _storage = storage;
         _thumbnailsViewer = thumbnailsViewer;
         _applicationDispatcher = applicationDispatcher;
         _dialogService = dialogService;
 
-        this.Status = uiStatus.FileExplorerView ??= new FileExplorerViewStatus();
+        this.Status = uiStatus.ExplorerView ??= new ExplorerViewStatus();
 
         _isBusy = new ReactivePropertySlim<bool>(false).AddTo(_disposable);
         this.IsWaiting = _isBusy.DelayWhen(TimeSpan.FromMilliseconds(500), n => n).ToReadOnlyReactivePropertySlim().AddTo(_disposable);
@@ -116,7 +116,7 @@ public class FileExplorerViewModel : FileExplorerViewModelBase
         await _thumbnailsViewer.DisposeAsync();
     }
 
-    public override void SetViewCommands(IFileExplorerViewCommands commands)
+    public override void SetViewCommands(IExplorerViewCommands commands)
     {
         _commands = commands;
     }

@@ -5,18 +5,18 @@ using Omnius.Core.Avalonia;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
-public interface IFileExplorerViewCommands
+public interface IExplorerViewCommands
 {
     void ThumbnailsScrollToTop();
 }
 
-public class FileExplorerView : StatefulUserControl<FileExplorerViewModelBase>, IFileExplorerViewCommands
+public class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, IExplorerViewCommands
 {
     private readonly ItemsRepeater _treeNodesRepeater;
     private readonly ScrollViewer _thumbnailsViewer;
     private readonly ItemsRepeater _thumbnailsRepeater;
 
-    public FileExplorerView()
+    public ExplorerView()
     {
         this.InitializeComponent();
 
@@ -41,7 +41,7 @@ public class FileExplorerView : StatefulUserControl<FileExplorerViewModelBase>, 
         _thumbnailsViewer.ScrollToHome();
     }
 
-    private void OnViewModelChanged(FileExplorerViewModelBase? viewModel)
+    private void OnViewModelChanged(ExplorerViewModelBase? viewModel)
     {
         viewModel?.SetViewCommands(this);
     }

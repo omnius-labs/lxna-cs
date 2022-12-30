@@ -1,8 +1,9 @@
 using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
-using Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
+using Omnius.Axis.Ui.Desktop.Windows.Dialogs.PicturePreview;
 using Omnius.Core.Avalonia;
 using Omnius.Lxna.Components.Storages;
+using Omnius.Lxna.Ui.Desktop.Configuration;
 
 namespace Omnius.Lxna.Ui.Desktop.Internal;
 
@@ -15,12 +16,14 @@ public interface IDialogService
 
 public class DialogService : IDialogService
 {
+    private readonly LxnaEnvironment _lxnaEnvironment;
     private readonly IApplicationDispatcher _applicationDispatcher;
     private readonly IMainWindowProvider _mainWindowProvider;
     private readonly IClipboardService _clipboardService;
 
-    public DialogService(IApplicationDispatcher applicationDispatcher, IMainWindowProvider mainWindowProvider, IClipboardService clipboardService)
+    public DialogService(LxnaEnvironment lxnaEnvironment, IApplicationDispatcher applicationDispatcher, IMainWindowProvider mainWindowProvider, IClipboardService clipboardService)
     {
+        _lxnaEnvironment = lxnaEnvironment;
         _applicationDispatcher = applicationDispatcher;
         _mainWindowProvider = mainWindowProvider;
         _clipboardService = clipboardService;
@@ -41,7 +44,7 @@ public class DialogService : IDialogService
     {
         await _applicationDispatcher.InvokeAsync(async () =>
         {
-            var window = new PicturePreviewWindow();
+            var window = new PicturePreviewWindow(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "windows", "picture_preview"));
             var serviceProvider = Bootstrapper.Instance.GetServiceProvider();
 
             var viewModel = serviceProvider.GetRequiredService<PicturePreviewWindowModel>();

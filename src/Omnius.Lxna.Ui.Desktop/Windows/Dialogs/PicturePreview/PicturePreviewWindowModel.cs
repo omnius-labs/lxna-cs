@@ -5,7 +5,7 @@ using Omnius.Lxna.Ui.Desktop.Configuration;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
+namespace Omnius.Axis.Ui.Desktop.Windows.Dialogs.PicturePreview;
 
 public abstract class PicturePreviewWindowModelBase : AsyncDisposableBase
 {

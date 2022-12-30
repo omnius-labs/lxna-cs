@@ -6,6 +6,7 @@
         "Lxna",
         "Magick",
         "Omnius",
+        "Reconfig",
         "rpfs"
     ]
 }

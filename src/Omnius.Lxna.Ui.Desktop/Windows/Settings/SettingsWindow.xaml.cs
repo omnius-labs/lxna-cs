@@ -2,17 +2,17 @@ using Avalonia;
 using Avalonia.Markup.Xaml;
 using Omnius.Core.Avalonia;
 
-namespace Omnius.Axis.Ui.Desktop.Windows.PicturePreview;
+namespace Omnius.Lxna.Ui.Desktop.Windows.Settings;
 
-public partial class PicturePreviewWindow : StatefulWindowBase<PicturePreviewWindowModelBase>
+public class SettingsWindow : StatefulWindowBase<SettingsWindowModelBase>
 {
-    public PicturePreviewWindow()
+    public SettingsWindow()
         : base()
     {
         this.InitializeComponent();
     }
 
-    public PicturePreviewWindow(string configDirectoryPath)
+    public SettingsWindow(string configDirectoryPath)
         : base(configDirectoryPath)
     {
         this.InitializeComponent();
