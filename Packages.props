@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <PackageReference Update="Avalonia.Controls.DataGrid" Version="0.10.12" />
-    <PackageReference Update="Avalonia.Desktop" Version="0.10.12" />
-    <PackageReference Update="Avalonia.Diagnostics" Version="0.10.12" />
-    <PackageReference Update="Avalonia.Skia" Version="0.10.12" />
-    <PackageReference Update="Avalonia.Svg.Skia" Version="0.10.12" />
-    <PackageReference Update="Avalonia.Xaml.Behaviors" Version="0.10.12" />
-    <PackageReference Update="Avalonia.Xaml.Interactions" Version="0.10.12" />
-    <PackageReference Update="Avalonia.Xaml.Interactivity" Version="0.10.12" />
-    <PackageReference Update="Avalonia" Version="0.10.12" />
+    <PackageReference Update="Avalonia.Controls.DataGrid" Version="0.10.18" />
+    <PackageReference Update="Avalonia.Desktop" Version="0.10.18" />
+    <PackageReference Update="Avalonia.Diagnostics" Version="0.10.18" />
+    <PackageReference Update="Avalonia.Skia" Version="0.10.18" />
+    <PackageReference Update="Avalonia.Svg.Skia" Version="0.10.18" />
+    <PackageReference Update="Avalonia.Xaml.Behaviors" Version="0.10.18" />
+    <PackageReference Update="Avalonia.Xaml.Interactions" Version="0.10.18" />
+    <PackageReference Update="Avalonia.Xaml.Interactivity" Version="0.10.18" />
+    <PackageReference Update="Avalonia" Version="0.10.18" />
     <PackageReference Update="Cocona.Lite" Version="2.1.0" />
     <PackageReference Update="CommandLineParser" Version="2.8.0" />
     <PackageReference Update="Deadpikle.AvaloniaProgressRing" Version="0.9.8" />

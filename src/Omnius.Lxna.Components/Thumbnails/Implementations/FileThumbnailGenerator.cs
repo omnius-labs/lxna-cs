@@ -72,11 +72,11 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
 
     private async ValueTask<FileThumbnailResult> GetThumbnailFromCacheAsync(IFile file, FileThumbnailOptions options, CancellationToken cancellationToken = default)
     {
-        var cache = await _thumbnailGeneratorRepository.ThumbnailCaches.FindOneAsync(file.LogicalPath, options.Width, options.Height, options.ResizeType, options.FormatType);
+        var cache = await _thumbnailGeneratorRepository.ThumbnailCaches.FindOneAsync(file.LogicalPath, options.Width, options.Height, options.ResizeType, options.FormatType).ConfigureAwait(false);
         if (cache is null) return new FileThumbnailResult(FileThumbnailResultStatus.Failed);
 
-        var fileLength = await file.GetLengthAsync(cancellationToken);
-        var fileLastWriteTime = await file.GetLastWriteTimeAsync(cancellationToken);
+        var fileLength = await file.GetLengthAsync(cancellationToken).ConfigureAwait(false);
+        var fileLastWriteTime = await file.GetLastWriteTimeAsync(cancellationToken).ConfigureAwait(false);
 
         if ((ulong)fileLength != cache.FileMeta.Length && Timestamp64.FromDateTime(fileLastWriteTime) != cache.FileMeta.LastWriteTime)
         {
@@ -93,13 +93,13 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
 
         try
         {
-            var fileLength = await file.GetLengthAsync(cancellationToken);
-            var fileLastWriteTime = await file.GetLastWriteTimeAsync(cancellationToken);
+            var fileLength = await file.GetLengthAsync(cancellationToken).ConfigureAwait(false);
+            var fileLastWriteTime = await file.GetLastWriteTimeAsync(cancellationToken).ConfigureAwait(false);
 
-            using (var inStream = await file.GetStreamAsync(cancellationToken))
+            using (var inStream = await file.GetStreamAsync(cancellationToken).ConfigureAwait(false))
             using (var outStream = new RecyclableMemoryStream(_bytesPool))
             {
-                this.ConvertImage(inStream, outStream, options.Width, options.Height, options.ResizeType, options.FormatType);
+                await this.ConvertImageAsync(inStream, outStream, options.Width, options.Height, options.ResizeType, options.FormatType).ConfigureAwait(false);
                 outStream.Seek(0, SeekOrigin.Begin);
 
                 var image = outStream.ToMemoryOwner();
@@ -109,7 +109,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
                 var content = new ThumbnailContent(image);
                 var cache = new ThumbnailCache(fileMeta, thumbnailMeta, new[] { content });
 
-                await _thumbnailGeneratorRepository.ThumbnailCaches.InsertAsync(cache);
+                await _thumbnailGeneratorRepository.ThumbnailCaches.InsertAsync(cache).ConfigureAwait(false);
 
                 return new FileThumbnailResult(FileThumbnailResultStatus.Succeeded, cache.Contents);
             }
@@ -137,8 +137,8 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
 
         try
         {
-            var fileLength = await file.GetLengthAsync(cancellationToken);
-            var fileLastWriteTime = await file.GetLastWriteTimeAsync(cancellationToken);
+            var fileLength = await file.GetLengthAsync(cancellationToken).ConfigureAwait(false);
+            var fileLastWriteTime = await file.GetLastWriteTimeAsync(cancellationToken).ConfigureAwait(false);
 
             var images = await this.GetMovieImagesAsync(file, options.MinInterval, options.MaxImageCount, options.Width, options.Height, options.ResizeType, options.FormatType, cancellationToken).ConfigureAwait(false);
 
@@ -147,7 +147,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
             var contents = images.Select(n => new ThumbnailContent(n)).ToArray();
             var cache = new ThumbnailCache(fileMeta, thumbnailMeta, contents);
 
-            await _thumbnailGeneratorRepository.ThumbnailCaches.InsertAsync(cache);
+            await _thumbnailGeneratorRepository.ThumbnailCaches.InsertAsync(cache).ConfigureAwait(false);
 
             return new FileThumbnailResult(FileThumbnailResultStatus.Succeeded, cache.Contents);
         }
@@ -169,7 +169,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
 
     private async ValueTask<IMemoryOwner<byte>[]> GetMovieImagesAsync(IFile file, TimeSpan minInterval, int maxImageCount, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, CancellationToken cancellationToken = default)
     {
-        var physicalFilePath = await file.GetPhysicalPathAsync(cancellationToken);
+        var physicalFilePath = await file.GetPhysicalPathAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
@@ -179,15 +179,17 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
 
             var resultMap = new ConcurrentDictionary<int, IMemoryOwner<byte>>();
 
-            await Enumerable.Range(1, imageCount)
+            var seekSecs = Enumerable.Range(1, imageCount)
                 .Select(x => x * intervalSeconds)
                 .Where(seekSec => (duration.TotalSeconds - seekSec) > 1) // 残り1秒以下の場合は除外
-                .ForEachAsync(
-                    async seekSec =>
-                    {
-                        var ret = await this.GetMovieImagesAsync(physicalFilePath, seekSec, width, height, resizeType, formatType, cancellationToken);
-                        resultMap.TryAdd(ret.SeekSec, ret.MemoryOwner);
-                    }, (int)_concurrency, cancellationToken).ConfigureAwait(false);
+                .ToList();
+            var parallelOptions = new ParallelOptions() { CancellationToken = cancellationToken, MaxDegreeOfParallelism = _concurrency };
+
+            await Parallel.ForEachAsync(seekSecs, parallelOptions, async (seekSec, _) =>
+            {
+                var ret = await this.GetMovieImagesAsync(physicalFilePath, seekSec, width, height, resizeType, formatType, cancellationToken).ConfigureAwait(false);
+                resultMap.TryAdd(ret.SeekSec, ret.MemoryOwner);
+            }).ConfigureAwait(false);
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -204,7 +206,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
             _logger.Warn(e);
         }
 
-        var ret = await this.GetMovieImageAsync(physicalFilePath, width, height, resizeType, formatType, cancellationToken);
+        var ret = await this.GetMovieImageAsync(physicalFilePath, width, height, resizeType, formatType, cancellationToken).ConfigureAwait(false);
         return new[] { ret };
     }
 
@@ -250,11 +252,11 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
         using var inStream = new RecyclableMemoryStream(_bytesPool);
         using var outStream = new RecyclableMemoryStream(_bytesPool);
 
-        await baseStream.CopyToAsync(inStream, cancellationToken);
+        await baseStream.CopyToAsync(inStream, cancellationToken).ConfigureAwait(false);
         inStream.Seek(0, SeekOrigin.Begin);
-        await process.WaitForExitAsync(cancellationToken);
+        await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
-        this.ConvertImage(inStream, outStream, width, height, resizeType, formatType);
+        await this.ConvertImageAsync(inStream, outStream, width, height, resizeType, formatType).ConfigureAwait(false);
 
         return (seekSec, outStream.ToMemoryOwner());
     }
@@ -277,20 +279,20 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
         using var inStream = new RecyclableMemoryStream(_bytesPool);
         using var outStream = new RecyclableMemoryStream(_bytesPool);
 
-        await baseStream.CopyToAsync(inStream, cancellationToken);
+        await baseStream.CopyToAsync(inStream, cancellationToken).ConfigureAwait(false);
         inStream.Seek(0, SeekOrigin.Begin);
-        await process.WaitForExitAsync(cancellationToken);
+        await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
-        this.ConvertImage(inStream, outStream, width, height, resizeType, formatType);
+        await this.ConvertImageAsync(inStream, outStream, width, height, resizeType, formatType).ConfigureAwait(false);
 
         return outStream.ToMemoryOwner();
     }
 
-    private void ConvertImage(Stream inStream, Stream outStream, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
+    private async ValueTask ConvertImageAsync(Stream inStream, Stream outStream, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, CancellationToken cancellationToken = default)
     {
         try
         {
-            this.InternalImageSharpConvertImage(inStream, outStream, width, height, resizeType, formatType);
+            await this.InternalImageSharpConvertImageAsync(inStream, outStream, width, height, resizeType, formatType, cancellationToken);
         }
         catch (SixLabors.ImageSharp.ImageFormatException)
         {
@@ -298,20 +300,20 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
 
             using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
             {
-                this.InternalMagickImageConvertImage(inStream, bitmapStream);
+                await this.InternalMagickImageConvertImageAsync(inStream, bitmapStream, cancellationToken);
                 bitmapStream.Seek(0, SeekOrigin.Begin);
 
-                this.InternalImageSharpConvertImage(bitmapStream, outStream, width, height, resizeType, formatType);
+                await this.InternalImageSharpConvertImageAsync(bitmapStream, outStream, width, height, resizeType, formatType, cancellationToken);
             }
         }
     }
 
-    private void InternalMagickImageConvertImage(Stream inStream, Stream outStream)
+    private async ValueTask InternalMagickImageConvertImageAsync(Stream inStream, Stream outStream, CancellationToken cancellationToken = default)
     {
         try
         {
             using var magickImage = new MagickImage(inStream, MagickFormat.Unknown);
-            magickImage.Write(outStream, MagickFormat.Png32);
+            await magickImage.WriteAsync(outStream, MagickFormat.Png32, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -319,7 +321,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
         }
     }
 
-    private void InternalImageSharpConvertImage(Stream inStream, Stream outStream, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
+    private async ValueTask InternalImageSharpConvertImageAsync(Stream inStream, Stream outStream, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, CancellationToken cancellationToken = default)
     {
         using var image = SixLabors.ImageSharp.Image.Load(inStream);
         image.Mutate(x =>
@@ -342,7 +344,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
         if (formatType == ThumbnailFormatType.Png)
         {
             var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
-            image.Save(outStream, encoder);
+            await image.SaveAsync(outStream, encoder, cancellationToken).ConfigureAwait(false);
             return;
         }
 

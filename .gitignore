@@ -2,7 +2,7 @@
 tmp/
 pub/
 patch.txt
-demo/*/storage/
+demo/*
 
 # Documents
 docs/*/.asciidoctor

@@ -53,7 +53,7 @@ internal sealed class LocalFile : IFile
 
     public async ValueTask<Stream> GetStreamAsync(CancellationToken cancellationToken = default)
     {
-        return new FileStream(_physicalPath, FileMode.Open);
+        return new FileStream(_physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read, 0, FileOptions.None);
     }
 
     public async ValueTask<string> GetPhysicalPathAsync(CancellationToken cancellationToken = default)
