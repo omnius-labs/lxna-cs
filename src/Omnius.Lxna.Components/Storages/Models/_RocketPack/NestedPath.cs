@@ -6,11 +6,7 @@ namespace Omnius.Lxna.Components.Storages.Models;
 
 public readonly partial struct NestedPath : IComparable<NestedPath>
 {
-    public NestedPath(string path) : this(new[] { new Utf8String(path) })
-    {
-    }
-
-    public NestedPath(string[] values) : this(values.Select(n => new Utf8String(n)).ToArray())
+    public NestedPath(params string[] values) : this(values.Select(path => new Utf8String(PathHelper.Normalize(path))).ToArray())
     {
     }
 
@@ -48,4 +44,6 @@ public readonly partial struct NestedPath : IComparable<NestedPath>
         var lastPath = PathHelper.Combine(originalPath.GetLastPath(), relativePath);
         return new NestedPath(originalPath.Values[..^1].Append(new Utf8String(lastPath)).ToArray());
     }
+
+    public override string ToString() => string.Join('\n', this.Values.Select(n => string.Format($"\"{n}\"")));
 }

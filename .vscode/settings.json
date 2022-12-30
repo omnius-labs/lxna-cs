@@ -2,11 +2,13 @@
     "cSpell.words": [
         "Avalonia",
         "Bootstrapper",
+        "deleter",
         "Interactors",
         "Lxna",
         "Magick",
         "Omnius",
         "Reconfig",
-        "rpfs"
+        "rpfs",
+        "Xunit"
     ]
 }

@@ -178,7 +178,15 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
 
             if (model is Thumbnail<IDirectory> dirThumbnail)
             {
-                var options = new DirectoryThumbnailOptions(width, height, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 10);
+                var options = new DirectoryThumbnailOptions
+                {
+                    Width = width,
+                    Height = height,
+                    FormatType = ThumbnailFormatType.Png,
+                    ResizeType = ThumbnailResizeType.Pad,
+                    MinInterval = TimeSpan.FromSeconds(5),
+                    MaxImageCount = 10
+                };
                 var result = await _directoryThumbnailGenerator.GenerateAsync(dirThumbnail.Target, options, cacheOnly, cancellationToken).ConfigureAwait(false);
 
                 if (result.Status == DirectoryThumbnailResultStatus.Succeeded)
@@ -191,7 +199,15 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
             }
             else if (model is Thumbnail<IFile> fileThumbnail)
             {
-                var options = new FileThumbnailOptions(width, height, ThumbnailFormatType.Png, ThumbnailResizeType.Pad, TimeSpan.FromSeconds(5), 10);
+                var options = new FileThumbnailOptions
+                {
+                    Width = width,
+                    Height = height,
+                    FormatType = ThumbnailFormatType.Png,
+                    ResizeType = ThumbnailResizeType.Pad,
+                    MinInterval = TimeSpan.FromSeconds(5),
+                    MaxImageCount = 10
+                };
                 var result = await _fileThumbnailGenerator.GenerateAsync(fileThumbnail.Target, options, cacheOnly, cancellationToken).ConfigureAwait(false);
 
                 if (result.Status == FileThumbnailResultStatus.Succeeded)

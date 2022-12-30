@@ -1,6 +1,5 @@
 using ImageMagick;
 using Omnius.Core;
-using Omnius.Core.Serialization;
 using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Storages;
 using Omnius.Lxna.Components.Thumbnails.Models;
@@ -15,10 +14,6 @@ public sealed class DirectoryThumbnailGenerator : AsyncDisposableBase, IDirector
     private readonly IBytesPool _bytesPool;
     private readonly string _configDirectoryPath;
     private readonly int _concurrency;
-
-    private static readonly HashSet<string> _extensionSet = new HashSet<string>() { ".bmp", ".jpg", ".jpeg", ".png", ".gif", ".heic" };
-
-    private static readonly Base16 _base16 = new Base16(ConvertStringCase.Lower);
 
     public static async ValueTask<DirectoryThumbnailGenerator> CreateAsync(IBytesPool bytesPool, DirectoryThumbnailGeneratorOptions options, CancellationToken cancellationToken = default)
     {
@@ -55,7 +50,7 @@ public sealed class DirectoryThumbnailGenerator : AsyncDisposableBase, IDirector
             using (var inStream = new FileStream(Path.Combine(basePath, "Assets/directory.svg"), FileMode.Open))
             using (var outStream = new RecyclableMemoryStream(_bytesPool))
             {
-                this.ConvertImage(inStream, outStream, options.Width, options.Height, options.ResizeType, options.FormatType);
+                this.ConvertImage(inStream, outStream, Math.Min(32, options.Width), Math.Min(32, options.Height), options.ResizeType, options.FormatType);
                 outStream.Seek(0, SeekOrigin.Begin);
 
                 var image = outStream.ToMemoryOwner();

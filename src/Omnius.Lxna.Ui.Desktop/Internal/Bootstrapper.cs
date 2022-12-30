@@ -42,13 +42,21 @@ public partial class Bootstrapper : AsyncDisposableBase
 
             var uiStatus = await UiStatus.LoadAsync(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, UI_STATUS_FILE_NAME));
 
-            var storageOptions = new LxnaStorageOptions(tempDirectoryPath);
+            var storageOptions = new LxnaStorageOptions { TempDirectoryPath = tempDirectoryPath };
             var storage = await LxnaStorage.CreateAsync(bytesPool, storageOptions, cancellationToken);
 
-            var directoryThumbnailGeneratorOptions = new DirectoryThumbnailGeneratorOptions(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "directory_thumbnail_generator"), Math.Max(2, Environment.ProcessorCount / 2));
+            var directoryThumbnailGeneratorOptions = new DirectoryThumbnailGeneratorOptions
+            {
+                ConfigDirectoryPath = Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "directory_thumbnail_generator"),
+                Concurrency = Math.Max(2, Environment.ProcessorCount / 2),
+            };
             var directoryThumbnailGenerator = await DirectoryThumbnailGenerator.CreateAsync(bytesPool, directoryThumbnailGeneratorOptions, cancellationToken);
 
-            var fileThumbnailGeneratorOptions = new FileThumbnailGeneratorOptions(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "file_thumbnail_generator"), Math.Max(2, Environment.ProcessorCount / 2));
+            var fileThumbnailGeneratorOptions = new FileThumbnailGeneratorOptions
+            {
+                ConfigDirectoryPath = Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "file_thumbnail_generator"),
+                Concurrency = Math.Max(2, Environment.ProcessorCount / 2),
+            };
             var fileThumbnailGenerator = await FileThumbnailGenerator.CreateAsync(bytesPool, fileThumbnailGeneratorOptions, cancellationToken);
 
             var serviceCollection = new ServiceCollection();

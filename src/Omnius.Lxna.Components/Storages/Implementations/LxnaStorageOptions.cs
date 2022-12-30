@@ -2,10 +2,6 @@ namespace Omnius.Lxna.Components.Storages;
 
 public record LxnaStorageOptions
 {
-    public LxnaStorageOptions(string tempDirectoryPath)
-    {
-        this.TempDirectoryPath = tempDirectoryPath;
-    }
-
-    public string TempDirectoryPath { get; }
+    public required string TempDirectoryPath { get; init; }
+    public string? RootDirectoryPath { get; init; }
 }
