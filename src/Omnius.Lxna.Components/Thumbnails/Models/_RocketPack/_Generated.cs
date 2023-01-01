@@ -8,6 +8,14 @@ public enum ThumbnailResizeType : byte
     Pad = 0,
     Crop = 1,
 }
+public enum ThumbnailResizePositionType : byte
+{
+    Center = 0,
+}
+public enum ThumbnailResizeResamplerType : byte
+{
+    Lanczos3 = 0,
+}
 public enum ThumbnailFormatType : byte
 {
     Png = 0,

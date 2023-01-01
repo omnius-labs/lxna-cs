@@ -4,10 +4,12 @@
         "Bootstrapper",
         "deleter",
         "Interactors",
+        "Lanczos",
         "Lxna",
         "Magick",
         "Omnius",
         "Reconfig",
+        "Resampler",
         "rpfs",
         "Xunit"
     ]

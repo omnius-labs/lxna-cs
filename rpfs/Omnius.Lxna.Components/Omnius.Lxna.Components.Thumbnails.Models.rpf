@@ -7,6 +7,14 @@ enum ThumbnailResizeType : uint8 {
     Crop = 1,
 }
 
+enum ThumbnailResizePositionType : uint8 {
+    Center = 0,
+}
+
+enum ThumbnailResizeResamplerType : uint8 {
+    Lanczos3 = 0,
+}
+
 enum ThumbnailFormatType : uint8 {
     Png = 0,
 }

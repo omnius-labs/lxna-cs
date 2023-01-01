@@ -11,6 +11,7 @@ using Omnius.Lxna.Components.Thumbnails.Internal.Common.Models;
 using Omnius.Lxna.Components.Thumbnails.Internal.Common.Repositories;
 using Omnius.Lxna.Components.Thumbnails.Models;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace Omnius.Lxna.Components.Thumbnails;
 
@@ -328,14 +329,15 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
         {
             var resizeOptions = new ResizeOptions
             {
-                Position = AnchorPositionMode.Center,
-                Size = new SixLabors.ImageSharp.Size(width, height),
                 Mode = resizeType switch
                 {
                     ThumbnailResizeType.Pad => ResizeMode.Pad,
                     ThumbnailResizeType.Crop => ResizeMode.Crop,
                     _ => throw new NotSupportedException(),
                 },
+                Position = AnchorPositionMode.Center,
+                Sampler = LanczosResampler.Lanczos3,
+                Size = new SixLabors.ImageSharp.Size(width, height),
             };
 
             x.Resize(resizeOptions);
