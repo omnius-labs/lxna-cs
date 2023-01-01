@@ -1,8 +1,8 @@
 using Omnius.Core;
-using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
 using Omnius.Lxna.Ui.Desktop.Configuration;
 using Omnius.Lxna.Ui.Desktop.Windows.Settings;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 

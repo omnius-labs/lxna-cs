@@ -1,7 +1,7 @@
 using Avalonia.Controls;
-using Omnius.Lxna.Ui.Desktop.Internal;
-using Omnius.Lxna.Ui.Desktop.Configuration;
 using Omnius.Core;
+using Omnius.Lxna.Ui.Desktop.Configuration;
+using Omnius.Lxna.Ui.Desktop.Internal;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
