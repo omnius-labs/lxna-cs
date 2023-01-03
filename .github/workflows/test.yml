@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
       - name: Test
-        run: dotnet test --filter "FullyQualifiedName~Omnius.Lxna"
+        run: dotnet test --no-restore --filter "FullyQualifiedName~Omnius.Lxna"
   windows:
     runs-on: windows-latest
     env:
@@ -48,4 +48,4 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
       - name: Test
-        run: dotnet test --filter "FullyQualifiedName~Omnius.Lxna"
+        run: dotnet test --no-restore --filter "FullyQualifiedName~Omnius.Lxna"
