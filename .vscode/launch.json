@@ -13,12 +13,36 @@
             "stopAtEntry": false
         },
         {
+            "name": "design-ui-desktop (linux)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "design-build",
+            "program": "${workspaceFolder}/tmp/bin/linux-vscode-design/Omnius.Lxna.Ui.Desktop/Debug/net7.0/Omnius.Lxna.Ui.Desktop.dll",
+            "cwd": "${workspaceFolder}/demo",
+            "args": ["-d", "Main"],
+            "envFile": "${workspaceFolder}/.env",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
             "name": "ui-desktop (Win)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/tmp/bin/win-vscode/Omnius.Lxna.Ui.Desktop/Debug/net7.0/Omnius.Lxna.Ui.Desktop.dll",
             "args": ["-s", "./storage", "-v", "true"],
+            "cwd": "${workspaceFolder}/demo",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
+            "name": "ui-desktop (linux)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/tmp/bin/linux-vscode/Omnius.Lxna.Ui.Desktop/Debug/net7.0/Omnius.Lxna.Ui.Desktop.dll",
+            "args": ["-s", "./storage", "-v", "true"],
+            "envFile": "${workspaceFolder}/.env",
             "cwd": "${workspaceFolder}/demo",
             "stopAtEntry": false,
             "console": "internalConsole"
