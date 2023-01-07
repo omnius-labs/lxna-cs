@@ -125,6 +125,11 @@ public class App : Application
             _logger.Info("Starting...");
             _logger.Info("AssemblyInformationalVersion: {0}", Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion);
 
+            if (OperatingSystem.IsLinux())
+            {
+                _logger.Info("AVALONIA_SCREEN_SCALE_FACTORS: {0}", Environment.GetEnvironmentVariable("AVALONIA_SCREEN_SCALE_FACTORS"));
+            }
+
             var mainWindow = new MainWindow(Path.Combine(lxnaEnvironment.DatabaseDirectoryPath, "windows", "main"));
 
             if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
