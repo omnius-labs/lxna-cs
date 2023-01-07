@@ -13,55 +13,37 @@
     d:DesignWidth="800"
     x:CompileBindings="True"
     x:DataType="local:MainWindowModelBase"
-    Background="{x:Null}"
-    ExtendClientAreaTitleBarHeightHint="-1"
-    ExtendClientAreaToDecorationsHint="True"
-    ExtendClientAreaChromeHints="PreferSystemChrome"
     FontFamily="Meiryo UI, Lucida Grande, Ubuntu"
-    TransparencyLevelHint="AcrylicBlur"
     mc:Ignorable="d">
 
     <Design.DataContext>
         <local:MainWindowDesignModel />
     </Design.DataContext>
 
-    <Panel Margin="{Binding $parent[Window].OffScreenMargin}">
-        <ExperimentalAcrylicBorder IsHitTestVisible="False">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial TintColor="Black" MaterialOpacity="0.85" TintOpacity="1" />
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
-        <DockPanel>
-            <StackPanel Height="32" DockPanel.Dock="Top" HorizontalAlignment="Left" VerticalAlignment="Stretch"
-                    Orientation="Horizontal" IsHitTestVisible="False" Background="{x:Null}">
-                <skp:Svg Path="/Assets/lxna.svg" Margin="8,4" Width="14" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding $parent[Window].Title}" VerticalAlignment="Center" FontSize="14"/>
-            </StackPanel>
-
-            <DockPanel Classes="Sidebar">
-                <ListBox x:Name="TabListBox" DockPanel.Dock="Top">
-                    <ListBoxItem Name="ExplorerListBoxItem" IsSelected="true">
-                        <StackPanel>
-                            <Panel>
-                                <skp:Svg Path="/Assets/explorer.svg" />
-                            </Panel>
-                            <TextBlock Text="Explorer" />
-                        </StackPanel>
-                    </ListBoxItem>
-                </ListBox>
-                <Button Classes="Flat Accent" VerticalAlignment="Bottom" Command="{Binding SettingsCommand}">
+    <DockPanel>
+        <DockPanel Classes="Sidebar">
+            <ListBox x:Name="TabListBox" DockPanel.Dock="Top">
+                <ListBoxItem Name="ExplorerListBoxItem" IsSelected="true">
                     <StackPanel>
                         <Panel>
-                            <skp:Svg Path="/Assets/settings.svg" />
+                            <skp:Svg Path="/Assets/explorer.svg" />
                         </Panel>
-                        <TextBlock Text="Settings" />
+                        <TextBlock Text="Explorer" />
                     </StackPanel>
-                </Button>
-            </DockPanel>
-
-            <Panel DockPanel.Dock="Right">
-                <local:ExplorerView DataContext="{Binding ExplorerViewModel}" IsVisible="{Binding #ExplorerListBoxItem.IsSelected}" />
-            </Panel>
+                </ListBoxItem>
+            </ListBox>
+            <Button Classes="Flat Accent" VerticalAlignment="Bottom" Command="{Binding SettingsCommand}">
+                <StackPanel>
+                    <Panel>
+                        <skp:Svg Path="/Assets/settings.svg" />
+                    </Panel>
+                    <TextBlock Text="Settings" />
+                </StackPanel>
+            </Button>
         </DockPanel>
-    </Panel>
+
+        <Panel DockPanel.Dock="Right">
+            <local:ExplorerView DataContext="{Binding ExplorerViewModel}" IsVisible="{Binding #ExplorerListBoxItem.IsSelected}" />
+        </Panel>
+    </DockPanel>
 </Window>
