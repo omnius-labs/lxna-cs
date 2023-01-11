@@ -25,7 +25,7 @@
             "stopAtEntry": false
         },
         {
-            "name": "ui-desktop (Win)",
+            "name": "ui-desktop (win)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
