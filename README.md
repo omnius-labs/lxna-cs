@@ -1,7 +1,7 @@
 # Lxna - File manager
 
-[![Test](https://github.com/omnius-labs/lxna/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/omnius-labs/lxna/actions/workflows/test.yml)
-[![Gitter](https://badges.gitter.im/omnius-labs.svg)](https://gitter.im/omnius-labs/community)
+[![test](https://github.com/omnius-labs/lxna/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/omnius-labs/lxna/actions/workflows/test.yml)
+[![chat](https://badges.gitter.im/omnius-labs.svg)](https://gitter.im/omnius-labs/community)
 
 ## Installing Required Dependencies
 
