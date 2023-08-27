@@ -1,7 +1,15 @@
-# Lxna - Omnius File Explorer
+# Lxna - File manager
 
-[![Test](https://github.com/omnius-labs/lxna/actions/workflows/test.yml/badge.svg)](https://github.com/omnius-labs/lxna/actions/workflows/test.yml)
+[![Test](https://github.com/omnius-labs/lxna/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/omnius-labs/lxna/actions/workflows/test.yml)
 [![Gitter](https://badges.gitter.im/omnius-labs.svg)](https://gitter.im/omnius-labs/community)
+
+## Installing Required Dependencies
+
+### Debian & Ubuntu
+
+```sh
+sudo apt-get install -y libsnappy-dev ffmpeg
+```
 
 ## Docs
 - [Requirements](./docs/requirements/index.adoc)
