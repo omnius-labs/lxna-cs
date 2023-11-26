@@ -1,5 +1,5 @@
 using Avalonia.Media.Imaging;
-using Omnius.Lxna.Components.Thumbnails.Models;
+using Omnius.Lxna.Components.ThumbnailGenerators.Models;
 
 namespace Omnius.Lxna.Ui.Desktop.Internal.Models;
 

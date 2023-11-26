@@ -31,7 +31,7 @@ public abstract class ExplorerViewModelBase : AsyncDisposableBase
 
     public ReactivePropertySlim<GridLength>? TreeViewWidth { get; protected set; }
 
-    public ReadOnlyObservableCollection<IThumbnail<object>>? Thumbnails { get; protected set; }
+    public ReadOnlyObservableCollection<IThumbnail<object>>? ThumbnailGenerators { get; protected set; }
 
     public ReactivePropertySlim<int>? ThumbnailWidth { get; protected set; }
 
@@ -52,14 +52,14 @@ public class ExplorerViewModel : ExplorerViewModelBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly IStorage _storage;
-    private readonly IThumbnailsViewer _thumbnailsViewer;
+    private readonly IStorageController _storage;
+    private readonly IThumbnailGeneratorsViewer _ThumbnailGeneratorsViewer;
     private readonly IApplicationDispatcher _applicationDispatcher;
     private readonly IDialogService _dialogService;
 
     private IExplorerViewCommands? _commands;
 
-    private readonly ObservableCollection<IThumbnail<object>> _thumbnails = new();
+    private readonly ObservableCollection<IThumbnail<object>> _ThumbnailGenerators = new();
     private NestedPath? _wantSelectingLogicalPath = null;
 
     private ActionPipe<TreeNodeModel> _isExpandedChangedActionPipe = new();
@@ -71,10 +71,10 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     private readonly CompositeDisposable _disposable = new();
 
-    public ExplorerViewModel(UiStatus uiStatus, IStorage storage, IThumbnailsViewer thumbnailsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
+    public ExplorerViewModel(UiStatus uiStatus, IStorageController storage, IThumbnailGeneratorsViewer ThumbnailGeneratorsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
     {
         _storage = storage;
-        _thumbnailsViewer = thumbnailsViewer;
+        _ThumbnailGeneratorsViewer = ThumbnailGeneratorsViewer;
         _applicationDispatcher = applicationDispatcher;
         _dialogService = dialogService;
 
@@ -89,7 +89,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
         this.SelectedTreeNode = new ReactivePropertySlim<TreeNodeModel>().AddTo(_disposable);
         this.SelectedTreeNode.Where(n => n is not null).Subscribe(n => this.OnSelectedTreeViewModelChanged(n)).AddTo(_disposable);
         this.TreeViewWidth = this.Status.ToReactivePropertySlimAsSynchronized(n => n.TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
-        this.Thumbnails = new ReadOnlyObservableCollection<IThumbnail<object>>(_thumbnails);
+        this.ThumbnailGenerators = new ReadOnlyObservableCollection<IThumbnail<object>>(_ThumbnailGenerators);
         this.ThumbnailWidth = new ReactivePropertySlim<int>(256).AddTo(_disposable);
         this.ThumbnailHeight = new ReactivePropertySlim<int>(256).AddTo(_disposable);
 
@@ -113,7 +113,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         _disposable.Dispose();
 
-        await _thumbnailsViewer.DisposeAsync();
+        await _ThumbnailGeneratorsViewer.DisposeAsync();
     }
 
     public override void SetViewCommands(IExplorerViewCommands commands)
@@ -149,7 +149,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         if (item is IThumbnail<object> model)
         {
-            _thumbnailsViewer.ItemPrepared(model);
+            _ThumbnailGeneratorsViewer.ItemPrepared(model);
         }
     }
 
@@ -157,7 +157,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         if (item is IThumbnail<object> model)
         {
-            _thumbnailsViewer.ItemClearing(model);
+            _ThumbnailGeneratorsViewer.ItemClearing(model);
         }
     }
 
@@ -292,14 +292,14 @@ public class ExplorerViewModel : ExplorerViewModelBase
                     }
                 });
 
-                ThumbnailsViewerStartResult result = default;
+                ThumbnailGeneratorsViewerStartResult result = default;
 
                 try
                 {
                     using var cancellationTokenSource = new CancellationTokenSource();
                     using var unregister = _cancelWaitActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => cancellationTokenSource.Cancel()));
 
-                    result = await _thumbnailsViewer.StartAsync(selectedDirectory, 256, 256, TimeSpan.FromSeconds(1), cancellationTokenSource.Token);
+                    result = await _ThumbnailGeneratorsViewer.StartAsync(selectedDirectory, 256, 256, TimeSpan.FromSeconds(1), cancellationTokenSource.Token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -313,12 +313,12 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
                 await _applicationDispatcher.InvokeAsync(() =>
                 {
-                    _commands!.ThumbnailsScrollToTop();
+                    _commands!.ThumbnailGeneratorsScrollToTop();
 
-                    var oldModels = this.Thumbnails!.ToArray();
+                    var oldModels = this.ThumbnailGenerators!.ToArray();
 
-                    _thumbnails.Clear();
-                    _thumbnails.AddRange(CollectionHelper.Unite<IThumbnail<object>>(result.DirectoryThumbnails, result.FileThumbnails));
+                    _ThumbnailGenerators.Clear();
+                    _ThumbnailGenerators.AddRange(CollectionHelper.Unite<IThumbnail<object>>(result.DirectoryThumbnailGenerators, result.FileThumbnailGenerators));
 
                     foreach (var model in oldModels)
                     {

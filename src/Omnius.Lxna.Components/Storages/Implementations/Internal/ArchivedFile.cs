@@ -46,6 +46,18 @@ public sealed class ArchivedFile : IFile
         }
     }
 
+    public string Extension => throw new NotImplementedException();
+
+    public bool IsReadOnly => throw new NotImplementedException();
+
+    public bool Exists => throw new NotImplementedException();
+
+    public string Extension => throw new NotImplementedException();
+
+    public bool IsReadOnly => throw new NotImplementedException();
+
+    public bool Exists => throw new NotImplementedException();
+
     public async ValueTask<long> GetLengthAsync(CancellationToken cancellationToken = default)
     {
         return await _extractor.GetFileSizeAsync(_relativePath, cancellationToken);
@@ -87,10 +99,24 @@ public sealed class ArchivedFile : IFile
 
     private async ValueTask<ArchivedFileExtractor> InternalCreateExtractor(CancellationToken cancellationToken)
     {
+
+        public ValueTask<DateTime> GetCreationTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public ValueTask<DateTime> GetLastAccessTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public ValueTask<long> GetSizeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public ValueTask<bool> TryMoveToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public ValueTask<bool> TryCopyToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public ValueTask<bool> TryDeleteAsync(bool recursive, CancellationToken cancellationToken = default) => throw new NotImplementedException();
         using (await _asyncLock.LockAsync(cancellationToken))
         {
             var physicalPath = await this.GetPhysicalPathAsync(cancellationToken);
             return _archivedFileExtractor ??= await ArchivedFileExtractor.CreateAsync(_bytesPool, physicalPath, cancellationToken);
         }
     }
+
+    public ValueTask<DateTime> GetCreationTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<DateTime> GetLastAccessTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<long> GetSizeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryMoveToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryCopyToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryDeleteAsync(bool recursive, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 }

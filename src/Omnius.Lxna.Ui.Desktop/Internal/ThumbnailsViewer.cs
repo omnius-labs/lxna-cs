@@ -4,35 +4,35 @@ using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
 using Omnius.Core.Pipelines;
 using Omnius.Lxna.Components.Storages;
-using Omnius.Lxna.Components.Thumbnails;
-using Omnius.Lxna.Components.Thumbnails.Models;
+using Omnius.Lxna.Components.ThumbnailGenerators;
+using Omnius.Lxna.Components.ThumbnailGenerators.Models;
 using Omnius.Lxna.Ui.Desktop.Internal.Models;
 
 namespace Omnius.Lxna.Ui.Desktop.Interactors.Internal;
 
-public record struct ThumbnailsViewerStartResult
+public record struct ThumbnailGeneratorsViewerStartResult
 {
-    public ThumbnailsViewerStartResult(ImmutableArray<IThumbnail<IFile>> fileThumbnails, ImmutableArray<IThumbnail<IDirectory>> directoryThumbnails)
+    public ThumbnailGeneratorsViewerStartResult(ImmutableArray<IThumbnail<IFile>> fileThumbnailGenerators, ImmutableArray<IThumbnail<IDirectory>> directoryThumbnailGenerators)
     {
-        this.FileThumbnails = fileThumbnails;
-        this.DirectoryThumbnails = directoryThumbnails;
+        this.FileThumbnailGenerators = fileThumbnailGenerators;
+        this.DirectoryThumbnailGenerators = directoryThumbnailGenerators;
     }
 
-    public ImmutableArray<IThumbnail<IFile>> FileThumbnails { get; }
+    public ImmutableArray<IThumbnail<IFile>> FileThumbnailGenerators { get; }
 
-    public ImmutableArray<IThumbnail<IDirectory>> DirectoryThumbnails { get; }
+    public ImmutableArray<IThumbnail<IDirectory>> DirectoryThumbnailGenerators { get; }
 }
 
-public interface IThumbnailsViewer : IAsyncDisposable
+public interface IThumbnailGeneratorsViewer : IAsyncDisposable
 {
     void ItemPrepared(IThumbnail<object> thumbnail);
 
     void ItemClearing(IThumbnail<object> thumbnail);
 
-    ValueTask<ThumbnailsViewerStartResult> StartAsync(IDirectory directory, int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan, CancellationToken cancellationToken = default);
+    ValueTask<ThumbnailGeneratorsViewerStartResult> StartAsync(IDirectory directory, int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan, CancellationToken cancellationToken = default);
 }
 
-public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
+public class ThumbnailGeneratorsViewer : AsyncDisposableBase, IThumbnailGeneratorsViewer
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -49,7 +49,7 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
 
     private readonly AsyncLock _asyncLock = new();
 
-    public ThumbnailsViewer(IDirectoryThumbnailGenerator directoryThumbnailGenerator, IFileThumbnailGenerator fileThumbnailGenerator, IApplicationDispatcher applicationDispatcher)
+    public ThumbnailGeneratorsViewer(IDirectoryThumbnailGenerator directoryThumbnailGenerator, IFileThumbnailGenerator fileThumbnailGenerator, IApplicationDispatcher applicationDispatcher)
     {
         _directoryThumbnailGenerator = directoryThumbnailGenerator;
         _fileThumbnailGenerator = fileThumbnailGenerator;
@@ -75,7 +75,7 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
         _changedActionPipe.Caller.Call();
     }
 
-    public async ValueTask<ThumbnailsViewerStartResult> StartAsync(IDirectory directory, int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan, CancellationToken cancellationToken = default)
+    public async ValueTask<ThumbnailGeneratorsViewerStartResult> StartAsync(IDirectory directory, int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan, CancellationToken cancellationToken = default)
     {
         await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
@@ -107,7 +107,7 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
             var rotateTask = this.RotateAsync(rotationSpan);
             _task = Task.WhenAll(loadTask, rotateTask);
 
-            return new ThumbnailsViewerStartResult(files.ToImmutableArray(), dirs.ToImmutableArray());
+            return new ThumbnailGeneratorsViewerStartResult(files.ToImmutableArray(), dirs.ToImmutableArray());
         }
     }
 

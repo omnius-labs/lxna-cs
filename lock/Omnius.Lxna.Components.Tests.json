@@ -46,8 +46,8 @@
       },
       "DiffPlex": {
         "type": "Transitive",
-        "resolved": "1.7.0",
-        "contentHash": "2Mna9MSihC3tujLJ34+FqhFdsS6xlaMzPd8ywuTz3Qq/Z7vWRKAe18H2R5v69TMbmGyzn3FuIngnhyuNkrfUzQ=="
+        "resolved": "1.7.1",
+        "contentHash": "a0fSO2p8ykrcfzgG0sjpZAMZPthXXz4l6UIVuM9uyIYIh5yga4sq3aydSGt6n+MkdSBKvMurjjaKnxIqZtfG1g=="
       },
       "LiteDB": {
         "type": "Transitive",
@@ -1189,6 +1189,7 @@
         "dependencies": {
           "NLog": "[4.7.15, )",
           "Omnius.Core": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
           "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )"
         }
       },
@@ -1217,12 +1218,21 @@
           "Omnius.Core": "[0.0.1-alpha.1, )"
         }
       },
+      "omnius.core.text": {
+        "type": "Project",
+        "dependencies": {
+          "NLog": "[4.7.15, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )"
+        }
+      },
       "omnius.core.unittesttoolkit": {
         "type": "Project",
         "dependencies": {
-          "DiffPlex": "[1.7.0, )",
+          "DiffPlex": "[1.7.1, )",
+          "Microsoft.NET.Test.Sdk": "[17.4.1, )",
           "NLog": "[4.7.15, )",
-          "System.Text.Json": "[7.0.1, )"
+          "System.Text.Json": "[7.0.1, )",
+          "xunit": "[2.4.2, )"
         }
       },
       "omnius.lxna.components": {
@@ -1238,6 +1248,7 @@
           "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
           "Omnius.Core.Serialization": "[0.0.1-alpha.1, )",
           "Omnius.Core.Streams": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Text": "[0.0.1-alpha.1, )",
           "SharpCompress": "[0.32.2, )",
           "SixLabors.ImageSharp": "[2.1.3, )"
         }

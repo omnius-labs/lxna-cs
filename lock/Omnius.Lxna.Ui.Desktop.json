@@ -1041,6 +1041,7 @@
         "dependencies": {
           "NLog": "[4.7.15, )",
           "Omnius.Core": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
           "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )"
         }
       },
@@ -1069,6 +1070,13 @@
           "Omnius.Core": "[0.0.1-alpha.1, )"
         }
       },
+      "omnius.core.text": {
+        "type": "Project",
+        "dependencies": {
+          "NLog": "[4.7.15, )",
+          "Omnius.Core": "[0.0.1-alpha.1, )"
+        }
+      },
       "omnius.core.utils": {
         "type": "Project",
         "dependencies": {
@@ -1090,6 +1098,7 @@
           "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
           "Omnius.Core.Serialization": "[0.0.1-alpha.1, )",
           "Omnius.Core.Streams": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Text": "[0.0.1-alpha.1, )",
           "SharpCompress": "[0.32.2, )",
           "SixLabors.ImageSharp": "[2.1.3, )"
         }

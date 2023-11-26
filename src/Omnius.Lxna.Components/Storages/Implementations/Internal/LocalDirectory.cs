@@ -24,6 +24,12 @@ internal sealed class LocalDirectory : IDirectory
 
     public NestedPath LogicalPath { get; }
 
+    public DirectoryAttributes Attributes => throw new NotImplementedException();
+
+    public bool IsReadOnly => throw new NotImplementedException();
+
+    public bool Exists => throw new NotImplementedException();
+
     public void Dispose()
     {
     }
@@ -63,4 +69,16 @@ internal sealed class LocalDirectory : IDirectory
 
         return results;
     }
+
+    public ValueTask<string> GetPhysicalPathAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<DateTime> GetCreationTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<DateTime> GetLastAccessTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<DateTime> GetLastWriteTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryMoveToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryCopyToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryDeleteAsync(bool recursive, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryCreateDirectoryAsync(string name, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryCreateFileAsync(string name, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryDeleteDirectoryAsync(string name, bool recursive, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryDeleteFileAsync(string name, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 }

@@ -1,16 +1,6 @@
 {
+    "dotnet.defaultSolution": "lxna.sln",
     "cSpell.words": [
-        "Avalonia",
-        "Bootstrapper",
-        "deleter",
-        "Interactors",
-        "Lanczos",
-        "Lxna",
-        "Magick",
-        "Omnius",
-        "Reconfig",
-        "Resampler",
-        "rpfs",
-        "Xunit"
+        "Magick"
     ]
 }

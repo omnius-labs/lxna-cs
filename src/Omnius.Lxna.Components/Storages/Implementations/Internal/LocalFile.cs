@@ -39,6 +39,12 @@ internal sealed class LocalFile : IFile
         }
     }
 
+    public string Extension => throw new NotImplementedException();
+
+    public bool IsReadOnly => throw new NotImplementedException();
+
+    public bool Exists => throw new NotImplementedException();
+
     public async ValueTask<DateTime> GetLastWriteTimeAsync(CancellationToken cancellationToken = default)
     {
         var info = new FileInfo(_physicalPath);
@@ -72,4 +78,11 @@ internal sealed class LocalFile : IFile
     {
         return _archivedFileExtractor ??= await ArchivedFileExtractor.CreateAsync(_bytesPool, _physicalPath, cancellationToken);
     }
+
+    public ValueTask<DateTime> GetCreationTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<DateTime> GetLastAccessTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<long> GetSizeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryMoveToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryCopyToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryDeleteAsync(bool recursive, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 }

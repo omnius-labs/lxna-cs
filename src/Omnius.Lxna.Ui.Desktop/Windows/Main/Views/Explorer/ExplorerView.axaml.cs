@@ -7,28 +7,28 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
 public interface IExplorerViewCommands
 {
-    void ThumbnailsScrollToTop();
+    void ThumbnailGeneratorsScrollToTop();
 }
 
 public class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, IExplorerViewCommands
 {
     private readonly ItemsRepeater _treeNodesRepeater;
-    private readonly ScrollViewer _thumbnailsViewer;
-    private readonly ItemsRepeater _thumbnailsRepeater;
+    private readonly ScrollViewer _ThumbnailGeneratorsViewer;
+    private readonly ItemsRepeater _ThumbnailGeneratorsRepeater;
 
     public ExplorerView()
     {
         this.InitializeComponent();
 
         _treeNodesRepeater = this.FindControl<ItemsRepeater>("TreeNodesRepeater");
-        _thumbnailsViewer = this.FindControl<ScrollViewer>("ThumbnailsViewer");
-        _thumbnailsRepeater = this.FindControl<ItemsRepeater>("ThumbnailsRepeater");
+        _ThumbnailGeneratorsViewer = this.FindControl<ScrollViewer>("ThumbnailGeneratorsViewer");
+        _ThumbnailGeneratorsRepeater = this.FindControl<ItemsRepeater>("ThumbnailGeneratorsRepeater");
 
         this.GetObservable(ViewModelProperty).Subscribe(this.OnViewModelChanged);
         _treeNodesRepeater.Tapped += this.OnTreeNodeTapped;
-        _thumbnailsRepeater.DoubleTapped += this.OnThumbnailDoubleTapped;
-        _thumbnailsRepeater.ElementPrepared += this.OnThumbnailPrepared;
-        _thumbnailsRepeater.ElementClearing += this.OnThumbnailClearing;
+        _ThumbnailGeneratorsRepeater.DoubleTapped += this.OnThumbnailDoubleTapped;
+        _ThumbnailGeneratorsRepeater.ElementPrepared += this.OnThumbnailPrepared;
+        _ThumbnailGeneratorsRepeater.ElementClearing += this.OnThumbnailClearing;
     }
 
     private void InitializeComponent()
@@ -36,9 +36,9 @@ public class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, IExplore
         AvaloniaXamlLoader.Load(this);
     }
 
-    public void ThumbnailsScrollToTop()
+    public void ThumbnailGeneratorsScrollToTop()
     {
-        _thumbnailsViewer.ScrollToHome();
+        _ThumbnailGeneratorsViewer.ScrollToHome();
     }
 
     private void OnViewModelChanged(ExplorerViewModelBase? viewModel)

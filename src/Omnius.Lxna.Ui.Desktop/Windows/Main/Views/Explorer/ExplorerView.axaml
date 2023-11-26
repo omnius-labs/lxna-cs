@@ -48,8 +48,8 @@
                 </ItemsRepeater>
             </ScrollViewer>
             <GridSplitter Grid.Column="1" />
-            <ScrollViewer Grid.Column="2" x:Name="ThumbnailsViewer" HorizontalScrollBarVisibility="Disabled">
-                <ItemsRepeater x:Name="ThumbnailsRepeater" HorizontalAlignment="Stretch" Items="{ReflectionBinding Thumbnails}">
+            <ScrollViewer Grid.Column="2" x:Name="ThumbnailGeneratorsViewer" HorizontalScrollBarVisibility="Disabled">
+                <ItemsRepeater x:Name="ThumbnailGeneratorsRepeater" HorizontalAlignment="Stretch" Items="{ReflectionBinding ThumbnailGenerators}">
                     <ItemsRepeater.Layout>
                         <UniformGridLayout MinItemHeight="256" MinItemWidth="256" MinColumnSpacing="2" MinRowSpacing="2"/>
                     </ItemsRepeater.Layout>

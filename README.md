@@ -5,13 +5,14 @@
 
 ## Installing Required Dependencies
 
-### Debian & Ubuntu
+### Linux
 
 ```sh
 sudo apt-get install -y libsnappy-dev ffmpeg
 ```
 
 ## Docs
+
 - [Requirements](./docs/requirements/index.adoc)
 - [Specifications](./docs/specifications/index.adoc)
 - [FAQ](./docs/faq.md)
