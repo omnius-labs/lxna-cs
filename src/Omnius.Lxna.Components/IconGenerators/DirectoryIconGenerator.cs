@@ -7,7 +7,13 @@ using SixLabors.ImageSharp.Processing;
 
 namespace Omnius.Lxna.Components.IconGenerators;
 
-public sealed class DirectoryIconGenerator : AsyncDisposableBase, IDirectoryIconGenerator
+public record DirectoryIconGeneratorOptions
+{
+    public required string ConfigDirectoryPath { get; init; }
+    public required int Concurrency { get; init; }
+}
+
+public sealed class DirectoryIconGenerator : AsyncDisposableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -15,17 +21,12 @@ public sealed class DirectoryIconGenerator : AsyncDisposableBase, IDirectoryIcon
     private readonly string _configDirectoryPath;
     private readonly int _concurrency;
 
-    internal sealed class DirectoryIconGeneratorFactory : IDirectoryIconGeneratorFactory
+    public static async ValueTask<DirectoryIconGenerator> CreateAsync(IBytesPool bytesPool, DirectoryIconGeneratorOptions options, CancellationToken cancellationToken = default)
     {
-        public async ValueTask<IDirectoryIconGenerator> CreateAsync(IBytesPool bytesPool, DirectoryIconGeneratorOptions options, CancellationToken cancellationToken = default)
-        {
-            var result = new DirectoryIconGenerator(bytesPool, options);
-            await result.InitAsync(cancellationToken);
-            return result;
-        }
+        var result = new DirectoryIconGenerator(bytesPool, options);
+        await result.InitAsync(cancellationToken);
+        return result;
     }
-
-    public static IDirectoryIconGeneratorFactory Factory { get; } = new DirectoryIconGeneratorFactory();
 
     internal DirectoryIconGenerator(IBytesPool bytesPool, DirectoryIconGeneratorOptions options)
     {
@@ -42,7 +43,7 @@ public sealed class DirectoryIconGenerator : AsyncDisposableBase, IDirectoryIcon
     {
     }
 
-    public async ValueTask<DirectoryIconResult> GenerateAsync(IDirectory directory, DirectoryIconOptions options, bool isCacheOnly, CancellationToken cancellationToken = default)
+    public async ValueTask<DirectoryIconResult> GenerateAsync(IDirectory directory, DirectoryIconOptions options, CancellationToken cancellationToken = default)
     {
         await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
@@ -60,7 +61,11 @@ public sealed class DirectoryIconGenerator : AsyncDisposableBase, IDirectoryIcon
                 var image = outStream.ToMemoryOwner();
                 var content = new IconContent(image);
 
-                return new DirectoryIconResult(DirectoryIconResultStatus.Succeeded, content);
+                return new DirectoryIconResult
+                {
+                    Status = DirectoryIconResultStatus.Succeeded,
+                    Content = content
+                };
             }
         }
         catch (NotSupportedException e)
@@ -77,7 +82,7 @@ public sealed class DirectoryIconGenerator : AsyncDisposableBase, IDirectoryIcon
             throw;
         }
 
-        return new DirectoryIconResult(DirectoryIconResultStatus.Failed);
+        return new DirectoryIconResult { Status = DirectoryIconResultStatus.Failed };
     }
 
     private void ConvertImage(Stream inStream, Stream outStream, int width, int height, IconFormatType formatType)

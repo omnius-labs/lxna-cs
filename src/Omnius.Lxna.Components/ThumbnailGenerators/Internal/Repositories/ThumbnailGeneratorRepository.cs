@@ -12,7 +12,6 @@ namespace Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common.Repositorie
 internal sealed class ThumbnailGeneratorRepository : IDisposable
 {
     private readonly LiteDatabase _database;
-
     private readonly IBytesPool _bytesPool;
 
     public ThumbnailGeneratorRepository(string filePath, IBytesPool bytesPool)
@@ -71,7 +70,7 @@ internal sealed class ThumbnailGeneratorRepository : IDisposable
 
                 using (var inStream = liteFileInfo.OpenRead())
                 {
-                    return RocketMessage.FromStream<ThumbnailCache>(inStream);
+                    return RocketMessageConverter.FromStream<ThumbnailCache>(inStream);
                 }
             }
         }
@@ -99,7 +98,7 @@ internal sealed class ThumbnailGeneratorRepository : IDisposable
                 {
                     using (var outStream = storage.OpenWrite(id, "-"))
                     {
-                        RocketMessage.ToStream(entity, outStream);
+                        RocketMessageConverter.ToStream(entity, outStream);
                     }
 
                     if (!_database.Commit())
@@ -107,10 +106,10 @@ internal sealed class ThumbnailGeneratorRepository : IDisposable
                         throw new ThumbnailGeneratorRepositoryException("failed to commit");
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     _database.Rollback();
-                    throw e;
+                    throw;
                 }
             }
         }

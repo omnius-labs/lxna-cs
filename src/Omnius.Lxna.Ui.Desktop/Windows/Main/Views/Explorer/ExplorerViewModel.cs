@@ -5,6 +5,7 @@ using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
 using Omnius.Core.Pipelines;
+using Omnius.Core.Text;
 using Omnius.Lxna.Components.Storages;
 using Omnius.Lxna.Components.Storages.Models;
 using Omnius.Lxna.Ui.Desktop.Configuration;
@@ -20,31 +21,19 @@ namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 public abstract class ExplorerViewModelBase : AsyncDisposableBase
 {
     public ExplorerViewStatus? Status { get; protected set; }
-
     public ReadOnlyReactivePropertySlim<bool>? IsWaiting { get; protected set; }
-
     public ReactiveCommand? CancelWaitCommand { get; protected set; }
-
     public RootTreeNodeModel? RootTreeNode { get; protected set; }
-
     public ReactivePropertySlim<TreeNodeModel>? SelectedTreeNode { get; protected set; }
-
     public ReactivePropertySlim<GridLength>? TreeViewWidth { get; protected set; }
-
-    public ReadOnlyObservableCollection<IThumbnail<object>>? ThumbnailGenerators { get; protected set; }
-
+    public ReadOnlyObservableCollection<Thumbnail>? Thumbnails { get; protected set; }
     public ReactivePropertySlim<int>? ThumbnailWidth { get; protected set; }
-
     public ReactivePropertySlim<int>? ThumbnailHeight { get; protected set; }
 
     public abstract void SetViewCommands(IExplorerViewCommands commands);
-
     public abstract void NotifyTreeNodeTapped(object item);
-
     public abstract void NotifyThumbnailDoubleTapped(object item);
-
     public abstract void NotifyThumbnailPrepared(object item);
-
     public abstract void NotifyThumbnailClearing(object item);
 }
 
@@ -52,14 +41,14 @@ public class ExplorerViewModel : ExplorerViewModelBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly IStorageController _storage;
-    private readonly IThumbnailGeneratorsViewer _ThumbnailGeneratorsViewer;
+    private readonly IStorage _storage;
+    private readonly ThumbnailsViewer _thumbnailsViewer;
     private readonly IApplicationDispatcher _applicationDispatcher;
     private readonly IDialogService _dialogService;
 
     private IExplorerViewCommands? _commands;
 
-    private readonly ObservableCollection<IThumbnail<object>> _ThumbnailGenerators = new();
+    private readonly ObservableCollection<Thumbnail> _thumbnails = new();
     private NestedPath? _wantSelectingLogicalPath = null;
 
     private ActionPipe<TreeNodeModel> _isExpandedChangedActionPipe = new();
@@ -71,10 +60,10 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     private readonly CompositeDisposable _disposable = new();
 
-    public ExplorerViewModel(UiStatus uiStatus, IStorageController storage, IThumbnailGeneratorsViewer ThumbnailGeneratorsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
+    public ExplorerViewModel(UiStatus uiStatus, IStorage storage, ThumbnailsViewer ThumbnailsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
     {
         _storage = storage;
-        _ThumbnailGeneratorsViewer = ThumbnailGeneratorsViewer;
+        _thumbnailsViewer = ThumbnailsViewer;
         _applicationDispatcher = applicationDispatcher;
         _dialogService = dialogService;
 
@@ -89,7 +78,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
         this.SelectedTreeNode = new ReactivePropertySlim<TreeNodeModel>().AddTo(_disposable);
         this.SelectedTreeNode.Where(n => n is not null).Subscribe(n => this.OnSelectedTreeViewModelChanged(n)).AddTo(_disposable);
         this.TreeViewWidth = this.Status.ToReactivePropertySlimAsSynchronized(n => n.TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
-        this.ThumbnailGenerators = new ReadOnlyObservableCollection<IThumbnail<object>>(_ThumbnailGenerators);
+        this.Thumbnails = new ReadOnlyObservableCollection<Thumbnail>(_thumbnails);
         this.ThumbnailWidth = new ReactivePropertySlim<int>(256).AddTo(_disposable);
         this.ThumbnailHeight = new ReactivePropertySlim<int>(256).AddTo(_disposable);
 
@@ -102,9 +91,11 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         foreach (var directory in await _storage.FindDirectoriesAsync())
         {
-            var child = new TreeNodeModel(_isExpandedChangedActionPipe.Caller);
-            child.Name = directory.Name;
-            child.Tag = directory;
+            var child = new TreeNodeModel(_isExpandedChangedActionPipe.Caller)
+            {
+                Name = directory.Name,
+                Tag = directory
+            };
             this.RootTreeNode!.AddChild(child);
         }
     }
@@ -113,7 +104,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         _disposable.Dispose();
 
-        await _ThumbnailGeneratorsViewer.DisposeAsync();
+        await _thumbnailsViewer.DisposeAsync();
     }
 
     public override void SetViewCommands(IExplorerViewCommands commands)
@@ -131,33 +122,25 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     public override async void NotifyThumbnailDoubleTapped(object item)
     {
-        if (item is IThumbnail<IFile> fileThumbnail)
+        if (item is Thumbnail thumbnail)
         {
-            await _dialogService.ShowPicturePreviewWindowAsync(fileThumbnail.Target);
-        }
-        else if (item is IThumbnail<IDirectory> directoryThumbnail)
-        {
-            if (this.SelectedTreeNode!.Value is TreeNodeModel selectedTree)
-            {
-                _wantSelectingLogicalPath = directoryThumbnail.Target.LogicalPath;
-                selectedTree.IsExpanded = true;
-            }
+            await _dialogService.ShowPicturePreviewWindowAsync(thumbnail.File);
         }
     }
 
     public override void NotifyThumbnailPrepared(object item)
     {
-        if (item is IThumbnail<object> model)
+        if (item is Thumbnail thumbnail)
         {
-            _ThumbnailGeneratorsViewer.ItemPrepared(model);
+            _thumbnailsViewer.ThumbnailPrepared(thumbnail);
         }
     }
 
     public override void NotifyThumbnailClearing(object item)
     {
-        if (item is IThumbnail<object> model)
+        if (item is Thumbnail thumbnail)
         {
-            _ThumbnailGeneratorsViewer.ItemClearing(model);
+            _thumbnailsViewer.ThumbnailClearing(thumbnail);
         }
     }
 
@@ -292,14 +275,19 @@ public class ExplorerViewModel : ExplorerViewModelBase
                     }
                 });
 
-                ThumbnailGeneratorsViewerStartResult result = default;
+                ThumbnailsViewerLoadResult result = default;
 
                 try
                 {
                     using var cancellationTokenSource = new CancellationTokenSource();
                     using var unregister = _cancelWaitActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => cancellationTokenSource.Cancel()));
 
-                    result = await _ThumbnailGeneratorsViewer.StartAsync(selectedDirectory, 256, 256, TimeSpan.FromSeconds(1), cancellationTokenSource.Token);
+                    Comparison<IFile> comparison;
+                    {
+                        comparison = new Comparison<IFile>((x, y) => string.Compare(x.Name, y.Name, StringComparison.InvariantCulture));
+                    }
+
+                    result = await _thumbnailsViewer.LoadAsync(selectedDirectory, 256, 256, TimeSpan.FromSeconds(1), comparison, cancellationTokenSource.Token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -313,14 +301,14 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
                 await _applicationDispatcher.InvokeAsync(() =>
                 {
-                    _commands!.ThumbnailGeneratorsScrollToTop();
+                    _commands!.ThumbnailsScrollToTop();
 
-                    var oldModels = this.ThumbnailGenerators!.ToArray();
+                    var oldThumbnails = this.Thumbnails!.ToArray();
 
-                    _ThumbnailGenerators.Clear();
-                    _ThumbnailGenerators.AddRange(CollectionHelper.Unite<IThumbnail<object>>(result.DirectoryThumbnailGenerators, result.FileThumbnailGenerators));
+                    _thumbnails.Clear();
+                    _thumbnails.AddRange(result.Thumbnails);
 
-                    foreach (var model in oldModels)
+                    foreach (var model in oldThumbnails)
                     {
                         model.Dispose();
                     }

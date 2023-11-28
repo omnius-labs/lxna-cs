@@ -3,16 +3,16 @@ using Avalonia.Media.Imaging;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Streams;
+using Omnius.Lxna.Components.Storages;
 using Omnius.Lxna.Components.ThumbnailGenerators.Models;
 
 namespace Omnius.Lxna.Ui.Desktop.Internal.Models;
 
-public sealed class Thumbnail<T> : BindableBase, IThumbnail<T>
+public sealed class Thumbnail : BindableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private T _target;
-    private string _name = string.Empty;
+    private IFile _file;
     private Bitmap? _image = null;
     private ImmutableArray<ThumbnailContent> _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
     private int _currentOffset = -1;
@@ -20,10 +20,9 @@ public sealed class Thumbnail<T> : BindableBase, IThumbnail<T>
 
     private readonly object _lockObject = new();
 
-    public Thumbnail(T target, string name)
+    public Thumbnail(IFile file)
     {
-        _target = target;
-        this.Name = name;
+        _file = file;
     }
 
     public void Dispose()
@@ -43,13 +42,8 @@ public sealed class Thumbnail<T> : BindableBase, IThumbnail<T>
         this.RaisePropertyChanged(nameof(this.Image));
     }
 
-    public T Target => _target;
-
-    public string Name
-    {
-        get => _name;
-        private set => this.SetProperty(ref _name, value);
-    }
+    public IFile File => _file;
+    public string Name => _file.Name;
 
     public Bitmap? Image
     {

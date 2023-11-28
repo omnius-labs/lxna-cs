@@ -21,28 +21,24 @@ internal sealed class LocalDirectory : IDirectory
     }
 
     public string Name { get; }
-
     public NestedPath LogicalPath { get; }
-
     public DirectoryAttributes Attributes => throw new NotImplementedException();
-
     public bool IsReadOnly => throw new NotImplementedException();
-
     public bool Exists => throw new NotImplementedException();
 
     public void Dispose()
     {
     }
 
-    public async ValueTask<bool> ExistsFileAsync(string name, CancellationToken cancellationToken = default)
-    {
-        return File.Exists(System.IO.Path.Combine(_physicalPath, name));
-    }
+    public ValueTask<string> GetPhysicalPathAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
-    public async ValueTask<bool> ExistsDirectoryAsync(string name, CancellationToken cancellationToken = default)
-    {
-        return Directory.Exists(System.IO.Path.Combine(_physicalPath, name));
-    }
+    public ValueTask<DateTime> GetCreationTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<DateTime> GetLastAccessTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<DateTime> GetLastWriteTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
+    public ValueTask<bool> TryMoveToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryCopyToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public ValueTask<bool> TryDeleteAsync(bool recursive, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
     public async ValueTask<IEnumerable<IDirectory>> FindDirectoriesAsync(CancellationToken cancellationToken = default)
     {
@@ -70,13 +66,16 @@ internal sealed class LocalDirectory : IDirectory
         return results;
     }
 
-    public ValueTask<string> GetPhysicalPathAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-    public ValueTask<DateTime> GetCreationTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-    public ValueTask<DateTime> GetLastAccessTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-    public ValueTask<DateTime> GetLastWriteTimeAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-    public ValueTask<bool> TryMoveToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-    public ValueTask<bool> TryCopyToAsync(NestedPath path, bool overwrite, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-    public ValueTask<bool> TryDeleteAsync(bool recursive, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public async ValueTask<bool> ExistsFileAsync(string name, CancellationToken cancellationToken = default)
+    {
+        return File.Exists(System.IO.Path.Combine(_physicalPath, name));
+    }
+
+    public async ValueTask<bool> ExistsDirectoryAsync(string name, CancellationToken cancellationToken = default)
+    {
+        return Directory.Exists(System.IO.Path.Combine(_physicalPath, name));
+    }
+
     public ValueTask<bool> TryCreateDirectoryAsync(string name, CancellationToken cancellationToken = default) => throw new NotImplementedException();
     public ValueTask<bool> TryCreateFileAsync(string name, CancellationToken cancellationToken = default) => throw new NotImplementedException();
     public ValueTask<bool> TryDeleteDirectoryAsync(string name, bool recursive, CancellationToken cancellationToken = default) => throw new NotImplementedException();

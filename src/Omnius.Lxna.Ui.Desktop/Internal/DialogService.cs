@@ -10,7 +10,6 @@ namespace Omnius.Lxna.Ui.Desktop.Internal;
 public interface IDialogService
 {
     ValueTask<IEnumerable<string>> ShowOpenFileWindowAsync(CancellationToken cancellationToken = default);
-
     ValueTask ShowPicturePreviewWindowAsync(IFile file, CancellationToken cancellationToken = default);
 }
 

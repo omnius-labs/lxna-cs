@@ -20,8 +20,6 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
     private readonly Dictionary<string, IArchiveEntry> _fileEntryMap = new();
     private readonly HashSet<string> _dirSet = new();
 
-    private readonly Random _random = new();
-
     public static async ValueTask<ArchivedFileExtractor> CreateAsync(IBytesPool bytesPool, string path, CancellationToken cancellationToken = default)
     {
         var result = new ArchivedFileExtractor(bytesPool, path);
@@ -52,10 +50,9 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
             {
                 var options = new SharpCompress.Readers.ReaderOptions();
                 var encoding = Encoding.GetEncoding(932);
-                options.ArchiveEncoding = new SharpCompress.Common.ArchiveEncoding();
-                options.ArchiveEncoding.CustomDecoder = (data, index, count) =>
+                options.ArchiveEncoding = new SharpCompress.Common.ArchiveEncoding
                 {
-                    return encoding.GetString(data, index, count);
+                    CustomDecoder = encoding.GetString
                 };
                 return SharpCompress.Archives.Zip.ZipArchive.Open(_archiveFilePath, options);
             }
@@ -192,7 +189,7 @@ internal sealed partial class ArchivedFileExtractor : DisposableBase
     {
         if (_fileEntryMap.TryGetValue(path, out var entry))
         {
-            return (long)entry.Size;
+            return entry.Size;
         }
 
         throw new FileNotFoundException();

@@ -18,7 +18,7 @@ internal static unsafe class PathHelper
 
     public static string Normalize(string path)
     {
-        return path.Replace(@"\", "/");
+        return path.Replace(@"\", "/", StringComparison.InvariantCulture);
     }
 
     public static bool IsParentDirectory(string parentDirPath, string targetPath)

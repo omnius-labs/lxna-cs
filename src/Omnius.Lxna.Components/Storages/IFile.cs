@@ -15,7 +15,7 @@ public interface IFile : IDisposable
     ValueTask<DateTime> GetCreationTimeAsync(CancellationToken cancellationToken = default);
     ValueTask<DateTime> GetLastAccessTimeAsync(CancellationToken cancellationToken = default);
     ValueTask<DateTime> GetLastWriteTimeAsync(CancellationToken cancellationToken = default);
-    ValueTask<long> GetSizeAsync(CancellationToken cancellationToken = default);
+    ValueTask<long> GetLengthAsync(CancellationToken cancellationToken = default);
 
     ValueTask<Stream> GetStreamAsync(CancellationToken cancellationToken = default);
     ValueTask<IDirectory?> TryConvertToDirectoryAsync(CancellationToken cancellationToken = default);

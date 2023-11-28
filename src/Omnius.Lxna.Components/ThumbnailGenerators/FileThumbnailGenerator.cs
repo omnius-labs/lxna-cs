@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Globalization;
 using ImageMagick;
 using Omnius.Core;
 using Omnius.Core.RocketPack;
@@ -15,7 +16,13 @@ using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace Omnius.Lxna.Components.ThumbnailGenerators;
 
-public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnailGenerator
+public record FileThumbnailGeneratorOptions
+{
+    public required string ConfigDirectoryPath { get; init; }
+    public required int Concurrency { get; init; }
+}
+
+public sealed class FileThumbnailGenerator : AsyncDisposableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -27,7 +34,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
     private static readonly HashSet<string> _pictureExtensionSet = new HashSet<string>() { ".bmp", ".jpg", ".jpeg", ".png", ".gif", ".heic" };
     private static readonly HashSet<string> _movieExtensionSet = new HashSet<string>() { ".mp4", ".avi", ".wmv", ".mov", ".m4v", ".mkv", ".mpg", ".flv" };
 
-    private static readonly Base16 _base16 = new Base16(ConvertStringCase.Lower);
+    private static readonly Base16 _base16 = new Base16();
 
     public static async ValueTask<FileThumbnailGenerator> CreateAsync(IBytesPool bytesPool, FileThumbnailGeneratorOptions options, CancellationToken cancellationToken = default)
     {
@@ -89,7 +96,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
 
     private async ValueTask<FileThumbnailResult> GetPictureThumbnailAsync(IFile file, FileThumbnailOptions options, CancellationToken cancellationToken = default)
     {
-        var ext = file.LogicalPath.GetExtension().ToLower();
+        var ext = file.LogicalPath.GetExtension().ToLower(CultureInfo.InvariantCulture);
         if (!_movieExtensionSet.Contains(ext) && !_pictureExtensionSet.Contains(ext)) return new FileThumbnailResult(FileThumbnailResultStatus.Failed);
 
         try
@@ -133,7 +140,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
 
     private async ValueTask<FileThumbnailResult> GetMovieThumbnailAsync(IFile file, FileThumbnailOptions options, CancellationToken cancellationToken = default)
     {
-        var ext = file.LogicalPath.GetExtension().ToLower();
+        var ext = file.LogicalPath.GetExtension().ToLower(CultureInfo.InvariantCulture);
         if (!_movieExtensionSet.Contains(ext)) return new FileThumbnailResult(FileThumbnailResultStatus.Failed);
 
         try
