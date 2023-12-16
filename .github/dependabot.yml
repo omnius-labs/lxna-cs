@@ -1,6 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
+  - package-ecosystem: nuget
     directory: "/"
     schedule:
       interval: "daily"
@@ -10,7 +10,7 @@ updates:
       dependencies:
         patterns:
           - "*"
-  - package-ecosystem: nuget
+  - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: "daily"

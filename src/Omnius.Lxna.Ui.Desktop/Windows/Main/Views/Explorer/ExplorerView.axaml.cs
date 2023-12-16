@@ -13,22 +13,22 @@ public interface IExplorerViewCommands
 public class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, IExplorerViewCommands
 {
     private readonly ItemsRepeater _treeNodesRepeater;
-    private readonly ScrollViewer _thumbnailsViewer;
-    private readonly ItemsRepeater _thumbnailsRepeater;
+    private readonly ScrollViewer _ThumbnailsViewer;
+    private readonly ItemsRepeater _ThumbnailsRepeater;
 
     public ExplorerView()
     {
         this.InitializeComponent();
 
         _treeNodesRepeater = this.FindControl<ItemsRepeater>("TreeNodesRepeater");
-        _thumbnailsViewer = this.FindControl<ScrollViewer>("ThumbnailsViewer");
-        _thumbnailsRepeater = this.FindControl<ItemsRepeater>("ThumbnailsRepeater");
+        _ThumbnailsViewer = this.FindControl<ScrollViewer>("ThumbnailsViewer");
+        _ThumbnailsRepeater = this.FindControl<ItemsRepeater>("ThumbnailsRepeater");
 
         this.GetObservable(ViewModelProperty).Subscribe(this.OnViewModelChanged);
         _treeNodesRepeater.Tapped += this.OnTreeNodeTapped;
-        _thumbnailsRepeater.DoubleTapped += this.OnThumbnailDoubleTapped;
-        _thumbnailsRepeater.ElementPrepared += this.OnThumbnailPrepared;
-        _thumbnailsRepeater.ElementClearing += this.OnThumbnailClearing;
+        _ThumbnailsRepeater.DoubleTapped += this.OnThumbnailDoubleTapped;
+        _ThumbnailsRepeater.ElementPrepared += this.OnThumbnailPrepared;
+        _ThumbnailsRepeater.ElementClearing += this.OnThumbnailClearing;
     }
 
     private void InitializeComponent()
@@ -38,7 +38,7 @@ public class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, IExplore
 
     public void ThumbnailsScrollToTop()
     {
-        _thumbnailsViewer.ScrollToHome();
+        _ThumbnailsViewer.ScrollToHome();
     }
 
     private void OnViewModelChanged(ExplorerViewModelBase? viewModel)

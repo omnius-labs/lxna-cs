@@ -2,6 +2,13 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "gen-envfile",
+            "type": "shell",
+            "linux": {
+                "command": "bash ${workspaceFolder}/eng/gen-envfile.sh"
+            }
+        },
+        {
             "label": "design-build",
             "command": "dotnet",
             "type": "process",
@@ -17,7 +24,8 @@
                     "DesignMode": "true"
                 }
             },
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "dependsOn": "gen-envfile"
         },
         {
             "label": "build",
@@ -34,7 +42,8 @@
                     "BuildTargetName": "vscode"
                 }
             },
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "dependsOn": "gen-envfile"
         }
     ]
 }

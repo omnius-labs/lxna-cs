@@ -3,45 +3,30 @@ using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
 using Omnius.Core.Pipelines;
+using Omnius.Lxna.Components.IconGenerators;
+using Omnius.Lxna.Components.IconGenerators.Models;
 using Omnius.Lxna.Components.Storages;
-using Omnius.Lxna.Components.Thumbnails;
-using Omnius.Lxna.Components.Thumbnails.Models;
+using Omnius.Lxna.Components.ThumbnailGenerators;
+using Omnius.Lxna.Components.ThumbnailGenerators.Models;
 using Omnius.Lxna.Ui.Desktop.Internal.Models;
 
 namespace Omnius.Lxna.Ui.Desktop.Interactors.Internal;
 
-public record struct ThumbnailsViewerStartResult
+public record struct ThumbnailsViewerLoadResult
 {
-    public ThumbnailsViewerStartResult(ImmutableArray<IThumbnail<IFile>> fileThumbnails, ImmutableArray<IThumbnail<IDirectory>> directoryThumbnails)
-    {
-        this.FileThumbnails = fileThumbnails;
-        this.DirectoryThumbnails = directoryThumbnails;
-    }
-
-    public ImmutableArray<IThumbnail<IFile>> FileThumbnails { get; }
-
-    public ImmutableArray<IThumbnail<IDirectory>> DirectoryThumbnails { get; }
+    public ImmutableArray<Thumbnail> Thumbnails { get; init; }
 }
 
-public interface IThumbnailsViewer : IAsyncDisposable
-{
-    void ItemPrepared(IThumbnail<object> thumbnail);
-
-    void ItemClearing(IThumbnail<object> thumbnail);
-
-    ValueTask<ThumbnailsViewerStartResult> StartAsync(IDirectory directory, int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan, CancellationToken cancellationToken = default);
-}
-
-public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
+public class ThumbnailsViewer : AsyncDisposableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly IDirectoryThumbnailGenerator _directoryThumbnailGenerator;
-    private readonly IFileThumbnailGenerator _fileThumbnailGenerator;
+    private readonly FileThumbnailGenerator _fileThumbnailGenerator;
     private readonly IApplicationDispatcher _applicationDispatcher;
 
-    private ImmutableArray<IThumbnail<object>> _models = ImmutableArray<IThumbnail<object>>.Empty;
-    private ImmutableHashSet<IThumbnail<object>> _shownModelSet = ImmutableHashSet<IThumbnail<object>>.Empty;
+    private ImmutableArray<Thumbnail> _thumbnails = ImmutableArray<Thumbnail>.Empty;
+    private ImmutableDictionary<Thumbnail, int> _thumbnailIndexMap = ImmutableDictionary<Thumbnail, int>.Empty;
+    private ImmutableHashSet<int> _preparedThumbnailIndexSet = ImmutableHashSet<int>.Empty;
 
     private Task _task = Task.CompletedTask;
     private ActionPipe _changedActionPipe = new();
@@ -49,9 +34,8 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
 
     private readonly AsyncLock _asyncLock = new();
 
-    public ThumbnailsViewer(IDirectoryThumbnailGenerator directoryThumbnailGenerator, IFileThumbnailGenerator fileThumbnailGenerator, IApplicationDispatcher applicationDispatcher)
+    public ThumbnailsViewer(FileThumbnailGenerator fileThumbnailGenerator, IApplicationDispatcher applicationDispatcher)
     {
-        _directoryThumbnailGenerator = directoryThumbnailGenerator;
         _fileThumbnailGenerator = fileThumbnailGenerator;
         _applicationDispatcher = applicationDispatcher;
     }
@@ -61,21 +45,27 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
         await _task;
     }
 
-    public void ItemPrepared(IThumbnail<object> thumbnail)
+    public void ThumbnailPrepared(Thumbnail thumbnail)
     {
-        _shownModelSet = _shownModelSet.Add(thumbnail);
-
-        _changedActionPipe.Caller.Call();
+        if (_thumbnailIndexMap.TryGetValue(thumbnail, out var index))
+        {
+            _preparedThumbnailIndexSet = _preparedThumbnailIndexSet.Add(index);
+            _changedActionPipe.Caller.Call();
+        }
     }
 
-    public void ItemClearing(IThumbnail<object> thumbnail)
+    public void ThumbnailClearing(Thumbnail thumbnail)
     {
-        _shownModelSet = _shownModelSet.Remove(thumbnail);
-
-        _changedActionPipe.Caller.Call();
+        if (_thumbnailIndexMap.TryGetValue(thumbnail, out var index))
+        {
+            _preparedThumbnailIndexSet = _preparedThumbnailIndexSet.Remove(index);
+            _changedActionPipe.Caller.Call();
+        }
     }
 
-    public async ValueTask<ThumbnailsViewerStartResult> StartAsync(IDirectory directory, int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan, CancellationToken cancellationToken = default)
+    public async ValueTask<ThumbnailsViewerLoadResult> LoadAsync(IDirectory directory,
+        int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan,
+        Comparison<IFile> comparison, CancellationToken cancellationToken = default)
     {
         await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
@@ -85,29 +75,30 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
 
             await _task;
 
-            var files = new List<IThumbnail<IFile>>();
-            var dirs = new List<IThumbnail<IDirectory>>();
+            var thumbnails = new List<Thumbnail>();
 
             foreach (var file in await directory.FindFilesAsync(cancellationToken))
             {
-                files.Add(new Thumbnail<IFile>(file, file.Name));
+                thumbnails.Add(new Thumbnail(file));
             }
 
-            foreach (var dir in await directory.FindDirectoriesAsync(cancellationToken))
+            thumbnails.Sort((x, y) => comparison.Invoke(x.File, y.File));
+            _thumbnails = thumbnails.ToImmutableArray();
+
+            var thumbnailIndexMap = ImmutableDictionary.CreateBuilder<Thumbnail, int>();
+
+            foreach (var (file, index) in thumbnails.Select((n, i) => (n, i)))
             {
-                dirs.Add(new Thumbnail<IDirectory>(dir, dir.Name));
+                thumbnailIndexMap.Add(file, index);
             }
 
-            files.Sort((x, y) => x.Name.CompareTo(y.Name));
-            dirs.Sort((x, y) => x.Name.CompareTo(y.Name));
-
-            _models = CollectionHelper.Unite<IThumbnail<object>>(files, dirs).ToImmutableArray();
+            _thumbnailIndexMap = thumbnailIndexMap.ToImmutable();
 
             var loadTask = this.LoadAsync(thumbnailWidth, thumbnailHeight);
             var rotateTask = this.RotateAsync(rotationSpan);
             _task = Task.WhenAll(loadTask, rotateTask);
 
-            return new ThumbnailsViewerStartResult(files.ToImmutableArray(), dirs.ToImmutableArray());
+            return new ThumbnailsViewerLoadResult { Thumbnails = _thumbnails };
         }
     }
 
@@ -127,17 +118,17 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
             {
                 await changedEvent.WaitAsync(canceledTokenSource.Token);
 
-                var shownModelSet = new HashSet<IThumbnail<object>>(this.GetShownModels());
-                var hiddenModels = _models.Where(n => !shownModelSet.Contains(n)).ToArray();
+                var shownThumbnailSet = new HashSet<Thumbnail>(this.GetShownModels());
+                var hiddenThumbnails = _thumbnails.Where(n => !shownThumbnailSet.Contains(n)).ToArray();
 
                 using var changedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(canceledTokenSource.Token);
                 using var changedActionListener2 = _changedActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => changedTokenSource.Cancel()));
 
                 try
                 {
-                    await this.ClearThumbnailAsync(hiddenModels, changedTokenSource.Token);
-                    await this.LoadThumbnailAsync(shownModelSet.Where(n => n.Image == null), width, height, false, changedTokenSource.Token);
-                    await this.LoadThumbnailAsync(shownModelSet.Where(n => n.Image == null), width, height, true, changedTokenSource.Token);
+                    await this.ClearThumbnailAsync(hiddenThumbnails, changedTokenSource.Token);
+                    await this.LoadThumbnailAsync(shownThumbnailSet.Where(n => n.Image == null), width, height, false, changedTokenSource.Token);
+                    await this.LoadThumbnailAsync(shownThumbnailSet.Where(n => n.Image == null), width, height, true, changedTokenSource.Token);
                 }
                 catch (OperationCanceledException e)
                 {
@@ -155,7 +146,7 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
         }
     }
 
-    private async Task ClearThumbnailAsync(IEnumerable<IThumbnail<object>> models, CancellationToken cancellationToken = default)
+    private async Task ClearThumbnailAsync(IEnumerable<Thumbnail> models, CancellationToken cancellationToken = default)
     {
         await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
@@ -168,55 +159,31 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
         });
     }
 
-    private async Task LoadThumbnailAsync(IEnumerable<IThumbnail<object>> models, int width, int height, bool cacheOnly, CancellationToken cancellationToken = default)
+    private async Task LoadThumbnailAsync(IEnumerable<Thumbnail> models, int width, int height, bool cacheOnly, CancellationToken cancellationToken = default)
     {
         await Task.Delay(1, cancellationToken).ConfigureAwait(false);
 
-        foreach (var model in models)
+        foreach (var thumbnail in models)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (model is Thumbnail<IDirectory> dirThumbnail)
+            var options = new FileThumbnailOptions
             {
-                var options = new DirectoryThumbnailOptions
-                {
-                    Width = width,
-                    Height = height,
-                    FormatType = ThumbnailFormatType.Png,
-                    ResizeType = ThumbnailResizeType.Pad,
-                    MinInterval = TimeSpan.FromSeconds(5),
-                    MaxImageCount = 10
-                };
-                var result = await _directoryThumbnailGenerator.GenerateAsync(dirThumbnail.Target, options, cacheOnly, cancellationToken).ConfigureAwait(false);
+                Width = width,
+                Height = height,
+                FormatType = ThumbnailFormatType.Png,
+                ResizeType = ThumbnailResizeType.Pad,
+                MinInterval = TimeSpan.FromSeconds(5),
+                MaxImageCount = 10
+            };
+            var result = await _fileThumbnailGenerator.GenerateAsync(thumbnail.File, options, cacheOnly, cancellationToken).ConfigureAwait(false);
 
-                if (result.Status == DirectoryThumbnailResultStatus.Succeeded)
-                {
-                    await _applicationDispatcher.InvokeAsync(() =>
-                    {
-                        model.Set(result.Contents);
-                    });
-                }
-            }
-            else if (model is Thumbnail<IFile> fileThumbnail)
+            if (result.Status == FileThumbnailResultStatus.Succeeded)
             {
-                var options = new FileThumbnailOptions
+                await _applicationDispatcher.InvokeAsync(() =>
                 {
-                    Width = width,
-                    Height = height,
-                    FormatType = ThumbnailFormatType.Png,
-                    ResizeType = ThumbnailResizeType.Pad,
-                    MinInterval = TimeSpan.FromSeconds(5),
-                    MaxImageCount = 10
-                };
-                var result = await _fileThumbnailGenerator.GenerateAsync(fileThumbnail.Target, options, cacheOnly, cancellationToken).ConfigureAwait(false);
-
-                if (result.Status == FileThumbnailResultStatus.Succeeded)
-                {
-                    await _applicationDispatcher.InvokeAsync(() =>
-                    {
-                        model.Set(result.Contents);
-                    });
-                }
+                    thumbnail.Set(result.Contents);
+                });
             }
         }
     }
@@ -255,34 +222,32 @@ public class ThumbnailsViewer : AsyncDisposableBase, IThumbnailsViewer
         }
     }
 
-    private IThumbnail<object>[] GetShownModels()
+    private Thumbnail[] GetShownModels()
     {
-        var models = _models;
-        var shownModelSet = _shownModelSet;
+        var thumbnails = _thumbnails;
+        var preparedThumbnailIndexSet = _preparedThumbnailIndexSet;
+        if (preparedThumbnailIndexSet.Count == 0) return [];
 
-        int minIndex = models.Length;
+        int minIndex = thumbnails.Length;
         int maxIndex = 0;
 
-        foreach (var (model, index) in models.Select((n, i) => (n, i)))
+        foreach (var index in preparedThumbnailIndexSet)
         {
-            if (!shownModelSet.Contains(model)) continue;
-
             minIndex = Math.Min(minIndex, index);
             maxIndex = Math.Max(maxIndex, index);
         }
 
+        // padding
         minIndex = Math.Max(minIndex - 1, 0);
-        maxIndex = Math.Min(maxIndex + 1, models.Length);
+        maxIndex = Math.Min(maxIndex + 1, thumbnails.Length);
 
-        var result = new List<IThumbnail<object>>();
+        var result = new List<Thumbnail>();
 
-        foreach (var (model, index) in models.Select((n, i) => (n, i)))
+        foreach (var thumbnail in thumbnails[minIndex..maxIndex])
         {
-            if (index < minIndex || index > maxIndex) continue;
-
-            result.Add(model);
+            result.Add(thumbnail);
         }
 
-        return result.OrderBy(n => !shownModelSet.Contains(n)).ToArray();
+        return result.ToArray();
     }
 }

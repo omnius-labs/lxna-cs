@@ -19,6 +19,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\refs\core-cs\src\Omnius.Core.Collections\Omnius.Core.Collections.csproj" />
+    <ProjectReference Include="..\..\refs\core-cs\src\Omnius.Core.Cryptography\Omnius.Core.Cryptography.csproj" />
+    <ProjectReference Include="..\..\refs\core-cs\src\Omnius.Core.Streams\Omnius.Core.Streams.csproj" />
+    <ProjectReference Include="..\..\refs\core-cs\src\Omnius.Core.Net\Omnius.Core.Net.csproj" />
+    <ProjectReference Include="..\..\refs\core-cs\src\Omnius.Core.RocketPack\Omnius.Core.RocketPack.csproj" />
+    <ProjectReference Include="..\..\refs\core-cs\src\Omnius.Core.Serialization\Omnius.Core.Serialization.csproj" />
+    <ProjectReference Include="..\..\refs\core-cs\src\Omnius.Core\Omnius.Core.csproj" />
+    <ProjectReference Include="..\..\refs\core-cs\src\Omnius.Core.Utils\Omnius.Core.Utils.csproj" />
+    <ProjectReference Include="..\..\refs\core-cs\src\Omnius.Core.Avalonia\Omnius.Core.Avalonia.csproj" />
+    <ProjectReference Include="..\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" />
     <PackageReference Include="Avalonia.Diagnostics" />
     <PackageReference Include="Avalonia.Skia" />
@@ -37,19 +50,6 @@
     <PackageReference Include="NLog" />
     <PackageReference Include="ReactiveProperty" />
     <PackageReference Include="YamlDotNet" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Collections\Omnius.Core.Collections.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Cryptography\Omnius.Core.Cryptography.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Streams\Omnius.Core.Streams.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Net\Omnius.Core.Net.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.RocketPack\Omnius.Core.RocketPack.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Serialization\Omnius.Core.Serialization.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core\Omnius.Core.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Utils\Omnius.Core.Utils.csproj" />
-    <ProjectReference Include="..\..\refs\core\src\Omnius.Core.Avalonia\Omnius.Core.Avalonia.csproj" />
-    <ProjectReference Include="..\Omnius.Lxna.Components\Omnius.Lxna.Components.csproj" />
   </ItemGroup>
 
   <ItemGroup>

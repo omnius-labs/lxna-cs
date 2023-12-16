@@ -45,5 +45,5 @@ public readonly partial struct NestedPath : IComparable<NestedPath>
         return new NestedPath(originalPath.Values[..^1].Append(new Utf8String(lastPath)).ToArray());
     }
 
-    public override string ToString() => string.Join('\n', this.Values.Select(n => string.Format($"\"{n}\"")));
+    public override string ToString() => string.Join('\n', this.Values.Select(n => $"\"{n}\""));
 }

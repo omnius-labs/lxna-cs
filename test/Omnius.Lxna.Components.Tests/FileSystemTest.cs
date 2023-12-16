@@ -1,6 +1,5 @@
 using Omnius.Core;
 using Omnius.Core.UnitTestToolkit;
-using Omnius.Lxna.Components.Storages;
 using Omnius.Lxna.Components.Storages.Models;
 using Xunit;
 
@@ -14,8 +13,8 @@ namespace Omnius.Lxna.Components
             using var deleter = FixtureFactory.GenTempDirectory(out var tempDirPath);
             var testRootDirPath = Path.Combine(TestEnvironment.GetBasePath(), "Data/NestedArchiveFileTest");
 
-            var storageOptions = new LxnaStorageOptions { RootDirectoryPath = testRootDirPath, TempDirectoryPath = tempDirPath };
-            var storage = await LxnaStorage.CreateAsync(BytesPool.Shared, storageOptions);
+            var storageOptions = new LocalStorageControllerOptions { RootDirectoryPath = testRootDirPath, TempDirectoryPath = tempDirPath };
+            var storage = await LocalStorageController.CreateAsync(BytesPool.Shared, storageOptions);
 
             var rootDirs = await storage.FindDirectoriesAsync();
             using var rootDir = rootDirs.Single();
