@@ -8,6 +8,7 @@ namespace Omnius.Lxna.Components.Storages;
 public record LocalStorageOptions
 {
     public required string TempDirectoryPath { get; init; }
+    public string? RootDirectoryPath { get; set; }
 }
 
 public sealed class LocalStorage : IStorage
@@ -28,21 +29,28 @@ public sealed class LocalStorage : IStorage
 
     public async ValueTask<IEnumerable<IDirectory>> FindDirectoriesAsync(CancellationToken cancellationToken = default)
     {
-        var results = new List<IDirectory>();
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (_options.RootDirectoryPath is string rootDirectoryPath)
         {
-            foreach (var drive in Directory.GetLogicalDrives())
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                results.Add(new LocalDirectory(_bytesPool, PathHelper.Normalize(drive), _options.TempDirectoryPath));
-            }
+            return [new LocalDirectory(_bytesPool, PathHelper.Normalize(rootDirectoryPath), _options.TempDirectoryPath)];
         }
         else
         {
-            results.Add(new LocalDirectory(_bytesPool, PathHelper.Normalize("/"), _options.TempDirectoryPath));
-        }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var results = new List<IDirectory>();
 
-        return results;
+                foreach (var drive in Directory.GetLogicalDrives())
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    results.Add(new LocalDirectory(_bytesPool, PathHelper.Normalize(drive), _options.TempDirectoryPath));
+                }
+
+                return results;
+            }
+            else
+            {
+                return [new LocalDirectory(_bytesPool, PathHelper.Normalize("/"), _options.TempDirectoryPath)];
+            }
+        }
     }
 }
