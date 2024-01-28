@@ -21,7 +21,7 @@
     </Design.DataContext>
 
     <DockPanel>
-        <DockPanel Classes="Sidebar">
+        <DockPanel Classes="Sidebar" Width="100">
             <ListBox x:Name="TabListBox" DockPanel.Dock="Top">
                 <ListBoxItem Name="ExplorerListBoxItem" IsSelected="true">
                     <StackPanel>

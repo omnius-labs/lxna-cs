@@ -5,9 +5,9 @@
         xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
         xmlns:local="clr-namespace:Omnius.Lxna.Ui.Desktop.Windows.Main;assembly=Omnius.Lxna.Ui.Desktop"
         xmlns:c="clr-namespace:Omnius.Core.Avalonia.Converters;assembly=Omnius.Core.Avalonia"
+        xmlns:ir="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.ItemsRepeater"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:progRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
         x:CompileBindings="True"
         x:DataType="local:ExplorerViewModelBase"
         mc:Ignorable="d"
@@ -20,7 +20,6 @@
     <Panel>
         <Panel ZIndex="1" IsEnabled="{Binding IsWaiting.Value}" IsVisible="{Binding IsWaiting.Value}">
             <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <progRing:ProgressRing DockPanel.Dock="Top" IsActive="{Binding IsWaiting.Value}" Width="200" Height="200" Foreground="Gray" />
                 <Button DockPanel.Dock="Bottom" Content="Cancel" Command="{Binding CancelWaitCommand}" />
             </DockPanel>
         </Panel>
@@ -31,14 +30,14 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <ItemsRepeater x:Name="TreeNodesRepeater" Items="{Binding RootTreeNode.VisibleChildren}">
+                <ItemsRepeater x:Name="TreeNodesRepeater" ItemsSource="{Binding RootTreeNode.VisibleChildren}">
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
-                            <Panel>
+                            <Panel IsHitTestVisible="True">
                                 <Border IsVisible="{Binding IsSelected}" IsHitTestVisible="False" Background="Gray" />
                                 <Border Padding="{Binding Level, Converter={StaticResource LevelPaddingConverter}, ConverterParameter=30}">
                                     <StackPanel Orientation="Horizontal">
-                                        <CheckBox IsChecked="{Binding IsExpanded}" VerticalAlignment="Center" />
+                                        <CheckBox Classes="tree" IsChecked="{Binding IsExpanded}" VerticalAlignment="Center" />
                                         <TextBlock Focusable="True" Text="{Binding Name}" Margin="5 0 0 0" VerticalAlignment="Center" />
                                     </StackPanel>
                                 </Border>
@@ -49,13 +48,13 @@
             </ScrollViewer>
             <GridSplitter Grid.Column="1" />
             <ScrollViewer Grid.Column="2" x:Name="ThumbnailsViewer" HorizontalScrollBarVisibility="Disabled">
-                <ItemsRepeater x:Name="ThumbnailsRepeater" HorizontalAlignment="Stretch" Items="{ReflectionBinding Thumbnails}">
+                <ItemsRepeater x:Name="ThumbnailsRepeater" HorizontalAlignment="Stretch" ItemsSource="{ReflectionBinding Thumbnails}">
                     <ItemsRepeater.Layout>
                         <UniformGridLayout MinItemHeight="256" MinItemWidth="256" MinColumnSpacing="2" MinRowSpacing="2"/>
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderThickness="1" BorderBrush="Gray">
+                            <Border IsHitTestVisible="True" BorderThickness="1" BorderBrush="Gray">
                                 <DockPanel>
                                     <TextBlock DockPanel.Dock="Bottom" Grid.Row="1" Text="{ReflectionBinding Name}" TextWrapping="NoWrap" Margin="8" HorizontalAlignment="Center" />
                                     <Image Grid.Row="0" Source="{ReflectionBinding Image}" MaxWidth="256" MaxHeight="256" />

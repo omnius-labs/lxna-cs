@@ -10,7 +10,7 @@ public interface IExplorerViewCommands
     void ThumbnailsScrollToTop();
 }
 
-public class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, IExplorerViewCommands
+public partial class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, IExplorerViewCommands
 {
     private readonly ItemsRepeater _treeNodesRepeater;
     private readonly ScrollViewer _ThumbnailsViewer;

@@ -21,7 +21,11 @@ public class App : Application
     public override void Initialize()
     {
         AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler((_, e) => _logger.Error(e));
-        this.ApplicationLifetime!.Exit += (_, _) => this.Exit();
+
+        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
+        {
+            lifetime.Exit += (_, _) => this.Exit();
+        }
 
         AvaloniaXamlLoader.Load(this);
     }
@@ -145,6 +149,7 @@ public class App : Application
         catch (Exception e)
         {
             _logger.Error(e, "Unexpected Exception");
+            throw;
         }
     }
 
