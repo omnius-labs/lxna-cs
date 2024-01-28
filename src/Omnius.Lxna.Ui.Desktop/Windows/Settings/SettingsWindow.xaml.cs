@@ -4,7 +4,7 @@ using Omnius.Core.Avalonia;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Settings;
 
-public class SettingsWindow : StatefulWindowBase<SettingsWindowModelBase>
+public class SettingsWindow : RestorableWindow
 {
     public SettingsWindow()
         : base()
@@ -31,7 +31,7 @@ public class SettingsWindow : StatefulWindowBase<SettingsWindowModelBase>
 
     private async void OnClosed()
     {
-        if (this.ViewModel is IAsyncDisposable disposable)
+        if (this.DataContext is IAsyncDisposable disposable)
         {
             await disposable.DisposeAsync();
         }

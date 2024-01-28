@@ -28,7 +28,7 @@ public class MainWindowDesignModel : MainWindowModelBase
     private async Task SettingsAsync()
     {
         var window = new SettingsWindow();
-        window.ViewModel = new SettingsWindowDesignModel();
+        window.DataContext = new SettingsWindowDesignModel();
         await window.ShowDialog(App.Current!.MainWindow);
     }
 }

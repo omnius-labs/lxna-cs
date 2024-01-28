@@ -85,7 +85,7 @@ public class App : Application
                 {
                     case "Main":
                         var mainWindow = new MainWindow();
-                        mainWindow.ViewModel = new MainWindowDesignModel();
+                        mainWindow.DataContext = new MainWindowDesignModel();
                         lifeTime.MainWindow = mainWindow;
                         break;
                 }
@@ -144,7 +144,7 @@ public class App : Application
             await Bootstrapper.Instance.BuildAsync(lxnaEnvironment);
 
             var serviceProvider = Bootstrapper.Instance.GetServiceProvider();
-            mainWindow.ViewModel = serviceProvider.GetRequiredService<MainWindowModel>();
+            mainWindow.DataContext = serviceProvider.GetRequiredService<MainWindowModel>();
         }
         catch (Exception e)
         {

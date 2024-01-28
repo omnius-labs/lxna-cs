@@ -48,7 +48,7 @@ public class DialogService : IDialogService
 
             var viewModel = serviceProvider.GetRequiredService<PicturePreviewWindowModel>();
             await viewModel.InitializeAsync(file, cancellationToken);
-            window.ViewModel = viewModel;
+            window.DataContext = viewModel;
 
             await window.ShowDialog(_mainWindowProvider.GetMainWindow());
         });

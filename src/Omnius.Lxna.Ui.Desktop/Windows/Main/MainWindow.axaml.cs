@@ -5,7 +5,7 @@ using Omnius.Core.Avalonia;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
-public partial class MainWindow : StatefulWindowBase<MainWindowModelBase>
+public partial class MainWindow : RestorableWindow
 {
     public MainWindow()
         : base()
@@ -32,7 +32,7 @@ public partial class MainWindow : StatefulWindowBase<MainWindowModelBase>
 
     private async void OnClosed()
     {
-        if (this.ViewModel is IAsyncDisposable disposable)
+        if (this.DataContext is IAsyncDisposable disposable)
         {
             await disposable.DisposeAsync();
         }

@@ -10,7 +10,7 @@ public interface IExplorerViewCommands
     void ThumbnailsScrollToTop();
 }
 
-public partial class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, IExplorerViewCommands
+public partial class ExplorerView : UserControl, IExplorerViewCommands
 {
     private readonly ItemsRepeater _treeNodesRepeater;
     private readonly ScrollViewer _ThumbnailsViewer;
@@ -24,7 +24,7 @@ public partial class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, 
         _ThumbnailsViewer = this.FindControl<ScrollViewer>("ThumbnailsViewer");
         _ThumbnailsRepeater = this.FindControl<ItemsRepeater>("ThumbnailsRepeater");
 
-        this.GetObservable(ViewModelProperty).Subscribe(this.OnViewModelChanged);
+        this.DataContextChanged += this.OnDataContextChanged;
         _treeNodesRepeater.Tapped += this.OnTreeNodeTapped;
         _ThumbnailsRepeater.DoubleTapped += this.OnThumbnailDoubleTapped;
         _ThumbnailsRepeater.ElementPrepared += this.OnThumbnailPrepared;
@@ -41,9 +41,12 @@ public partial class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, 
         _ThumbnailsViewer.ScrollToHome();
     }
 
-    private void OnViewModelChanged(ExplorerViewModelBase? viewModel)
+    private void OnDataContextChanged(object? sender, EventArgs e)
     {
-        viewModel?.SetViewCommands(this);
+        if (this.DataContext is ExplorerViewModel viewModel)
+        {
+            viewModel.SetViewCommands(this);
+        }
     }
 
     private void OnTreeNodeTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -51,7 +54,10 @@ public partial class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, 
         if (e.Source is IDataContextProvider control)
         {
             if (control.DataContext is null) return;
-            this.ViewModel?.NotifyTreeNodeTapped(control.DataContext);
+            if (this.DataContext is ExplorerViewModel viewModel)
+            {
+                viewModel.NotifyTreeNodeTapped(control.DataContext);
+            }
         }
     }
 
@@ -60,19 +66,28 @@ public partial class ExplorerView : StatefulUserControl<ExplorerViewModelBase>, 
         if (e.Source is IDataContextProvider control)
         {
             if (control.DataContext is null) return;
-            this.ViewModel?.NotifyThumbnailDoubleTapped(control.DataContext);
+            if (this.DataContext is ExplorerViewModel viewModel)
+            {
+                viewModel.NotifyThumbnailDoubleTapped(control.DataContext);
+            }
         }
     }
 
     private void OnThumbnailPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
     {
         if (e.Element.DataContext is null) return;
-        this.ViewModel?.NotifyThumbnailPrepared(e.Element.DataContext);
+        if (this.DataContext is ExplorerViewModel viewModel)
+        {
+            viewModel.NotifyThumbnailPrepared(e.Element.DataContext);
+        }
     }
 
     private void OnThumbnailClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
     {
         if (e.Element.DataContext is null) return;
-        this.ViewModel?.NotifyThumbnailClearing(e.Element.DataContext);
+        if (this.DataContext is ExplorerViewModel viewModel)
+        {
+            viewModel.NotifyThumbnailClearing(e.Element.DataContext);
+        }
     }
 }

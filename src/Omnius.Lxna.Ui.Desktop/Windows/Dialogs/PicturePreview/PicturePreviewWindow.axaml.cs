@@ -4,7 +4,7 @@ using Omnius.Core.Avalonia;
 
 namespace Omnius.Axis.Ui.Desktop.Windows.Dialogs.PicturePreview;
 
-public partial class PicturePreviewWindow : StatefulWindowBase<PicturePreviewWindowModelBase>
+public partial class PicturePreviewWindow : RestorableWindow
 {
     public PicturePreviewWindow()
         : base()
@@ -31,7 +31,7 @@ public partial class PicturePreviewWindow : StatefulWindowBase<PicturePreviewWin
 
     private async void OnClosed()
     {
-        if (this.ViewModel is IAsyncDisposable disposable)
+        if (this.DataContext is IAsyncDisposable disposable)
         {
             await disposable.DisposeAsync();
         }
