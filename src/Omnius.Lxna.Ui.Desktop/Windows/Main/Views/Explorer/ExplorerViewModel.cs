@@ -7,7 +7,6 @@ using Omnius.Core.Helpers;
 using Omnius.Core.Pipelines;
 using Omnius.Core.Text;
 using Omnius.Lxna.Components.Storages;
-using Omnius.Lxna.Components.Storages.Models;
 using Omnius.Lxna.Ui.Desktop.Configuration;
 using Omnius.Lxna.Ui.Desktop.Helpers;
 using Omnius.Lxna.Ui.Desktop.Interactors.Internal;

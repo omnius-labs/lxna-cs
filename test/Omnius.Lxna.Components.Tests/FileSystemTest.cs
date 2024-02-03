@@ -1,7 +1,6 @@
 using Omnius.Core;
 using Omnius.Core.UnitTestToolkit;
 using Omnius.Lxna.Components.Storages;
-using Omnius.Lxna.Components.Storages.Models;
 using Xunit;
 
 namespace Omnius.Lxna.Components

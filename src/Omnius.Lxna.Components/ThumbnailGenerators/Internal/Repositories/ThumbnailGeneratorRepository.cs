@@ -2,10 +2,8 @@ using LiteDB;
 using Omnius.Core;
 using Omnius.Core.Helpers;
 using Omnius.Core.RocketPack;
-using Omnius.Lxna.Components.Storages.Models;
-using Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common.Models;
+using Omnius.Lxna.Components.Storages;
 using Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common.Repositories.Entities;
-using Omnius.Lxna.Components.ThumbnailGenerators.Models;
 
 namespace Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common.Repositories;
 

@@ -1,7 +1,6 @@
 using ImageMagick;
 using Omnius.Core;
 using Omnius.Core.Streams;
-using Omnius.Lxna.Components.IconGenerators.Models;
 using Omnius.Lxna.Components.Storages;
 using SixLabors.ImageSharp.Processing;
 
@@ -133,4 +132,24 @@ public sealed class DirectoryIconGenerator : AsyncDisposableBase
 
         throw new NotSupportedException();
     }
+}
+
+public record DirectoryIconOptions
+{
+    public required int Width { get; init; }
+    public required int Height { get; init; }
+    public required IconFormatType FormatType { get; init; }
+}
+
+public record struct DirectoryIconResult
+{
+    public DirectoryIconResultStatus Status { get; init; }
+    public IconContent? Content { get; set; }
+}
+
+public enum DirectoryIconResultStatus
+{
+    Unknown,
+    Succeeded,
+    Failed,
 }

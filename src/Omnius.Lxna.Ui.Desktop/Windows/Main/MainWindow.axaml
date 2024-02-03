@@ -32,7 +32,7 @@
                     </StackPanel>
                 </ListBoxItem>
             </ListBox>
-            <Button Classes="Flat Accent" VerticalAlignment="Bottom" Command="{Binding SettingsCommand}">
+            <Button VerticalAlignment="Bottom" Command="{Binding SettingsCommand}">
                 <StackPanel>
                     <Panel>
                         <skp:Svg Path="/Assets/settings.svg" />

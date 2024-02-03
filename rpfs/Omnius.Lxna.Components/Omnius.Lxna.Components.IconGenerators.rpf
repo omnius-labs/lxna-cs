@@ -1,6 +1,6 @@
 ﻿syntax v1.0;
 
-namespace "Omnius.Lxna.Components.IconGenerators.Models";
+namespace "Omnius.Lxna.Components.IconGenerators";
 
 enum IconResizeResamplerType : uint8 {
     Lanczos3 = 0,

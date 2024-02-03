@@ -7,13 +7,14 @@
             <StackPanel.Styles>
                 <Style Selector="Label.separator" >
                     <Setter Property="Height" Value="32" />
+                    <Setter Property="Background" Value="Gray" />
                     <Setter Property="VerticalContentAlignment" Value="Center" />
                     <Setter Property="HorizontalContentAlignment" Value="Center" />
                 </Style>
             </StackPanel.Styles>
 
             <Label Classes="separator" Content="UserControl" />
-            <UserControl MinWidth="100" MinHeight="100"/>
+            <UserControl MinWidth="50" MinHeight="50"/>
 
             <Label Classes="separator" Content="TextBox" />
             <TextBox Text="Sample Text"/>
@@ -72,7 +73,7 @@
     </Style>
 
     <Style Selector="TextBox">
-        <Setter Property="Height" Value="36" />
+        <Setter Property="Height" Value="32" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="0" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -80,13 +81,15 @@
 
     <Style Selector="Label">
         <Setter Property="FontSize" Value="16" />
-        <Setter Property="Height" Value="36" />
+        <Setter Property="Height" Value="32" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
     <Style Selector="CheckBox" >
         <Setter Property="FontSize" Value="16" />
-        <Setter Property="Height" Value="36" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
         <Setter Property="ContentTemplate">
@@ -100,7 +103,7 @@
 
     <Style Selector="Button">
         <Setter Property="FontSize" Value="16" />
-        <Setter Property="Height" Value="36" />
+        <Setter Property="Height" Value="32" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="ContentTemplate">
             <Setter.Value>
@@ -113,7 +116,7 @@
 
     <Style Selector="ToggleSwitch">
         <Setter Property="FontSize" Value="16" />
-        <Setter Property="Height" Value="36" />
+        <Setter Property="Height" Value="32" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="ContentTemplate">
             <Setter.Value>
@@ -125,9 +128,8 @@
     </Style>
 
     <Style Selector="ComboBox">
-        <Setter Property="Height" Value="31" />
-        <Setter Property="Padding" Value="6,0" />
-        <Setter Property="Margin" Value="0,5" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Margin" Value="0" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 

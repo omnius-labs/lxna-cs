@@ -37,11 +37,11 @@ public class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    public static new App? Current => Application.Current as App;
+    public static new App Current => (App)Application.Current!;
 
-    public new IClassicDesktopStyleApplicationLifetime? ApplicationLifetime => base.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+    public new IClassicDesktopStyleApplicationLifetime ApplicationLifetime => (IClassicDesktopStyleApplicationLifetime)base.ApplicationLifetime!;
 
-    public MainWindow? MainWindow => this.ApplicationLifetime?.MainWindow as MainWindow;
+    public MainWindow MainWindow => (MainWindow)this.ApplicationLifetime?.MainWindow!;
 
     public bool IsDesignMode
     {

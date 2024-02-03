@@ -4,10 +4,8 @@ using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
 using Omnius.Core.Pipelines;
 using Omnius.Lxna.Components.IconGenerators;
-using Omnius.Lxna.Components.IconGenerators.Models;
 using Omnius.Lxna.Components.Storages;
 using Omnius.Lxna.Components.ThumbnailGenerators;
-using Omnius.Lxna.Components.ThumbnailGenerators.Models;
 using Omnius.Lxna.Ui.Desktop.Internal.Models;
 
 namespace Omnius.Lxna.Ui.Desktop.Interactors.Internal;

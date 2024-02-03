@@ -15,10 +15,10 @@ public class SettingsWindowDesignModel : SettingsWindowModelBase
         this.Status = new SettingsWindowStatus();
 
         this.OkCommand = new AsyncReactiveCommand().AddTo(_disposable);
-        this.OkCommand.Subscribe(async (state) => await this.OkAsync(state)).AddTo(_disposable);
+        this.OkCommand.Subscribe(this.OkAsync).AddTo(_disposable);
 
         this.CancelCommand = new AsyncReactiveCommand().AddTo(_disposable);
-        this.CancelCommand.Subscribe(async (state) => await this.CancelAsync(state)).AddTo(_disposable);
+        this.CancelCommand.Subscribe(this.CancelAsync).AddTo(_disposable);
     }
 
     public override async ValueTask InitializeAsync(CancellationToken cancellationToken = default)
@@ -30,15 +30,19 @@ public class SettingsWindowDesignModel : SettingsWindowModelBase
         _disposable.Dispose();
     }
 
-    private async Task OkAsync(object state)
+    private async Task OkAsync(object? state)
     {
-        var window = (Window)state;
-        window.Close();
+        if (state is Window window)
+        {
+            window.Close();
+        }
     }
 
-    private async Task CancelAsync(object state)
+    private async Task CancelAsync(object? state)
     {
-        var window = (Window)state;
-        window.Close();
+        if (state is Window window)
+        {
+            window.Close();
+        }
     }
 }

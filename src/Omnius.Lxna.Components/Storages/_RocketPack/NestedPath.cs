@@ -2,7 +2,7 @@ using Omnius.Core.Helpers;
 using Omnius.Core.RocketPack;
 using Omnius.Lxna.Components.Storages.Internal.Helpers;
 
-namespace Omnius.Lxna.Components.Storages.Models;
+namespace Omnius.Lxna.Components.Storages;
 
 public readonly partial struct NestedPath : IComparable<NestedPath>
 {

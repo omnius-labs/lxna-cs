@@ -1,6 +1,8 @@
 {
     "dotnet.defaultSolution": "lxna.sln",
     "cSpell.words": [
+        "Bootstrapper",
         "Magick"
-    ]
+    ],
+    "rust-analyzer.enable" : false,
 }

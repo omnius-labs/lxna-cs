@@ -1,5 +1,3 @@
-using Omnius.Lxna.Components.ThumbnailGenerators.Models;
-
 namespace Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common.Repositories.Entities;
 
 public class ThumbnailCacheIdEntity

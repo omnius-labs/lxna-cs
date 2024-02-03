@@ -4,7 +4,7 @@ using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Storages;
-using Omnius.Lxna.Components.ThumbnailGenerators.Models;
+using Omnius.Lxna.Components.ThumbnailGenerators;
 
 namespace Omnius.Lxna.Ui.Desktop.Internal.Models;
 

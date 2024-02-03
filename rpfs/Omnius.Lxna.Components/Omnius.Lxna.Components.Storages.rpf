@@ -1,6 +1,6 @@
 ﻿syntax v1.0;
 
-namespace "Omnius.Lxna.Components.Storages.Models";
+namespace "Omnius.Lxna.Components.Storages";
 
 [csharp_struct]
 struct NestedPath {

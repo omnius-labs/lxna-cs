@@ -2,11 +2,11 @@
     - ./refs/core/rpfs/**/*.rpf
     - ./rpfs/**/*.rpf
   CompileTargets:
-    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Storages.Models.rpf
-      Output: ./src/Omnius.Lxna.Components/Storages/Models/_RocketPack/_Generated.cs
-    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.ThumbnailGenerators.Models.rpf
-      Output: ./src/Omnius.Lxna.Components/ThumbnailGenerators/Models/_RocketPack/_Generated.cs
-    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.ThumbnailGenerators.Internal.Models.rpf
-      Output: ./src/Omnius.Lxna.Components/ThumbnailGenerators/Internal/Models/_RocketPack/_Generated.cs
-    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.IconGenerators.Models.rpf
-      Output: ./src/Omnius.Lxna.Components/IconGenerators/Models/_RocketPack/_Generated.cs
+    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.Storages.rpf
+      Output: ./src/Omnius.Lxna.Components/Storages/_RocketPack/_Generated.cs
+    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.ThumbnailGenerators.rpf
+      Output: ./src/Omnius.Lxna.Components/ThumbnailGenerators/_RocketPack/_Generated.cs
+    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.ThumbnailGenerators.Internal.rpf
+      Output: ./src/Omnius.Lxna.Components/ThumbnailGenerators/Internal/_RocketPack/_Generated.cs
+    - Input: ./rpfs/Omnius.Lxna.Components/Omnius.Lxna.Components.IconGenerators.rpf
+      Output: ./src/Omnius.Lxna.Components/IconGenerators/_RocketPack/_Generated.cs

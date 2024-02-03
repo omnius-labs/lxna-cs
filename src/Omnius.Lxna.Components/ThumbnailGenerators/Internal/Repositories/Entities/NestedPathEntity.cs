@@ -1,4 +1,4 @@
-using Omnius.Lxna.Components.Storages.Models;
+using Omnius.Lxna.Components.Storages;
 
 namespace Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common.Repositories.Entities;
 

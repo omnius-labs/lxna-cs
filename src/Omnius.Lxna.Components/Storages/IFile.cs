@@ -1,5 +1,3 @@
-using Omnius.Lxna.Components.Storages.Models;
-
 namespace Omnius.Lxna.Components.Storages;
 
 public interface IFile : IDisposable

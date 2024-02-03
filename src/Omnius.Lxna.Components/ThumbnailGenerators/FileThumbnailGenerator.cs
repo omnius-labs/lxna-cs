@@ -4,13 +4,13 @@ using System.Diagnostics;
 using System.Globalization;
 using ImageMagick;
 using Omnius.Core;
+using Omnius.Core.Collections;
 using Omnius.Core.RocketPack;
 using Omnius.Core.Serialization;
 using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Storages;
-using Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common.Models;
+using Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common;
 using Omnius.Lxna.Components.ThumbnailGenerators.Internal.Common.Repositories;
-using Omnius.Lxna.Components.ThumbnailGenerators.Models;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
@@ -359,4 +359,33 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase
 
         throw new NotSupportedException();
     }
+}
+
+public record FileThumbnailOptions
+{
+    public required int Width { get; init; }
+    public required int Height { get; init; }
+    public required ThumbnailFormatType FormatType { get; init; }
+    public required ThumbnailResizeType ResizeType { get; init; }
+    public required TimeSpan MinInterval { get; init; }
+    public required int MaxImageCount { get; init; }
+}
+
+public readonly struct FileThumbnailResult
+{
+    public FileThumbnailResult(FileThumbnailResultStatus status, IEnumerable<ThumbnailContent>? contents = null)
+    {
+        this.Status = status;
+        this.Contents = new ReadOnlyListSlim<ThumbnailContent>(contents?.ToArray() ?? Array.Empty<ThumbnailContent>());
+    }
+
+    public FileThumbnailResultStatus Status { get; }
+    public ReadOnlyListSlim<ThumbnailContent> Contents { get; }
+}
+
+public enum FileThumbnailResultStatus
+{
+    Unknown,
+    Succeeded,
+    Failed,
 }

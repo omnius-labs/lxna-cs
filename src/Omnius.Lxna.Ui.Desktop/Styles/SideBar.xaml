@@ -15,7 +15,7 @@
                         </StackPanel>
                     </ListBoxItem>
                 </ListBox>
-                <Button Classes="Flat Accent">
+                <Button>
                     <StackPanel>
                         <Panel>
                             <skp:Svg Path="/Assets/settings.svg" />
@@ -37,6 +37,7 @@
     </Style>
     <Style Selector="DockPanel.Sidebar > ListBox > ListBoxItem">
         <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="Height" Value="70" />
         <Setter Property="Width" Value="80" />
@@ -51,17 +52,33 @@
     </Style>
     <Style Selector="DockPanel.Sidebar > Button">
         <Setter Property="Height" Value="70" />
-        <Setter Property="Width" Value="80" />
-        <Setter Property="Margin" Value="0" />
+        <Setter Property="Width" Value="84" />
+        <Setter Property="Margin" Value="2" />
         <Setter Property="Padding" Value="0" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <ContentControl Content="{Binding}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="DockPanel.Sidebar > Button > StackPanel">
+        <Setter Property="Margin" Value="0" />
     </Style>
     <Style Selector="DockPanel.Sidebar > Button > StackPanel > Panel">
-        <Setter Property="Margin" Value="4" />
+        <Setter Property="Margin" Value="0" />
         <Setter Property="Height" Value="32" />
         <Setter Property="Width" Value="32" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
     </Style>
     <Style Selector="DockPanel.Sidebar > StackPanel > TextBlock">
         <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
     </Style>
 
 </Styles>
