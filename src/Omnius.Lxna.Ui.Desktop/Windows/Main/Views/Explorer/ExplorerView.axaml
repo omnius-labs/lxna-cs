@@ -31,23 +31,20 @@
                 <ColumnDefinition Width="8" />
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <ItemsRepeater x:Name="TreeNodesRepeater" ItemsSource="{Binding RootTreeNode.VisibleChildren}">
-                    <ItemsRepeater.ItemTemplate>
-                        <DataTemplate>
-                            <Panel IsHitTestVisible="True">
-                                <Border IsVisible="{Binding IsSelected}" IsHitTestVisible="False" Background="Gray" />
-                                <Border Padding="{Binding Level, Converter={StaticResource LevelPaddingConverter}, ConverterParameter=30}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <CheckBox Classes="tree" IsChecked="{Binding IsExpanded}" VerticalAlignment="Center" />
-                                        <TextBlock Focusable="True" Text="{Binding Name}" Margin="5 0 0 0" VerticalAlignment="Center" />
-                                    </StackPanel>
-                                </Border>
-                            </Panel>
-                        </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
-            </ScrollViewer>
+            <ListBox x:Name="TreeNodeListBox" ItemsSource="{Binding RootTreeNode.VisibleChildren}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Panel>
+                            <Border Padding="{Binding Level, Converter={StaticResource LevelPaddingConverter}, ConverterParameter=30}">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <CheckBox Grid.Column="0" Classes="tree" IsChecked="{Binding IsExpanded}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Focusable="True" Text="{Binding Name}" Margin="5 0 0 0" VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+                        </Panel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
             <GridSplitter Grid.Column="1" />
             <ScrollViewer Grid.Column="2" x:Name="ThumbnailsViewer" HorizontalScrollBarVisibility="Disabled">
                 <ItemsRepeater x:Name="ThumbnailsRepeater" HorizontalAlignment="Stretch" ItemsSource="{ReflectionBinding Thumbnails}">
