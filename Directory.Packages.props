@@ -69,6 +69,7 @@
     <PackageVersion Include="System.Text.Json" Version="7.0.1" />
     <PackageVersion Include="TextMateSharp.Grammars" Version="1.0.56" />
     <PackageVersion Include="YamlDotNet" Version="15.1.0" />
+    <PackageVersion Include="FluentAvalonia.ProgressRing" Version="1.69.2" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Moq" Version="4.18.3" />

@@ -38,9 +38,7 @@ public class App : Application
     }
 
     public static new App Current => (App)Application.Current!;
-
     public new IClassicDesktopStyleApplicationLifetime ApplicationLifetime => (IClassicDesktopStyleApplicationLifetime)base.ApplicationLifetime!;
-
     public MainWindow MainWindow => (MainWindow)this.ApplicationLifetime?.MainWindow!;
 
     public bool IsDesignMode
@@ -57,6 +55,8 @@ public class App : Application
 
     private void Startup()
     {
+        this.Init();
+
         if (this.IsDesignMode)
         {
             var parsedResult = CommandLine.Parser.Default.ParseArguments<DesignModeArgs>(Environment.GetCommandLineArgs());
@@ -69,6 +69,18 @@ public class App : Application
         }
     }
 
+    private void Init()
+    {
+        var configFiles = ImageMagick.Configuration.ConfigurationFiles.Default;
+        configFiles.Policy.Data = @"
+<policymap>
+  <policy domain=""delegate"" rights=""none"" pattern=""*"" />
+  <policy domain=""coder"" rights=""none"" pattern=""*"" />
+  <policy domain=""coder"" rights=""read|write"" pattern=""{GIF,JPEG,PNG,WEBP,BMP,HEIF,HEIC,AVIF,SVG}"" />
+</policymap>";
+        ImageMagick.MagickNET.Initialize(configFiles);
+    }
+
     public class DesignModeArgs
     {
         [Option('d', "design")]
@@ -77,22 +89,19 @@ public class App : Application
 
     private async void OnDesignModeArgsParsed(DesignModeArgs args)
     {
-        if (this.IsDesignMode)
+        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifeTime)
         {
-            if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifeTime)
+            switch (args.DesignTargetName)
             {
-                switch (args.DesignTargetName)
-                {
-                    case "Main":
-                        var mainWindow = new MainWindow();
-                        mainWindow.DataContext = new MainWindowDesignModel();
-                        lifeTime.MainWindow = mainWindow;
-                        break;
-                }
+                case "Main":
+                    var mainWindow = new MainWindow();
+                    mainWindow.DataContext = new MainWindowDesignModel();
+                    lifeTime.MainWindow = mainWindow;
+                    break;
             }
-
-            return;
         }
+
+        return;
     }
 
     public class NormalModeArgs
@@ -113,11 +122,11 @@ public class App : Application
             var lxnaEnvironment = new LxnaEnvironment()
             {
                 StorageDirectoryPath = options.StorageDirectoryPath,
-                DatabaseDirectoryPath = Path.Combine(options.StorageDirectoryPath, "db"),
+                StateDirectoryPath = Path.Combine(options.StorageDirectoryPath, "state"),
                 LogsDirectoryPath = Path.Combine(options.StorageDirectoryPath, "logs"),
             };
 
-            DirectoryHelper.CreateDirectory(lxnaEnvironment.DatabaseDirectoryPath);
+            DirectoryHelper.CreateDirectory(lxnaEnvironment.StateDirectoryPath);
             DirectoryHelper.CreateDirectory(lxnaEnvironment.LogsDirectoryPath);
 
             SetLogsDirectory(lxnaEnvironment.LogsDirectoryPath);
@@ -134,7 +143,7 @@ public class App : Application
                 _logger.Info($"AVALONIA_SCREEN_SCALE_FACTORS: {Environment.GetEnvironmentVariable("AVALONIA_SCREEN_SCALE_FACTORS")}");
             }
 
-            var mainWindow = new MainWindow(Path.Combine(lxnaEnvironment.DatabaseDirectoryPath, "windows", "main"));
+            var mainWindow = new MainWindow(Path.Combine(lxnaEnvironment.StateDirectoryPath, "windows", "main"));
 
             if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
             {

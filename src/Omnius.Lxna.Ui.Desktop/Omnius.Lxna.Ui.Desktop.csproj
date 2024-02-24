@@ -16,6 +16,9 @@
       <SubType>Designer</SubType>
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\**" />
+    <None Update="Assets/directory.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -53,6 +56,8 @@
     <PackageReference Include="NLog" />
     <PackageReference Include="ReactiveProperty" />
     <PackageReference Include="YamlDotNet" />
+    <PackageReference Include="FluentAvalonia.ProgressRing" />
+    <PackageReference Include="System.Linq.Async" />
   </ItemGroup>
 
   <ItemGroup>

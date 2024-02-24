@@ -1,0 +1,8 @@
+﻿syntax v1.0;
+
+namespace "Omnius.Lxna.Components.Storage";
+
+[csharp_struct]
+struct NestedPath {
+    Values: vector<string(capacity: 8192)>(capacity: 32),
+}

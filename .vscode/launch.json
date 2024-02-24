@@ -7,7 +7,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             "args": ["-s", "./storage", "-v", "true"],
-            "cwd": "${workspaceFolder}/demo",
+            "cwd": "${workspaceFolder}/tmp",
             "stopAtEntry": false,
             "console": "internalConsole",
             "windows": {
@@ -23,7 +23,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "design-build",
-            "cwd": "${workspaceFolder}/demo",
+            "cwd": "${workspaceFolder}/tmp",
             "args": ["-d", "Main"],
             "console": "internalConsole",
             "stopAtEntry": false,

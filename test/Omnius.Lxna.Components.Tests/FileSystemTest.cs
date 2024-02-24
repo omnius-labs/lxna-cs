@@ -1,6 +1,6 @@
 using Omnius.Core;
 using Omnius.Core.UnitTestToolkit;
-using Omnius.Lxna.Components.Storages;
+using Omnius.Lxna.Components.Storage;
 using Xunit;
 
 namespace Omnius.Lxna.Components
@@ -22,7 +22,7 @@ namespace Omnius.Lxna.Components
 
             var firstFiles = await rootDir.FindFilesAsync();
             using var firstZipFile = firstFiles.Single();
-            Assert.True(firstZipFile.Attributes.HasFlag(Storages.FileAttributes.Archive));
+            Assert.True(firstZipFile.Attributes.HasFlag(Storage.FileAttributes.Archive));
             Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip")), firstZipFile.LogicalPath);
 
             using var firstZipDir = await firstZipFile.TryConvertToDirectoryAsync();
@@ -35,7 +35,7 @@ namespace Omnius.Lxna.Components
 
             var secondFiles = await firstZipDirInDir.FindFilesAsync();
             using var secondZipFile = secondFiles.Single();
-            Assert.True(secondZipFile.Attributes.HasFlag(Storages.FileAttributes.Archive));
+            Assert.True(secondZipFile.Attributes.HasFlag(Storage.FileAttributes.Archive));
             Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1/2.zip"), secondZipFile.LogicalPath);
 
             using var secondZipDir = await secondZipFile.TryConvertToDirectoryAsync();
@@ -48,7 +48,7 @@ namespace Omnius.Lxna.Components
 
             var thirdFiles = await secondZipDirInDir.FindFilesAsync();
             using var thirdZipFile = thirdFiles.Single();
-            Assert.True(thirdZipFile.Attributes.HasFlag(Storages.FileAttributes.Archive));
+            Assert.True(thirdZipFile.Attributes.HasFlag(Storage.FileAttributes.Archive));
             Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1/2.zip", "2/3.zip"), thirdZipFile.LogicalPath);
 
             using var thirdZipDir = await thirdZipFile.TryConvertToDirectoryAsync();

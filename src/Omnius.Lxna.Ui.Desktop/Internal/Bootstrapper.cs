@@ -3,11 +3,10 @@ using Omnius.Axis.Ui.Desktop.Windows.Dialogs.PicturePreview;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
-using Omnius.Lxna.Components.IconGenerators;
-using Omnius.Lxna.Components.Storages;
-using Omnius.Lxna.Components.ThumbnailGenerators;
+using Omnius.Lxna.Components.Image;
+using Omnius.Lxna.Components.Storage;
+using Omnius.Lxna.Components.Thumbnail;
 using Omnius.Lxna.Ui.Desktop.Configuration;
-using Omnius.Lxna.Ui.Desktop.Interactors.Internal;
 using Omnius.Lxna.Ui.Desktop.Windows.Main;
 
 namespace Omnius.Lxna.Ui.Desktop.Internal;
@@ -33,40 +32,30 @@ public partial class Bootstrapper : AsyncDisposableBase
 
         _lxnaEnvironment = lxnaEnvironment;
 
-        var tempDirectoryPath = Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "temp");
-        if (Directory.Exists(tempDirectoryPath)) Directory.Delete(tempDirectoryPath, true);
-        DirectoryHelper.CreateDirectory(tempDirectoryPath);
-
         try
         {
             var bytesPool = BytesPool.Shared;
 
-            var uiStatus = await UiStatus.LoadAsync(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, UI_STATUS_FILE_NAME));
+            var uiStatus = await UiStatus.LoadAsync(Path.Combine(_lxnaEnvironment.StateDirectoryPath, UI_STATUS_FILE_NAME));
 
-            var storageOptions = new LocalStorageOptions { TempDirectoryPath = tempDirectoryPath };
-            var storage = await LocalStorage.CreateAsync(bytesPool, storageOptions, cancellationToken);
+            var imageConverter = await ImageConverter.CreateAsync(bytesPool, cancellationToken);
 
-            var directoryIconGeneratorOptions = new DirectoryIconGeneratorOptions
-            {
-                ConfigDirectoryPath = Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "directory_icon_generator"),
-                Concurrency = Math.Max(2, Environment.ProcessorCount / 2),
-            };
-            var directoryIconGenerator = await DirectoryIconGenerator.CreateAsync(bytesPool, directoryIconGeneratorOptions, cancellationToken);
+            var directoryThumbnailGenerator = new DirectoryThumbnailGenerator(imageConverter, bytesPool);
 
             var fileThumbnailGeneratorOptions = new FileThumbnailGeneratorOptions
             {
-                ConfigDirectoryPath = Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, "file_thumbnail_generator"),
+                StateDirectoryPath = Path.Combine(_lxnaEnvironment.StateDirectoryPath, "file_thumbnail_generator"),
                 Concurrency = Math.Max(2, Environment.ProcessorCount / 2),
             };
-            var fileThumbnailGenerator = await FileThumbnailGenerator.CreateAsync(bytesPool, fileThumbnailGeneratorOptions, cancellationToken);
+            var fileThumbnailGenerator = await FileThumbnailGenerator.CreateAsync(imageConverter, bytesPool, fileThumbnailGeneratorOptions, cancellationToken);
 
             var serviceCollection = new ServiceCollection();
 
             serviceCollection.AddSingleton(_lxnaEnvironment);
             serviceCollection.AddSingleton<IBytesPool>(bytesPool);
             serviceCollection.AddSingleton(uiStatus);
-            serviceCollection.AddSingleton<IStorage>(storage);
-            serviceCollection.AddSingleton(directoryIconGenerator);
+            serviceCollection.AddSingleton(imageConverter);
+            serviceCollection.AddSingleton(directoryThumbnailGenerator);
             serviceCollection.AddSingleton(fileThumbnailGenerator);
             serviceCollection.AddSingleton<ThumbnailsViewer>();
 
@@ -99,9 +88,8 @@ public partial class Bootstrapper : AsyncDisposableBase
         if (_serviceProvider is null) return;
 
         var uiStatus = _serviceProvider.GetRequiredService<UiStatus>();
-        await uiStatus.SaveAsync(Path.Combine(_lxnaEnvironment.DatabaseDirectoryPath, UI_STATUS_FILE_NAME));
+        await uiStatus.SaveAsync(Path.Combine(_lxnaEnvironment.StateDirectoryPath, UI_STATUS_FILE_NAME));
 
-        await _serviceProvider.GetRequiredService<DirectoryIconGenerator>().DisposeAsync();
         await _serviceProvider.GetRequiredService<FileThumbnailGenerator>().DisposeAsync();
         await _serviceProvider.GetRequiredService<ThumbnailsViewer>().DisposeAsync();
     }

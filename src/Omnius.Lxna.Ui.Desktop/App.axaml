@@ -6,6 +6,7 @@
             xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <Application.Styles>
         <styling:FluentAvaloniaTheme PreferUserAccentColor="True" UseSystemFontOnWindows="True" TextVerticalAlignmentOverrideBehavior="Disabled"/>
+        <StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
         <StyleInclude Source="/Styles/Base.xaml" />
         <StyleInclude Source="/Styles/SideBar.xaml" />

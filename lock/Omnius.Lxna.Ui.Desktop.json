@@ -129,6 +129,15 @@
         "resolved": "2.9.1",
         "contentHash": "OE0sl1/sQ37bjVsPKKtwQlWDgqaxWgtme3xZz7JssWUzg5JpMIyHgCTY9MVMxOg48fJ1AgGT3tgdH5m/kQ5xhA=="
       },
+      "FluentAvalonia.ProgressRing": {
+        "type": "Direct",
+        "requested": "[1.69.2, )",
+        "resolved": "1.69.2",
+        "contentHash": "+nC+o67Gjm57SYCAYJfN7M878D5k1FuA9DSllAO/o8WakL2q5wuQ8sRXfJ/eRQzMgcGTV8ED3688FH8HxTO9ZQ==",
+        "dependencies": {
+          "FluentAvaloniaUI": "2.0.4"
+        }
+      },
       "FluentAvaloniaUI": {
         "type": "Direct",
         "requested": "[2.0.5, )",
@@ -186,6 +195,15 @@
           "ReactiveProperty.Core": "9.3.4",
           "System.ComponentModel.Annotations": "5.0.0",
           "System.Reactive": "6.0.0"
+        }
+      },
+      "System.Linq.Async": {
+        "type": "Direct",
+        "requested": "[6.0.1, )",
+        "resolved": "6.0.1",
+        "contentHash": "0YhHcaroWpQ9UCot3Pizah7ryAzQhNvobLMSxeDIGmnXfkQn8u5owvpOH0K6EVB+z9L7u6Cc4W17Br/+jyttEQ==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "6.0.0"
         }
       },
       "YamlDotNet": {
@@ -378,6 +396,11 @@
         "type": "Transitive",
         "resolved": "0.11.0",
         "contentHash": "MEnrZ3UIiH40hjzMDsxrTyi8dtqB5ziv3iBeeU4bXsL/7NLSal9F1lZKpK+tfBRnUoDSdtcW3KufE4yhATOMCA=="
+      },
+      "Microsoft.Bcl.AsyncInterfaces": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "UcSjPsst+DfAdJGVDsu346FX0ci0ah+lw3WRtn18NUwEqRt70HaOQ7lI72vy3+1LxtqI3T5GWwV39rQSrCzAeg=="
       },
       "Microsoft.Bcl.HashCode": {
         "type": "Transitive",

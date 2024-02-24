@@ -15,12 +15,6 @@
     mc:Ignorable="d">
 
     <DockPanel>
-        <StackPanel Height="30" DockPanel.Dock="Top" HorizontalAlignment="Left" VerticalAlignment="Stretch"
-            Orientation="Horizontal" IsHitTestVisible="False" Background="{x:Null}">
-            <skp:Svg Path="/Assets/lxna.svg" Margin="4" Width="16" VerticalAlignment="Center"/>
-            <TextBlock Text="{Binding $parent[Window].Title}" VerticalAlignment="Center" FontSize="16"/>
-        </StackPanel>
-
         <Grid>
             <Image Source="{Binding Source.Value}" />
         </Grid>

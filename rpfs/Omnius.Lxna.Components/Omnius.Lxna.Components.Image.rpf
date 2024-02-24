@@ -1,0 +1,20 @@
+﻿syntax v1.0;
+
+namespace "Omnius.Lxna.Components.Image";
+
+enum ImageResizeType : uint8 {
+    Pad = 0,
+    Crop = 1,
+}
+
+enum ImageResizePositionType : uint8 {
+    Center = 0,
+}
+
+enum ImageResizeResamplerType : uint8 {
+    Lanczos3 = 0,
+}
+
+enum ImageFormatType : uint8 {
+    Png = 0,
+}

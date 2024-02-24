@@ -6,12 +6,10 @@ using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
 using Omnius.Core.Pipelines;
 using Omnius.Core.Text;
-using Omnius.Lxna.Components.Storages;
+using Omnius.Lxna.Components.Storage;
 using Omnius.Lxna.Ui.Desktop.Configuration;
 using Omnius.Lxna.Ui.Desktop.Helpers;
-using Omnius.Lxna.Ui.Desktop.Interactors.Internal;
 using Omnius.Lxna.Ui.Desktop.Internal;
-using Omnius.Lxna.Ui.Desktop.Internal.Models;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
@@ -25,7 +23,7 @@ public abstract class ExplorerViewModelBase : AsyncDisposableBase
     public RootTreeNodeModel? RootTreeNode { get; protected set; }
     public ReactivePropertySlim<TreeNodeModel>? SelectedTreeNode { get; protected set; }
     public ReactivePropertySlim<GridLength>? TreeViewWidth { get; protected set; }
-    public ReadOnlyObservableCollection<Thumbnail>? Thumbnails { get; protected set; }
+    public ReadOnlyObservableCollection<Thumbnail<object>>? Thumbnails { get; protected set; }
     public ReactivePropertySlim<int>? ThumbnailWidth { get; protected set; }
     public ReactivePropertySlim<int>? ThumbnailHeight { get; protected set; }
 
@@ -40,14 +38,16 @@ public class ExplorerViewModel : ExplorerViewModelBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly IStorage _storage;
+    private readonly LxnaEnvironment _lxnaEnvironment;
     private readonly ThumbnailsViewer _thumbnailsViewer;
     private readonly IApplicationDispatcher _applicationDispatcher;
     private readonly IDialogService _dialogService;
 
+    private IStorage _storage = null!;
+
     private IExplorerViewCommands? _commands;
 
-    private readonly ObservableCollection<Thumbnail> _thumbnails = new();
+    private readonly ObservableCollection<Thumbnail<object>> _thumbnails = new();
     private NestedPath? _wantSelectingLogicalPath = null;
 
     private ActionPipe<TreeNodeModel> _isExpandedChangedActionPipe = new();
@@ -59,9 +59,9 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     private readonly CompositeDisposable _disposable = new();
 
-    public ExplorerViewModel(UiStatus uiStatus, IStorage storage, ThumbnailsViewer ThumbnailsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
+    public ExplorerViewModel(LxnaEnvironment lxnaEnvironment, UiStatus uiStatus, ThumbnailsViewer ThumbnailsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
     {
-        _storage = storage;
+        _lxnaEnvironment = lxnaEnvironment;
         _thumbnailsViewer = ThumbnailsViewer;
         _applicationDispatcher = applicationDispatcher;
         _dialogService = dialogService;
@@ -77,7 +77,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
         this.SelectedTreeNode = new ReactivePropertySlim<TreeNodeModel>().AddTo(_disposable);
         this.SelectedTreeNode.Where(n => n is not null).Subscribe(n => this.OnSelectedTreeViewModelChanged(n)).AddTo(_disposable);
         this.TreeViewWidth = this.Status.ToReactivePropertySlimAsSynchronized(n => n.TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
-        this.Thumbnails = new ReadOnlyObservableCollection<Thumbnail>(_thumbnails);
+        this.Thumbnails = new ReadOnlyObservableCollection<Thumbnail<object>>(_thumbnails);
         this.ThumbnailWidth = new ReactivePropertySlim<int>(256).AddTo(_disposable);
         this.ThumbnailHeight = new ReactivePropertySlim<int>(256).AddTo(_disposable);
 
@@ -88,6 +88,13 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     private async void Init()
     {
+        var tempDirectoryPath = Path.Combine(_lxnaEnvironment.StorageDirectoryPath, "tmp/explorer");
+        if (Directory.Exists(tempDirectoryPath)) Directory.Delete(tempDirectoryPath, true);
+        DirectoryHelper.CreateDirectory(tempDirectoryPath);
+
+        var storageOptions = new LocalStorageOptions { TempDirectoryPath = tempDirectoryPath };
+        _storage = await LocalStorage.CreateAsync(BytesPool.Shared, storageOptions);
+
         foreach (var directory in await _storage.FindDirectoriesAsync())
         {
             var child = new TreeNodeModel(_isExpandedChangedActionPipe.Caller)
@@ -121,15 +128,15 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     public override async void NotifyThumbnailDoubleTapped(object item)
     {
-        if (item is Thumbnail thumbnail)
+        if (item is Thumbnail<object> thumbnail && thumbnail.Item is IFile file)
         {
-            await _dialogService.ShowPicturePreviewWindowAsync(thumbnail.File);
+            await _dialogService.ShowPicturePreviewWindowAsync(file);
         }
     }
 
     public override void NotifyThumbnailPrepared(object item)
     {
-        if (item is Thumbnail thumbnail)
+        if (item is Thumbnail<object> thumbnail)
         {
             _thumbnailsViewer.ThumbnailPrepared(thumbnail);
         }
@@ -137,7 +144,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     public override void NotifyThumbnailClearing(object item)
     {
-        if (item is Thumbnail thumbnail)
+        if (item is Thumbnail<object> thumbnail)
         {
             _thumbnailsViewer.ThumbnailClearing(thumbnail);
         }
@@ -239,7 +246,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
         foreach (var file in await directory.FindFilesAsync(cancellationToken))
         {
-            if (!file.Attributes.HasFlag(Components.Storages.FileAttributes.Archive)) continue;
+            if (!file.Attributes.HasFlag(Components.Storage.FileAttributes.Archive)) continue;
 
             var archive = await file.TryConvertToDirectoryAsync(cancellationToken);
             if (archive is null) continue;
@@ -281,10 +288,33 @@ public class ExplorerViewModel : ExplorerViewModelBase
                     using var cancellationTokenSource = new CancellationTokenSource();
                     using var unregister = _cancelWaitActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => cancellationTokenSource.Cancel()));
 
-                    Comparison<IFile> comparison;
+                    var comparison = new Comparison<object>((x, y) =>
                     {
-                        comparison = new Comparison<IFile>((x, y) => string.Compare(x.Name, y.Name, StringComparison.InvariantCulture));
-                    }
+                        if (x is IFile fx)
+                        {
+                            if (y is IFile fy)
+                            {
+                                return string.Compare(fx.Name, fy.Name, StringComparison.InvariantCulture);
+                            }
+                            else
+                            {
+                                return 1;
+                            }
+                        }
+                        else if (x is IDirectory dx)
+                        {
+                            if (y is IDirectory dy)
+                            {
+                                return string.Compare(dx.Name, dy.Name, StringComparison.InvariantCulture);
+                            }
+                            else
+                            {
+                                return -1;
+                            }
+                        }
+
+                        return 0;
+                    });
 
                     result = await _thumbnailsViewer.LoadAsync(selectedDirectory, 256, 256, TimeSpan.FromSeconds(1), comparison, cancellationTokenSource.Token);
                 }
