@@ -36,15 +36,6 @@
                               VerticalAlignment="Top"
                               Height="{StaticResource CheckBoxHeight}">
 
-                            <Border Name="NormalRectangle"
-                                    UseLayoutRounding="False"
-                                    Height="{StaticResource CheckBoxSize}"
-                                    Width="{StaticResource CheckBoxSize}"
-                                    CornerRadius="{TemplateBinding CornerRadius}"
-                                    Background="{DynamicResource CheckBoxCheckBackgroundFillUnchecked}"
-                                    BorderBrush="{DynamicResource CheckBoxCheckBackgroundStrokeUnchecked}"
-                                    BorderThickness="{DynamicResource CheckBoxBorderThickness}"/>
-
                               <ui:SymbolIcon Symbol="ChevronRight"
                                    Foreground="{TemplateBinding Foreground}"
                                    FontSize="14"
