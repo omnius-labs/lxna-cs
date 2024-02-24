@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
+using Omnius.Core.Collections;
 using Omnius.Core.Helpers;
 using Omnius.Core.Pipelines;
 using Omnius.Lxna.Components.Storage;
@@ -23,13 +24,14 @@ public class ThumbnailsViewer : AsyncDisposableBase
 
     private ImmutableArray<Thumbnail<object>> _thumbnails = ImmutableArray<Thumbnail<object>>.Empty;
     private ImmutableDictionary<Thumbnail<object>, int> _thumbnailIndexMap = ImmutableDictionary<Thumbnail<object>, int>.Empty;
-    private ImmutableHashSet<int> _preparedThumbnailIndexSet = ImmutableHashSet<int>.Empty;
+    private LockedSet<int> _preparedThumbnailIndexSet = new LockedSet<int>(new HashSet<int>());
 
     private Task _task = Task.CompletedTask;
     private ActionPipe _changedActionPipe = new();
     private ActionPipe _canceledActionPipe = new();
 
     private readonly AsyncLock _asyncLock = new();
+    private readonly object _lockObject = new();
 
     public ThumbnailsViewer(DirectoryThumbnailGenerator directoryThumbnailGenerator, FileThumbnailGenerator fileThumbnailGenerator, IApplicationDispatcher applicationDispatcher)
     {
@@ -47,10 +49,19 @@ public class ThumbnailsViewer : AsyncDisposableBase
     {
         if (_thumbnailIndexMap.TryGetValue(thumbnail, out var index))
         {
-            // Avalonia Bug???
-            if (index == 0) return;
+            lock (_preparedThumbnailIndexSet.LockObject)
+            {
+                // ThumbnailPreparedが呼ばれた物は、必ずThumbnailClearingが呼ばれるわけではない、らしい (Avaloniaのバグ？)
+                // その対策のため、著しく離れたindexが存在する場合、削除する
+                foreach (var i in _preparedThumbnailIndexSet)
+                {
+                    if (Math.Abs(index - i) < 128) continue;
+                    _preparedThumbnailIndexSet.Remove(i);
+                }
 
-            _preparedThumbnailIndexSet = _preparedThumbnailIndexSet.Add(index);
+                _preparedThumbnailIndexSet.Add(index);
+            }
+
             _changedActionPipe.Caller.Call();
         }
     }
@@ -59,7 +70,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
     {
         if (_thumbnailIndexMap.TryGetValue(thumbnail, out var index))
         {
-            _preparedThumbnailIndexSet = _preparedThumbnailIndexSet.Remove(index);
+            _preparedThumbnailIndexSet.Remove(index);
             _changedActionPipe.Caller.Call();
         }
     }
