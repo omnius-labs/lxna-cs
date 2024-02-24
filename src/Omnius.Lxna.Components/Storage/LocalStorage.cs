@@ -49,7 +49,15 @@ public sealed class LocalStorage : IStorage
             }
             else
             {
-                return [new LocalDirectory(_bytesPool, PathHelper.Normalize("/"), _options.TempDirectoryPath)];
+                var results = new List<IDirectory>();
+
+                foreach (var drive in Directory.GetDirectories("/"))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    results.Add(new LocalDirectory(_bytesPool, PathHelper.Normalize(drive), _options.TempDirectoryPath));
+                }
+
+                return results;
             }
         }
     }

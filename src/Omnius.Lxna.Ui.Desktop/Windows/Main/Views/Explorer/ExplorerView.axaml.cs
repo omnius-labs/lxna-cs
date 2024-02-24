@@ -13,22 +13,22 @@ public interface IExplorerViewCommands
 public partial class ExplorerView : UserControl, IExplorerViewCommands
 {
     private readonly ItemsRepeater _treeNodesRepeater;
-    private readonly ScrollViewer _ThumbnailsViewer;
-    private readonly ItemsRepeater _ThumbnailsRepeater;
+    private readonly ScrollViewer _thumbnailsViewer;
+    private readonly ItemsRepeater _thumbnailsRepeater;
 
     public ExplorerView()
     {
         this.InitializeComponent();
 
-        _treeNodesRepeater = this.FindControl<ItemsRepeater>("TreeNodesRepeater");
-        _ThumbnailsViewer = this.FindControl<ScrollViewer>("ThumbnailsViewer");
-        _ThumbnailsRepeater = this.FindControl<ItemsRepeater>("ThumbnailsRepeater");
+        _treeNodesRepeater = this.FindControl<ItemsRepeater>("TreeNodesRepeater") ?? throw new NullReferenceException();
+        _thumbnailsViewer = this.FindControl<ScrollViewer>("ThumbnailsViewer") ?? throw new NullReferenceException();
+        _thumbnailsRepeater = this.FindControl<ItemsRepeater>("ThumbnailsRepeater") ?? throw new NullReferenceException();
 
         this.DataContextChanged += this.OnDataContextChanged;
         _treeNodesRepeater.Tapped += this.OnTreeNodeTapped;
-        _ThumbnailsRepeater.DoubleTapped += this.OnThumbnailDoubleTapped;
-        _ThumbnailsRepeater.ElementPrepared += this.OnThumbnailPrepared;
-        _ThumbnailsRepeater.ElementClearing += this.OnThumbnailClearing;
+        _thumbnailsRepeater.DoubleTapped += this.OnThumbnailDoubleTapped;
+        _thumbnailsRepeater.ElementPrepared += this.OnThumbnailPrepared;
+        _thumbnailsRepeater.ElementClearing += this.OnThumbnailClearing;
     }
 
     private void InitializeComponent()
@@ -38,7 +38,7 @@ public partial class ExplorerView : UserControl, IExplorerViewCommands
 
     public void ThumbnailsScrollToTop()
     {
-        _ThumbnailsViewer.ScrollToHome();
+        _thumbnailsViewer.ScrollToHome();
     }
 
     private void OnDataContextChanged(object? sender, EventArgs e)

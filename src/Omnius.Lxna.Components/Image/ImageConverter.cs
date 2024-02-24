@@ -31,23 +31,41 @@ public sealed class ImageConverter
 
     public async ValueTask ConvertAsync(Stream inStream, Stream outStream, ImageFormatType formatType, CancellationToken cancellationToken = default)
     {
-        using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
+        try
         {
-            await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken);
-            bitmapStream.Seek(0, SeekOrigin.Begin);
+            await this.InternalImageSharpConvertAsync(inStream, outStream, formatType, cancellationToken);
+        }
+        catch (SixLabors.ImageSharp.ImageFormatException)
+        {
+            inStream.Seek(0, SeekOrigin.Begin);
 
-            await this.InternalImageSharpConvertAsync(bitmapStream, outStream, formatType, cancellationToken);
+            using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
+            {
+                await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken);
+                bitmapStream.Seek(0, SeekOrigin.Begin);
+
+                await this.InternalImageSharpConvertAsync(bitmapStream, outStream, formatType, cancellationToken);
+            }
         }
     }
 
     public async ValueTask ConvertAsync(Stream inStream, Stream outStream, int width, int height, ImageResizeType resizeType, ImageFormatType formatType, CancellationToken cancellationToken = default)
     {
-        using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
+        try
         {
-            await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken);
-            bitmapStream.Seek(0, SeekOrigin.Begin);
+            await this.InternalImageSharpConvertAsync(inStream, outStream, width, height, resizeType, formatType, cancellationToken);
+        }
+        catch (SixLabors.ImageSharp.ImageFormatException)
+        {
+            inStream.Seek(0, SeekOrigin.Begin);
 
-            await this.InternalImageSharpConvertAsync(bitmapStream, outStream, width, height, resizeType, formatType, cancellationToken);
+            using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
+            {
+                await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken);
+                bitmapStream.Seek(0, SeekOrigin.Begin);
+
+                await this.InternalImageSharpConvertAsync(bitmapStream, outStream, width, height, resizeType, formatType, cancellationToken);
+            }
         }
     }
 

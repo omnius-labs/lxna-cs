@@ -47,6 +47,9 @@ public class ThumbnailsViewer : AsyncDisposableBase
     {
         if (_thumbnailIndexMap.TryGetValue(thumbnail, out var index))
         {
+            // Avalonia Bug???
+            if (index == 0) return;
+
             _preparedThumbnailIndexSet = _preparedThumbnailIndexSet.Add(index);
             _changedActionPipe.Caller.Call();
         }
