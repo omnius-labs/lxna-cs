@@ -31,7 +31,7 @@
                 <ColumnDefinition Width="8" />
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ListBox x:Name="TreeNodeListBox" ItemsSource="{Binding RootTreeNode.VisibleChildren}">
+            <ListBox x:Name="TreeNodeListBox" ItemsSource="{Binding RootTreeNode.VisibleChildren}" ScrollViewer.VerticalSnapPointsType="Mandatory">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <VirtualizingStackPanel />
