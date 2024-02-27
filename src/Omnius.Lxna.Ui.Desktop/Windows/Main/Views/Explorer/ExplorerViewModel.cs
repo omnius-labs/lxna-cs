@@ -205,28 +205,6 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
                 await _applicationDispatcher.InvokeAsync(() =>
                 {
-                    if (_wantSelectingLogicalPath is not null)
-                    {
-                        if (_wantSelectingLogicalPath != expendedDirectory.LogicalPath)
-                        {
-                            foreach (var child in expendedTree.Children)
-                            {
-                                if (child.Tag is IDirectory selectedDirectory)
-                                {
-                                    if (selectedDirectory.LogicalPath != _wantSelectingLogicalPath) continue;
-                                    this.SelectedTreeNode!.Value = child;
-                                    break;
-                                }
-                            }
-                        }
-
-                        _wantSelectingLogicalPath = null;
-                    }
-                    else
-                    {
-                        this.SelectedTreeNode!.Value = expendedTree;
-                    }
-
                     _isBusy!.Value = false;
                 });
             }
