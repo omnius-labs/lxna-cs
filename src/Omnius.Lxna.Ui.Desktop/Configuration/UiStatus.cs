@@ -27,7 +27,13 @@ public sealed class UiStatus
             _logger.Debug(e);
         }
 
-        result ??= new UiStatus();
+        result ??= new UiStatus()
+        {
+            ExplorerView = new ExplorerViewStatus()
+            {
+                TreeViewWidth = 240,
+            }
+        };
 
         return result;
     }

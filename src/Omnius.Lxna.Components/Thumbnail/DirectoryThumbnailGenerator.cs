@@ -21,7 +21,8 @@ public sealed class DirectoryThumbnailGenerator
 
     public DirectoryThumbnailGenerator(ImageConverter imageConverter, IBytesPool bytesPool)
     {
-        var basePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly()?.Location)!;
+        var basePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly()?.Location);
+        basePath ??= Directory.GetCurrentDirectory();
         _dirImagePath = Path.Combine(basePath, "Assets/directory.svg");
 
         _imageConverter = imageConverter;
