@@ -12,5 +12,6 @@
         <StyleInclude Source="/Styles/SideBar.xaml" />
         <StyleInclude Source="/Styles/OptionMenu.xaml" />
         <StyleInclude Source="/Styles/TreeListView.xaml" />
+        <StyleInclude Source="/Styles/Thumbnail.xaml" />
     </Application.Styles>
 </Application>

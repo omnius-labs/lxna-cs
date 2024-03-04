@@ -301,6 +301,8 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase
         {
             ThumbnailResizeType.Pad => ImageResizeType.Pad,
             ThumbnailResizeType.Crop => ImageResizeType.Crop,
+            ThumbnailResizeType.Max => ImageResizeType.Max,
+            ThumbnailResizeType.Min => ImageResizeType.Min,
             _ => throw new FormatException("unknown resize type")
         };
         var imageFormatType = formatType switch

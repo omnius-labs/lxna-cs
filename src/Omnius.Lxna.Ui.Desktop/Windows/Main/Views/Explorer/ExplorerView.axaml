@@ -14,10 +14,14 @@
         mc:Ignorable="d"
         d:DesignWidth="800"
         d:DesignHeight="450" >
-
     <UserControl.Resources>
         <c:LevelPaddingConverter x:Key="LevelPaddingConverter"/>
     </UserControl.Resources>
+
+    <Design.DataContext>
+        <local:ExplorerViewDesignModel />
+    </Design.DataContext>
+
     <Panel>
         <Panel ZIndex="1" IsEnabled="{Binding IsWaiting.Value}" IsVisible="{Binding IsWaiting.Value}">
             <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -31,7 +35,7 @@
                 <ColumnDefinition Width="8" />
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ListBox x:Name="TreeNodeListBox" ItemsSource="{Binding RootTreeNode.VisibleChildren}" ScrollViewer.VerticalSnapPointsType="Mandatory">
+            <ListBox x:Name="TreeNodeListBox" ItemsSource="{Binding RootTreeNode.VisibleChildren}" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <VirtualizingStackPanel />
@@ -42,7 +46,7 @@
                         <Panel>
                             <Border Padding="{Binding Level, Converter={StaticResource LevelPaddingConverter}, ConverterParameter=30}">
                                 <Grid ColumnDefinitions="Auto,*">
-                                    <CheckBox Grid.Column="0" Classes="tree" IsChecked="{Binding IsExpanded}" VerticalAlignment="Center" />
+                                    <CheckBox Grid.Column="0" Classes="Tree" IsChecked="{Binding IsExpanded}" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="1" Focusable="True" Text="{Binding Name}" Margin="5 0 0 0" VerticalAlignment="Center" />
                                 </Grid>
                             </Border>
@@ -54,16 +58,19 @@
             <ScrollViewer Grid.Column="2" x:Name="ThumbnailsViewer" HorizontalScrollBarVisibility="Disabled">
                 <ItemsRepeater x:Name="ThumbnailsRepeater" HorizontalAlignment="Stretch" ItemsSource="{ReflectionBinding Thumbnails}">
                     <ItemsRepeater.Layout>
-                        <UniformGridLayout MinItemHeight="256" MinItemWidth="256" MinColumnSpacing="2" MinRowSpacing="2"/>
+                        <UniformGridLayout MinItemHeight="{Binding ThumbnailHeight.Value}" MinItemWidth="{Binding ThumbnailWidth.Value}" MinColumnSpacing="2" MinRowSpacing="2"/>
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
-                            <Border IsHitTestVisible="True" BorderThickness="1" BorderBrush="Gray">
-                                <DockPanel>
-                                    <TextBlock DockPanel.Dock="Bottom" Grid.Row="1" Text="{ReflectionBinding Name}" TextWrapping="NoWrap" Margin="8" HorizontalAlignment="Center" />
-                                    <Image Grid.Row="0" Source="{ReflectionBinding Image}" MaxWidth="256" MaxHeight="256" />
+                            <CheckBox Classes="Thumbnail" IsHitTestVisible="True"
+                                    Height="{ReflectionBinding Height}" Width="{ReflectionBinding Width}"
+                                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                                <DockPanel Margin="8">
+                                    <TextBlock DockPanel.Dock="Bottom" Grid.Row="1" Text="{ReflectionBinding Name}"
+                                               TextWrapping="Wrap" Margin="8" HorizontalAlignment="Center" />
+                                    <Image HorizontalAlignment="Center" Source="{ReflectionBinding Image}" />
                                 </DockPanel>
-                            </Border>
+                            </CheckBox>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>

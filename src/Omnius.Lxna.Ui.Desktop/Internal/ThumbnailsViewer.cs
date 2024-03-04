@@ -101,7 +101,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
 
             items.Sort(comparison.Invoke);
 
-            _thumbnails = items.Select(n => new Thumbnail<object>(n)).ToImmutableArray();
+            _thumbnails = items.Select(n => new Thumbnail<object>(n, thumbnailWidth, thumbnailHeight)).ToImmutableArray();
 
             var thumbnailIndexMap = ImmutableDictionary.CreateBuilder<Thumbnail<object>, int>();
 
@@ -192,7 +192,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
                     Width = width,
                     Height = height,
                     FormatType = ThumbnailFormatType.Png,
-                    ResizeType = ThumbnailResizeType.Pad,
+                    ResizeType = ThumbnailResizeType.Min,
                     MinInterval = TimeSpan.FromSeconds(5),
                     MaxImageCount = 10
                 };

@@ -1,6 +1,7 @@
 using ImageMagick;
 using Omnius.Core;
 using Omnius.Core.Streams;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
@@ -85,6 +86,7 @@ public sealed class ImageConverter
     private async ValueTask InternalImageSharpConvertAsync(Stream inStream, Stream outStream, int width, int height, ImageResizeType resizeType, ImageFormatType formatType, CancellationToken cancellationToken = default)
     {
         using var image = SixLabors.ImageSharp.Image.Load(inStream);
+
         image.Mutate(x =>
         {
             var resizeOptions = new ResizeOptions
@@ -93,14 +95,16 @@ public sealed class ImageConverter
                 {
                     ImageResizeType.Pad => ResizeMode.Pad,
                     ImageResizeType.Crop => ResizeMode.Crop,
+                    ImageResizeType.Max => ResizeMode.Max,
+                    ImageResizeType.Min => ResizeMode.Min,
                     _ => throw new NotSupportedException(),
                 },
                 Position = AnchorPositionMode.Center,
                 Sampler = LanczosResampler.Lanczos3,
                 Size = new SixLabors.ImageSharp.Size(width, height),
+                PadColor = Color.Transparent,
             };
-
-            x.Resize(resizeOptions);
+            x.BackgroundColor(Color.Transparent).Resize(resizeOptions);
         });
 
         if (formatType == ImageFormatType.Png)

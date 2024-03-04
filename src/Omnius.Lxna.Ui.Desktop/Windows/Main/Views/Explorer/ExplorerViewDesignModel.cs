@@ -1,4 +1,7 @@
 using System.Reactive.Disposables;
+using Avalonia.Controls;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace Omnius.Lxna.Ui.Desktop.Windows.Main;
 
@@ -8,6 +11,9 @@ public class ExplorerViewDesignModel : ExplorerViewModelBase
 
     public ExplorerViewDesignModel()
     {
+        var _isBusy = new ReactivePropertySlim<bool>(false).AddTo(_disposable);
+        this.IsWaiting = _isBusy.ToReadOnlyReactivePropertySlim().AddTo(_disposable);
+        this.TreeViewWidth = new ReactivePropertySlim<GridLength>(new GridLength(240)).AddTo(_disposable);
     }
 
     protected override async ValueTask OnDisposeAsync()

@@ -2,6 +2,7 @@ using LiteDB;
 using Omnius.Core;
 using Omnius.Core.Helpers;
 using Omnius.Core.RocketPack;
+using Omnius.Lxna.Components.Internal;
 using Omnius.Lxna.Components.Storage;
 using Omnius.Lxna.Components.Thumbnail.Internal.Repositories.Entities;
 
@@ -17,7 +18,7 @@ internal sealed class ThumbnailGeneratorRepository : IDisposable
         DirectoryHelper.CreateDirectory(Path.GetDirectoryName(filePath)!);
 
         _bytesPool = bytesPool;
-        _database = new LiteDatabase(filePath);
+        _database = new LiteDatabase(LiteDatabaseHelper.GetConnectionString(filePath));
         this.ThumbnailCaches = new ThumbnailCachesRepository(_database, _bytesPool);
     }
 

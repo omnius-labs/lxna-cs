@@ -7,6 +7,8 @@ public enum ImageResizeType : byte
 {
     Pad = 0,
     Crop = 1,
+    Max = 2,
+    Min = 3,
 }
 public enum ImageResizePositionType : byte
 {

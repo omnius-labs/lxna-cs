@@ -11,7 +11,8 @@
             "stopAtEntry": false,
             "console": "internalConsole",
             "windows": {
-                "program": "${workspaceFolder}/tmp/bin/win-vscode/Omnius.Lxna.Ui.Desktop/Debug/net8.0/Omnius.Lxna.Ui.Desktop.dll"
+                "program": "${workspaceFolder}/tmp/bin/win-vscode/Omnius.Lxna.Ui.Desktop/Debug/net8.0/Omnius.Lxna.Ui.Desktop.dll",
+                "envFile": "${workspaceFolder}/.env"
             },
             "linux": {
                 "program": "${workspaceFolder}/tmp/bin/linux-vscode/Omnius.Lxna.Ui.Desktop/Debug/net8.0/Omnius.Lxna.Ui.Desktop.dll",
@@ -28,7 +29,8 @@
             "console": "internalConsole",
             "stopAtEntry": false,
             "windows": {
-                "program": "${workspaceFolder}/tmp/bin/win-vscode-design/Omnius.Lxna.Ui.Desktop/Debug/net8.0/Omnius.Lxna.Ui.Desktop.dll"
+                "program": "${workspaceFolder}/tmp/bin/win-vscode-design/Omnius.Lxna.Ui.Desktop/Debug/net8.0/Omnius.Lxna.Ui.Desktop.dll",
+                "envFile": "${workspaceFolder}/.env"
             },
             "linux": {
                 "program": "${workspaceFolder}/tmp/bin/linux-vscode-design/Omnius.Lxna.Ui.Desktop/Debug/net8.0/Omnius.Lxna.Ui.Desktop.dll",

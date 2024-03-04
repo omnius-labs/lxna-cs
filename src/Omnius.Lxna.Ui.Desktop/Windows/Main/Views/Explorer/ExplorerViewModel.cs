@@ -48,7 +48,6 @@ public class ExplorerViewModel : ExplorerViewModelBase
     private IExplorerViewCommands? _commands;
 
     private readonly ObservableCollection<Thumbnail<object>> _thumbnails = new();
-    private NestedPath? _wantSelectingLogicalPath = null;
 
     private ActionPipe<TreeNodeModel> _isExpandedChangedActionPipe = new();
     private ActionPipe _cancelWaitActionPipe = new();

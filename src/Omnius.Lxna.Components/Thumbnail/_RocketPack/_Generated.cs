@@ -7,6 +7,8 @@ public enum ThumbnailResizeType : byte
 {
     Pad = 0,
     Crop = 1,
+    Max = 2,
+    Min = 3,
 }
 public enum ThumbnailResizePositionType : byte
 {

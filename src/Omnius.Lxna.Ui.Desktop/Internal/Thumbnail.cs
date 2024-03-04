@@ -14,6 +14,8 @@ public sealed class Thumbnail<T> : BindableBase
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     private T _item;
+    private double _width;
+    private double _height;
     private Bitmap? _image = null;
     private ImmutableArray<ThumbnailContent> _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
     private int _currentOffset = -1;
@@ -21,9 +23,11 @@ public sealed class Thumbnail<T> : BindableBase
 
     private readonly object _lockObject = new();
 
-    public Thumbnail(T item)
+    public Thumbnail(T item, double width, double height)
     {
         _item = item;
+        _width = width;
+        _height = height;
     }
 
     public void Dispose()
@@ -44,6 +48,8 @@ public sealed class Thumbnail<T> : BindableBase
     }
 
     public T Item => _item;
+    public double Width => _width;
+    public double Height => _height;
 
     public string Name
     {

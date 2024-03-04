@@ -32,7 +32,10 @@ public class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        this.Startup();
+        if (!Design.IsDesignMode)
+        {
+            this.Startup();
+        }
 
         base.OnFrameworkInitializationCompleted();
     }
@@ -41,32 +44,12 @@ public class App : Application
     public new IClassicDesktopStyleApplicationLifetime ApplicationLifetime => (IClassicDesktopStyleApplicationLifetime)base.ApplicationLifetime!;
     public MainWindow MainWindow => (MainWindow)this.ApplicationLifetime?.MainWindow!;
 
-    public bool IsDesignMode
-    {
-        get
-        {
-#if DESIGN
-            return true;
-#else
-            return Design.IsDesignMode;
-#endif
-        }
-    }
-
     private void Startup()
     {
         this.Init();
 
-        if (this.IsDesignMode)
-        {
-            var parsedResult = CommandLine.Parser.Default.ParseArguments<DesignModeArgs>(Environment.GetCommandLineArgs());
-            parsedResult.WithParsed(this.OnDesignModeArgsParsed);
-        }
-        else
-        {
-            var parsedResult = CommandLine.Parser.Default.ParseArguments<NormalModeArgs>(Environment.GetCommandLineArgs());
-            parsedResult.WithParsed(this.OnNormalModeArgsParsed);
-        }
+        var parsedResult = CommandLine.Parser.Default.ParseArguments<OptionArgs>(Environment.GetCommandLineArgs());
+        parsedResult.WithParsed(this.OnNormalModeArgsParsed);
     }
 
     private void Init()
@@ -81,30 +64,7 @@ public class App : Application
         ImageMagick.MagickNET.Initialize(configFiles);
     }
 
-    public class DesignModeArgs
-    {
-        [Option('d', "design")]
-        public string DesignTargetName { get; set; } = "Main";
-    }
-
-    private async void OnDesignModeArgsParsed(DesignModeArgs args)
-    {
-        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifeTime)
-        {
-            switch (args.DesignTargetName)
-            {
-                case "Main":
-                    var mainWindow = new MainWindow();
-                    mainWindow.DataContext = new MainWindowDesignModel();
-                    lifeTime.MainWindow = mainWindow;
-                    break;
-            }
-        }
-
-        return;
-    }
-
-    public class NormalModeArgs
+    public class OptionArgs
     {
         [Option('s', "storage")]
         public string StorageDirectoryPath { get; set; } = "../storage";
@@ -113,7 +73,7 @@ public class App : Application
         public bool Verbose { get; set; } = false;
     }
 
-    private async void OnNormalModeArgsParsed(NormalModeArgs options)
+    private async void OnNormalModeArgsParsed(OptionArgs options)
     {
         try
         {

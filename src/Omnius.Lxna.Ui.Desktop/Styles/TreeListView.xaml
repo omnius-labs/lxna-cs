@@ -10,18 +10,19 @@
             <StackPanel.Styles>
                 <Style Selector="Label.separator" >
                     <Setter Property="Height" Value="32" />
+                    <Setter Property="Background" Value="Gray" />
                     <Setter Property="VerticalContentAlignment" Value="Center" />
                     <Setter Property="HorizontalContentAlignment" Value="Center" />
                 </Style>
             </StackPanel.Styles>
 
-            <Label Classes="separator" Content="CheckBox" />
-            <CheckBox Classes="tree" Content="Sample Text"/>
+            <Label Classes="separator" Content="TreeListView" />
+            <CheckBox Classes="Tree" />
 
         </StackPanel>
     </Design.PreviewWith>
 
-    <Style Selector="CheckBox.tree">
+    <Style Selector="CheckBox.Tree">
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Name="Root"
@@ -36,17 +37,16 @@
                               VerticalAlignment="Top"
                               Height="{StaticResource CheckBoxHeight}">
 
-                              <ui:SymbolIcon Symbol="ChevronRight"
-                                   Foreground="{TemplateBinding Foreground}"
-                                   FontSize="14"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
+                            <ui:SymbolIcon Symbol="ChevronRight"
+                                 Foreground="{TemplateBinding Foreground}"
+                                 FontSize="14"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center" />
 
                         </Grid>
 
                         <ContentPresenter Name="ContentPresenter"
                                           Grid.Column="1"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
                                           Content="{TemplateBinding Content}"
                                           Margin="{TemplateBinding Padding}"
                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"

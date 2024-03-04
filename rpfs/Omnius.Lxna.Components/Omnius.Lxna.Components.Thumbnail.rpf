@@ -5,6 +5,8 @@ namespace "Omnius.Lxna.Components.Thumbnail";
 enum ThumbnailResizeType : uint8 {
     Pad = 0,
     Crop = 1,
+    Max = 2,
+    Min = 3,
 }
 
 enum ThumbnailResizePositionType : uint8 {
