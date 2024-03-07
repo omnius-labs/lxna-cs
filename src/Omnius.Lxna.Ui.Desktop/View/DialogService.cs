@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using Omnius.Lxna.Ui.Desktop.View.Windows;
 using Omnius.Core.Avalonia;
 using Omnius.Lxna.Components.Storage;
 using Omnius.Lxna.Ui.Desktop.Shared;
+using Omnius.Lxna.Ui.Desktop.View.Windows;
 
 namespace Omnius.Lxna.Ui.Desktop.View;
 

@@ -1,11 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
-using Omnius.Lxna.Ui.Desktop.View.Windows;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Lxna.Components.Image;
 using Omnius.Lxna.Components.Thumbnail;
 using Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 using Omnius.Lxna.Ui.Desktop.View;
+using Omnius.Lxna.Ui.Desktop.View.Windows;
 
 namespace Omnius.Lxna.Ui.Desktop.Shared;
 
