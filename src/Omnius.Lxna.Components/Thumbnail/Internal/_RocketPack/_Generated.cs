@@ -139,12 +139,12 @@ internal sealed partial class ThumbnailMeta : global::Omnius.Core.RocketPack.IRo
     static ThumbnailMeta()
     {
         global::Omnius.Core.RocketPack.IRocketMessage<global::Omnius.Lxna.Components.Thumbnail.Internal.ThumbnailMeta>.Formatter = new ___CustomFormatter();
-        global::Omnius.Core.RocketPack.IRocketMessage<global::Omnius.Lxna.Components.Thumbnail.Internal.ThumbnailMeta>.Empty = new global::Omnius.Lxna.Components.Thumbnail.Internal.ThumbnailMeta((global::Omnius.Lxna.Components.Thumbnail.ThumbnailResizeType)0, (global::Omnius.Lxna.Components.Thumbnail.ThumbnailFormatType)0, 0, 0);
+        global::Omnius.Core.RocketPack.IRocketMessage<global::Omnius.Lxna.Components.Thumbnail.Internal.ThumbnailMeta>.Empty = new global::Omnius.Lxna.Components.Thumbnail.Internal.ThumbnailMeta((global::Omnius.Lxna.Components.Image.ImageResizeType)0, (global::Omnius.Lxna.Components.Image.ImageFormatType)0, 0, 0);
     }
 
     private readonly global::System.Lazy<int> ___hashCode;
 
-    public ThumbnailMeta(global::Omnius.Lxna.Components.Thumbnail.ThumbnailResizeType resizeType, global::Omnius.Lxna.Components.Thumbnail.ThumbnailFormatType formatType, uint width, uint height)
+    public ThumbnailMeta(global::Omnius.Lxna.Components.Image.ImageResizeType resizeType, global::Omnius.Lxna.Components.Image.ImageFormatType formatType, uint width, uint height)
     {
         this.ResizeType = resizeType;
         this.FormatType = formatType;
@@ -162,8 +162,8 @@ internal sealed partial class ThumbnailMeta : global::Omnius.Core.RocketPack.IRo
         });
     }
 
-    public global::Omnius.Lxna.Components.Thumbnail.ThumbnailResizeType ResizeType { get; }
-    public global::Omnius.Lxna.Components.Thumbnail.ThumbnailFormatType FormatType { get; }
+    public global::Omnius.Lxna.Components.Image.ImageResizeType ResizeType { get; }
+    public global::Omnius.Lxna.Components.Image.ImageFormatType FormatType { get; }
     public uint Width { get; }
     public uint Height { get; }
 
@@ -210,12 +210,12 @@ internal sealed partial class ThumbnailMeta : global::Omnius.Core.RocketPack.IRo
         {
             if (rank > 256) throw new global::System.FormatException();
 
-            if (value.ResizeType != (global::Omnius.Lxna.Components.Thumbnail.ThumbnailResizeType)0)
+            if (value.ResizeType != (global::Omnius.Lxna.Components.Image.ImageResizeType)0)
             {
                 w.Write((uint)1);
                 w.Write((ulong)value.ResizeType);
             }
-            if (value.FormatType != (global::Omnius.Lxna.Components.Thumbnail.ThumbnailFormatType)0)
+            if (value.FormatType != (global::Omnius.Lxna.Components.Image.ImageFormatType)0)
             {
                 w.Write((uint)2);
                 w.Write((ulong)value.FormatType);
@@ -236,8 +236,8 @@ internal sealed partial class ThumbnailMeta : global::Omnius.Core.RocketPack.IRo
         {
             if (rank > 256) throw new global::System.FormatException();
 
-            global::Omnius.Lxna.Components.Thumbnail.ThumbnailResizeType p_resizeType = (global::Omnius.Lxna.Components.Thumbnail.ThumbnailResizeType)0;
-            global::Omnius.Lxna.Components.Thumbnail.ThumbnailFormatType p_formatType = (global::Omnius.Lxna.Components.Thumbnail.ThumbnailFormatType)0;
+            global::Omnius.Lxna.Components.Image.ImageResizeType p_resizeType = (global::Omnius.Lxna.Components.Image.ImageResizeType)0;
+            global::Omnius.Lxna.Components.Image.ImageFormatType p_formatType = (global::Omnius.Lxna.Components.Image.ImageFormatType)0;
             uint p_width = 0;
             uint p_height = 0;
 
@@ -249,12 +249,12 @@ internal sealed partial class ThumbnailMeta : global::Omnius.Core.RocketPack.IRo
                 {
                     case 1:
                         {
-                            p_resizeType = (global::Omnius.Lxna.Components.Thumbnail.ThumbnailResizeType)r.GetUInt64();
+                            p_resizeType = (global::Omnius.Lxna.Components.Image.ImageResizeType)r.GetUInt64();
                             break;
                         }
                     case 2:
                         {
-                            p_formatType = (global::Omnius.Lxna.Components.Thumbnail.ThumbnailFormatType)r.GetUInt64();
+                            p_formatType = (global::Omnius.Lxna.Components.Image.ImageFormatType)r.GetUInt64();
                             break;
                         }
                     case 3:

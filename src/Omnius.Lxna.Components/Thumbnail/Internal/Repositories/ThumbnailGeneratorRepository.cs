@@ -2,6 +2,7 @@ using LiteDB;
 using Omnius.Core;
 using Omnius.Core.Helpers;
 using Omnius.Core.RocketPack;
+using Omnius.Lxna.Components.Image;
 using Omnius.Lxna.Components.Internal;
 using Omnius.Lxna.Components.Storage;
 using Omnius.Lxna.Components.Thumbnail.Internal.Repositories.Entities;
@@ -50,7 +51,7 @@ internal sealed class ThumbnailGeneratorRepository : IDisposable
 
         public ILiteStorage<ThumbnailCacheIdEntity> GetStorage() => _database.GetStorage<ThumbnailCacheIdEntity>("_thumbnail_cache_files", "_thumbnail_cache_chunks");
 
-        public async ValueTask<ThumbnailCache?> FindOneAsync(NestedPath filePath, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType)
+        public async ValueTask<ThumbnailCache?> FindOneAsync(NestedPath filePath, int width, int height, ImageResizeType resizeType, ImageFormatType formatType)
         {
             using (await _asyncLock.LockAsync().ConfigureAwait(false))
             {
@@ -59,8 +60,8 @@ internal sealed class ThumbnailGeneratorRepository : IDisposable
                     FilePath = NestedPathEntity.Import(filePath),
                     ThumbnailWidth = width,
                     ThumbnailHeight = height,
-                    ThumbnailResizeType = resizeType,
-                    ThumbnailFormatType = formatType,
+                    ImageResizeType = resizeType,
+                    ImageFormatType = formatType,
                 };
                 var storage = this.GetStorage();
 
@@ -83,8 +84,8 @@ internal sealed class ThumbnailGeneratorRepository : IDisposable
                     FilePath = NestedPathEntity.Import(entity.FileMeta.Path),
                     ThumbnailWidth = (int)entity.ThumbnailMeta.Width,
                     ThumbnailHeight = (int)entity.ThumbnailMeta.Height,
-                    ThumbnailResizeType = entity.ThumbnailMeta.ResizeType,
-                    ThumbnailFormatType = entity.ThumbnailMeta.FormatType,
+                    ImageResizeType = entity.ThumbnailMeta.ResizeType,
+                    ImageFormatType = entity.ThumbnailMeta.FormatType,
                 };
                 var storage = this.GetStorage();
 

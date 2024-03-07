@@ -1,6 +1,5 @@
 <Application xmlns="https://github.com/avaloniaui"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-            xmlns:local="clr-namespace:Omnius.Lxna.Ui.Desktop"
             xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
             x:Class="Omnius.Lxna.Ui.Desktop.App"
             xmlns:sys="clr-namespace:System;assembly=mscorlib">
@@ -8,10 +7,10 @@
         <styling:FluentAvaloniaTheme PreferUserAccentColor="True" UseSystemFontOnWindows="True" TextVerticalAlignmentOverrideBehavior="Disabled"/>
         <StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
-        <StyleInclude Source="/Styles/Base.xaml" />
-        <StyleInclude Source="/Styles/SideBar.xaml" />
-        <StyleInclude Source="/Styles/OptionMenu.xaml" />
-        <StyleInclude Source="/Styles/TreeListView.xaml" />
-        <StyleInclude Source="/Styles/Thumbnail.xaml" />
+        <StyleInclude Source="/View/Styles/Base.xaml" />
+        <StyleInclude Source="/View/Styles/SideBar.xaml" />
+        <StyleInclude Source="/View/Styles/OptionMenu.xaml" />
+        <StyleInclude Source="/View/Styles/TreeListView.xaml" />
+        <StyleInclude Source="/View/Styles/Thumbnail.xaml" />
     </Application.Styles>
 </Application>

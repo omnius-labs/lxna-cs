@@ -6,9 +6,8 @@ using Avalonia.Markup.Xaml;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Omnius.Core.Helpers;
-using Omnius.Lxna.Ui.Desktop.Configuration;
-using Omnius.Lxna.Ui.Desktop.Internal;
-using Omnius.Lxna.Ui.Desktop.Windows.Main;
+using Omnius.Lxna.Ui.Desktop.Shared;
+using Omnius.Lxna.Ui.Desktop.View.Windows;
 
 namespace Omnius.Lxna.Ui.Desktop;
 
@@ -58,6 +57,7 @@ public class App : Application
         configFiles.Policy.Data = @"
 <policymap>
   <policy domain=""delegate"" rights=""none"" pattern=""*"" />
+  <policy domain=""filter"" rights=""none"" pattern=""*"" />
   <policy domain=""coder"" rights=""none"" pattern=""*"" />
   <policy domain=""coder"" rights=""read|write"" pattern=""{GIF,JPEG,PNG,WEBP,BMP,HEIF,HEIC,AVIF,SVG}"" />
 </policymap>";

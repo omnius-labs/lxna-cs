@@ -1,5 +1,6 @@
 ﻿syntax v1.0;
 
+using "Omnius.Lxna.Components.Image";
 using "Omnius.Lxna.Components.Storage";
 using "Omnius.Lxna.Components.Thumbnail";
 
@@ -13,8 +14,8 @@ message FileMeta {
 }
 
 message ThumbnailMeta {
-    ResizeType: ThumbnailResizeType,
-    FormatType: ThumbnailFormatType,
+    ResizeType: ImageResizeType,
+    FormatType: ImageFormatType,
     Width: uint32,
     Height: uint32,
 }

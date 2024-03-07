@@ -3,25 +3,6 @@
 
 namespace Omnius.Lxna.Components.Thumbnail;
 
-public enum ThumbnailResizeType : byte
-{
-    Pad = 0,
-    Crop = 1,
-    Max = 2,
-    Min = 3,
-}
-public enum ThumbnailResizePositionType : byte
-{
-    Center = 0,
-}
-public enum ThumbnailResizeResamplerType : byte
-{
-    Lanczos3 = 0,
-}
-public enum ThumbnailFormatType : byte
-{
-    Png = 0,
-}
 public sealed partial class ThumbnailContent : global::Omnius.Core.RocketPack.IRocketMessage<global::Omnius.Lxna.Components.Thumbnail.ThumbnailContent>, global::System.IDisposable
 {
     public static global::Omnius.Core.RocketPack.IRocketMessageFormatter<global::Omnius.Lxna.Components.Thumbnail.ThumbnailContent> Formatter => global::Omnius.Core.RocketPack.IRocketMessage<global::Omnius.Lxna.Components.Thumbnail.ThumbnailContent>.Formatter;

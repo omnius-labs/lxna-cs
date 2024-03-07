@@ -74,7 +74,15 @@ public sealed class ImageConverter
     {
         try
         {
-            using var magickImage = new MagickImage(inStream, MagickFormat.Unknown);
+            var magickFormat = MagickFormat.Unknown;
+
+            if (inStream is FileStream fileStream)
+            {
+                var ext = Path.GetExtension(fileStream.Name);
+                if (ext == ".svg") magickFormat = MagickFormat.Svg;
+            }
+
+            using var magickImage = new MagickImage(inStream, magickFormat);
             await magickImage.WriteAsync(outStream, MagickFormat.Png, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception e)

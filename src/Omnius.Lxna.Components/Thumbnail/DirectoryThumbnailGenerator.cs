@@ -1,9 +1,9 @@
 using Omnius.Core;
 using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Image;
-using Omnius.Lxna.Components.Thumbnail;
+using Omnius.Lxna.Components.Storage;
 
-namespace Omnius.Lxna.Ui.Desktop.Internal;
+namespace Omnius.Lxna.Components.Thumbnail;
 
 public sealed class DirectoryThumbnailGenerator
 {
@@ -12,10 +12,6 @@ public sealed class DirectoryThumbnailGenerator
     private readonly string _dirImagePath;
     private readonly ImageConverter _imageConverter;
     private readonly IBytesPool _bytesPool;
-
-    private int _cachedWidth = -1;
-    private int _cachedHeight = -1;
-    private byte[]? _cachedImage;
 
     private readonly AsyncLock _asyncLock = new();
 
@@ -29,31 +25,58 @@ public sealed class DirectoryThumbnailGenerator
         _bytesPool = bytesPool;
     }
 
-    public async ValueTask<ThumbnailContent> GetThumbnailAsync(int width, int height, CancellationToken cancellationToken = default)
+    public async ValueTask<DirectoryThumbnailResult> GenerateAsync(IDirectory directory, DirectoryThumbnailOptions options, CancellationToken cancellationToken = default)
     {
-        using (await _asyncLock.LockAsync(cancellationToken))
+        try
         {
-            if (_cachedImage is not null && width == _cachedWidth && height == _cachedHeight)
+            using (var inStream = new FileStream(_dirImagePath, FileMode.Open))
+            using (var outStream = new RecyclableMemoryStream(_bytesPool))
             {
-                return new ThumbnailContent(new MemoryOwner<byte>(_cachedImage));
+                await _imageConverter.ConvertAsync(inStream, outStream, options.Width, options.Height, options.ResizeType, ImageFormatType.Png, cancellationToken);
+                outStream.Seek(0, SeekOrigin.Begin);
+                var image = outStream.ToMemoryOwner();
+
+                return new DirectoryThumbnailResult(DirectoryThumbnailResultStatus.Succeeded, new ThumbnailContent(image));
             }
         }
-
-        using (var inStream = new FileStream(_dirImagePath, FileMode.Open))
-        using (var outStream = new RecyclableMemoryStream(_bytesPool))
+        catch (NotSupportedException)
         {
-            await _imageConverter.ConvertAsync(inStream, outStream, width, height, ImageResizeType.Crop, ImageFormatType.Png, cancellationToken);
-            outStream.Seek(0, SeekOrigin.Begin);
-            var image = await outStream.ToBytesAsync();
-
-            using (await _asyncLock.LockAsync(cancellationToken))
-            {
-                _cachedWidth = width;
-                _cachedHeight = height;
-                _cachedImage = image;
-            }
-
-            return new ThumbnailContent(new MemoryOwner<byte>(image));
         }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception e)
+        {
+            _logger.Error(e);
+        }
+
+        return new DirectoryThumbnailResult(DirectoryThumbnailResultStatus.Failed);
     }
+}
+
+public record DirectoryThumbnailOptions
+{
+    public required int Width { get; init; }
+    public required int Height { get; init; }
+    public required ImageFormatType FormatType { get; init; }
+    public required ImageResizeType ResizeType { get; init; }
+}
+
+public readonly struct DirectoryThumbnailResult
+{
+    public DirectoryThumbnailResult(DirectoryThumbnailResultStatus status, ThumbnailContent? content = null)
+    {
+        this.Status = status;
+        this.Content = content;
+    }
+
+    public DirectoryThumbnailResultStatus Status { get; }
+    public ThumbnailContent? Content { get; }
+}
+
+public enum DirectoryThumbnailResultStatus
+{
+    Unknown,
+    Succeeded,
+    Failed,
 }

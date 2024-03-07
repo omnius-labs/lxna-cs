@@ -49,7 +49,6 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase
         _stateDirectoryPath = options.StateDirectoryPath;
         _concurrency = options.Concurrency;
         _thumbnailGeneratorRepository = new ThumbnailGeneratorRepository(Path.Combine(_stateDirectoryPath, "ThumbnailGenerators.db"), _bytesPool);
-
     }
 
     internal async ValueTask InitAsync(CancellationToken cancellationToken = default)
@@ -96,17 +95,15 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase
 
     private async ValueTask<FileThumbnailResult> GetPictureThumbnailAsync(IFile file, FileThumbnailOptions options, CancellationToken cancellationToken = default)
     {
-
         try
         {
             var fileLength = await file.GetLengthAsync(cancellationToken).ConfigureAwait(false);
             var fileLastWriteTime = await file.GetLastWriteTimeAsync(cancellationToken).ConfigureAwait(false);
-            var extension = file.LogicalPath.GetExtension().ToLower(CultureInfo.InvariantCulture);
 
             using (var inStream = await file.GetStreamAsync(cancellationToken).ConfigureAwait(false))
             using (var outStream = new RecyclableMemoryStream(_bytesPool))
             {
-                await this.ConvertImageAsync(inStream, extension, outStream, options.Width, options.Height, options.ResizeType, options.FormatType).ConfigureAwait(false);
+                await _imageConverter.ConvertAsync(inStream, outStream, options.Width, options.Height, options.ResizeType, options.FormatType).ConfigureAwait(false);
                 outStream.Seek(0, SeekOrigin.Begin);
 
                 var image = outStream.ToMemoryOwner();
@@ -121,13 +118,11 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase
                 return new FileThumbnailResult(FileThumbnailResultStatus.Succeeded, cache.Contents);
             }
         }
-        catch (NotSupportedException e)
+        catch (NotSupportedException)
         {
-            _logger.Warn(e);
         }
-        catch (OperationCanceledException e)
+        catch (OperationCanceledException)
         {
-            _logger.Debug(e);
         }
         catch (Exception e)
         {
@@ -158,13 +153,11 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase
 
             return new FileThumbnailResult(FileThumbnailResultStatus.Succeeded, cache.Contents);
         }
-        catch (NotSupportedException e)
+        catch (NotSupportedException)
         {
-            _logger.Warn(e);
         }
-        catch (OperationCanceledException e)
+        catch (OperationCanceledException)
         {
-            _logger.Debug(e);
         }
         catch (Exception e)
         {
@@ -174,7 +167,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase
         return new FileThumbnailResult(FileThumbnailResultStatus.Failed);
     }
 
-    private async ValueTask<IMemoryOwner<byte>[]> GetMovieImagesAsync(IFile file, TimeSpan minInterval, int maxImageCount, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, CancellationToken cancellationToken = default)
+    private async ValueTask<IMemoryOwner<byte>[]> GetMovieImagesAsync(IFile file, TimeSpan minInterval, int maxImageCount, int width, int height, ImageResizeType resizeType, ImageFormatType formatType, CancellationToken cancellationToken = default)
     {
         var physicalFilePath = await file.GetPhysicalPathAsync(cancellationToken).ConfigureAwait(false);
 
@@ -241,7 +234,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase
         return result;
     }
 
-    private async ValueTask<(int SeekSec, IMemoryOwner<byte> MemoryOwner)> GetMovieImagesAsync(string path, int seekSec, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, CancellationToken cancellationToken = default)
+    private async ValueTask<(int SeekSec, IMemoryOwner<byte> MemoryOwner)> GetMovieImagesAsync(string path, int seekSec, int width, int height, ImageResizeType resizeType, ImageFormatType formatType, CancellationToken cancellationToken = default)
     {
         var arguments = $"-loglevel error -ss {seekSec} -i \"{path}\" -vframes 1 -c:v png -f image2 pipe:1";
 
@@ -263,12 +256,12 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase
         inStream.Seek(0, SeekOrigin.Begin);
         await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
-        await this.ConvertImageAsync(inStream, ".png", outStream, width, height, resizeType, formatType).ConfigureAwait(false);
+        await _imageConverter.ConvertAsync(inStream, outStream, width, height, resizeType, formatType).ConfigureAwait(false);
 
         return (seekSec, outStream.ToMemoryOwner());
     }
 
-    private async ValueTask<IMemoryOwner<byte>> GetMovieImageAsync(string path, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, CancellationToken cancellationToken = default)
+    private async ValueTask<IMemoryOwner<byte>> GetMovieImageAsync(string path, int width, int height, ImageResizeType resizeType, ImageFormatType formatType, CancellationToken cancellationToken = default)
     {
         var arguments = $"-loglevel error -i \"{path}\" -vf thumbnail=30 -frames:v 1 -c:v png -f image2 pipe:1";
 
@@ -290,27 +283,9 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase
         inStream.Seek(0, SeekOrigin.Begin);
         await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
-        await this.ConvertImageAsync(inStream, ".png", outStream, width, height, resizeType, formatType).ConfigureAwait(false);
+        await _imageConverter.ConvertAsync(inStream, outStream, width, height, resizeType, formatType).ConfigureAwait(false);
 
         return outStream.ToMemoryOwner();
-    }
-
-    private async ValueTask ConvertImageAsync(Stream inStream, string extension, Stream outStream, int width, int height, ThumbnailResizeType resizeType, ThumbnailFormatType formatType, CancellationToken cancellationToken = default)
-    {
-        var imageResizeType = resizeType switch
-        {
-            ThumbnailResizeType.Pad => ImageResizeType.Pad,
-            ThumbnailResizeType.Crop => ImageResizeType.Crop,
-            ThumbnailResizeType.Max => ImageResizeType.Max,
-            ThumbnailResizeType.Min => ImageResizeType.Min,
-            _ => throw new FormatException("unknown resize type")
-        };
-        var imageFormatType = formatType switch
-        {
-            ThumbnailFormatType.Png => ImageFormatType.Png,
-            _ => throw new FormatException("unknown format type")
-        };
-        await _imageConverter.ConvertAsync(inStream, outStream, width, height, imageResizeType, imageFormatType, cancellationToken);
     }
 }
 
@@ -318,8 +293,8 @@ public record FileThumbnailOptions
 {
     public required int Width { get; init; }
     public required int Height { get; init; }
-    public required ThumbnailFormatType FormatType { get; init; }
-    public required ThumbnailResizeType ResizeType { get; init; }
+    public required ImageFormatType FormatType { get; init; }
+    public required ImageResizeType ResizeType { get; init; }
     public required TimeSpan MinInterval { get; init; }
     public required int MaxImageCount { get; init; }
 }
