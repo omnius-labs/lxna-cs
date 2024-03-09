@@ -11,6 +11,12 @@
 sudo apt-get install -y ffmpeg
 ```
 
+### Windows
+
+```sh
+scoop install ffmpeg
+```
+
 ## Docs
 
 - [Requirements](./docs/requirements/index.adoc)

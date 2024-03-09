@@ -31,7 +31,6 @@ public class ThumbnailsViewer : AsyncDisposableBase
     private ActionPipe _canceledActionPipe = new();
 
     private readonly AsyncLock _asyncLock = new();
-    private readonly object _lockObject = new();
 
     public ThumbnailsViewer(DirectoryThumbnailGenerator directoryThumbnailGenerator, FileThumbnailGenerator fileThumbnailGenerator, IApplicationDispatcher applicationDispatcher)
     {
@@ -71,8 +70,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
         _changedActionPipe.Caller.Call();
     }
 
-    public async ValueTask<ThumbnailsViewerLoadResult> LoadAsync(IDirectory directory,
-        int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan,
+    public async ValueTask<ThumbnailsViewerLoadResult> LoadAsync(IDirectory directory, int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan,
         Comparison<object> comparison, CancellationToken cancellationToken = default)
     {
         await Task.Delay(1, cancellationToken).ConfigureAwait(false);
@@ -95,7 +93,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
                 items.Add(dir);
             }
 
-            items.Sort(comparison.Invoke);
+            items.Sort(comparison);
 
             _thumbnails = items.Select((n, i) => new Thumbnail<object>(n, i, thumbnailWidth, thumbnailHeight)).ToImmutableArray();
 

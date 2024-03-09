@@ -16,10 +16,6 @@
       <SubType>Designer</SubType>
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\**" />
-    <None Remove="View\Styles\TreeItem.xaml" />
-    <None Update="Assets/directory.svg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -62,28 +58,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaResource Update="Styles\Thumbnail.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </AvaloniaResource>
-    <AvaloniaResource Update="View\Styles\TreeItem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </AvaloniaResource>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  <Target Name="Preview">
-    <Error Condition="$(XamlFile) == ''" Text="Specify /p:XamlFile=path" />
-    <PropertyGroup>
-      <PreviewerPort Condition="'$(PreviewerPort)' == ''">6001</PreviewerPort>
-      <FullPathToPreviewXaml>$([System.IO.Path]::GetFullPath('$(XamlFile)'))</FullPathToPreviewXaml>
-      <FileUriToPreviewXaml>file:///$(FullPathToPreviewXaml.Replace('\', '/').TrimStart('/'))</FileUriToPreviewXaml>
-    </PropertyGroup>
-    <Exec Command="dotnet exec --runtimeconfig $(ProjectRuntimeConfigFilePath) --depsfile $(ProjectDepsFilePath) $(PkgAvalonia)/tools/netcoreapp2.0/designer/Avalonia.Designer.HostApp.dll --method html --html-url http://127.0.0.1:$(PreviewerPort) --transport $(FileUriToPreviewXaml) $(TargetPath)" />
-  </Target>
 
 </Project>

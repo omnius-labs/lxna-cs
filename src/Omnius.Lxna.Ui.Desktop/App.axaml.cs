@@ -48,7 +48,7 @@ public class App : Application
         this.Init();
 
         var parsedResult = CommandLine.Parser.Default.ParseArguments<OptionArgs>(Environment.GetCommandLineArgs());
-        parsedResult.WithParsed(this.OnNormalModeArgsParsed);
+        parsedResult.WithParsed(this.OnArgsParsed);
     }
 
     private void Init()
@@ -73,7 +73,7 @@ public class App : Application
         public bool Verbose { get; set; } = false;
     }
 
-    private async void OnNormalModeArgsParsed(OptionArgs options)
+    private async void OnArgsParsed(OptionArgs options)
     {
         try
         {

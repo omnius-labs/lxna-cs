@@ -82,10 +82,9 @@ public class ExplorerViewModel : ExplorerViewModelBase
             .ToReadOnlyReactivePropertySlim();
         this.CancelWaitCommand = new ReactiveCommand().AddTo(_disposable);
         this.CancelWaitCommand.Subscribe(() => this.OnCancelWait()).AddTo(_disposable);
-        this.RootTreeNode = new RootTreeNodeModel(_isExpandedChangedActionPipe.Caller);
-        this.RootTreeNode.Name = "/";
+        this.RootTreeNode = new RootTreeNodeModel(_isExpandedChangedActionPipe.Caller) { Name = "/" };
         this.SelectedTreeNode = new ReactivePropertySlim<TreeNodeModel>().AddTo(_disposable);
-        this.SelectedTreeNode.Where(n => n is not null).Subscribe(n => this.OnSelectedTreeViewModelChanged(n)).AddTo(_disposable);
+        this.SelectedTreeNode.Where(n => n is not null).Subscribe(n => this.OnSelectedTreeNodeModelChanged(n)).AddTo(_disposable);
         this.TreeViewWidth = this.Status.ToReactivePropertySlimAsSynchronized(n => n.TreeViewWidth, convert: ConvertHelper.DoubleToGridLength, convertBack: ConvertHelper.GridLengthToDouble).AddTo(_disposable);
         this.Thumbnails = new ReadOnlyObservableCollection<Thumbnail<object>>(_thumbnails);
         this.ThumbnailWidth = new ReactivePropertySlim<int>(256).AddTo(_disposable);
@@ -167,28 +166,15 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     private async void OnIsExpandedChanged(TreeNodeModel expendedTreeNode)
     {
-        if (_isBusy.Value) return;
-
         if (expendedTreeNode.Tag is not IDirectory) return;
         var expendedDirectory = (IDirectory)expendedTreeNode.Tag;
 
         await Task.Delay(1).ConfigureAwait(false);
 
-        await _applicationDispatcher.InvokeAsync(() =>
-        {
-            expendedTreeNode.IsSelected = true;
-
-            foreach (var treeNode in this.RootTreeNode!.VisibleChildren)
-            {
-                if (treeNode == expendedTreeNode) continue;
-                treeNode.IsSelected = false;
-            }
-        });
-
-        if (expendedTreeNode.Children.Count > 0) return;
-
         using (await _asyncLock.LockAsync())
         {
+            if (expendedTreeNode.Children.Count > 0) return;
+
             await _applicationDispatcher.InvokeAsync(() =>
             {
                 _isBusy!.Value = true;
@@ -256,28 +242,26 @@ public class ExplorerViewModel : ExplorerViewModelBase
         return CollectionHelper.Unite(dirs, archives).ToArray();
     }
 
-    private async void OnSelectedTreeViewModelChanged(TreeNodeModel selectedTreeNode)
+    private async void OnSelectedTreeNodeModelChanged(TreeNodeModel selectedTreeNode)
     {
-        if (_isBusy.Value) return;
-
         if (selectedTreeNode.Tag is not IDirectory) return;
         var selectedDirectory = (IDirectory)selectedTreeNode.Tag;
 
         await Task.Delay(1).ConfigureAwait(false);
 
-        await _applicationDispatcher.InvokeAsync(() =>
-        {
-            selectedTreeNode.IsSelected = true;
-
-            foreach (var treeNode in this.RootTreeNode!.VisibleChildren)
-            {
-                if (treeNode == selectedTreeNode) continue;
-                treeNode.IsSelected = false;
-            }
-        });
-
         using (await _asyncLock.LockAsync())
         {
+            await _applicationDispatcher.InvokeAsync(() =>
+            {
+                selectedTreeNode.IsSelected = true;
+
+                foreach (var treeNode in this.RootTreeNode!.VisibleChildren)
+                {
+                    if (treeNode == selectedTreeNode) continue;
+                    treeNode.IsSelected = false;
+                }
+            });
+
             await _applicationDispatcher.InvokeAsync(() =>
             {
                 _isBusy!.Value = true;
