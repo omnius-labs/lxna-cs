@@ -16,6 +16,7 @@
       <SubType>Designer</SubType>
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\**" />
+    <None Remove="View\Styles\TreeItem.xaml" />
     <None Update="Assets/directory.svg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -62,6 +63,9 @@
 
   <ItemGroup>
     <AvaloniaResource Update="Styles\Thumbnail.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+    <AvaloniaResource Update="View\Styles\TreeItem.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AvaloniaResource>
   </ItemGroup>

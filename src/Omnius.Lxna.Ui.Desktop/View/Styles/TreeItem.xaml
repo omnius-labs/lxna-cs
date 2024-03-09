@@ -16,24 +16,24 @@
                 </Style>
             </StackPanel.Styles>
 
-            <Label Classes="separator" Content="Thumbnail" />
-            <CheckBox Classes="Thumbnail" IsHitTestVisible="True" Width="256" Height="256"
-                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+            <Label Classes="separator" Content="TreeItem" />
+            <CheckBox Classes="TreeItem" IsHitTestVisible="True" Height="36"
+                    HorizontalAlignment="Stretch" VerticalContentAlignment="Center">
                 <DockPanel Margin="8">
-                    <TextBlock DockPanel.Dock="Bottom" Grid.Row="1" Text="Test"
-                               TextWrapping="Wrap" Margin="8" HorizontalAlignment="Center" />
-                    <Panel HorizontalAlignment="Center"  MaxWidth="256" MaxHeight="256">
-                        <skp:Svg Path="/Assets/settings.svg" />
-                    </Panel>
+                    <CheckBox DockPanel.Dock="Left" />
+                    <TextBlock DockPanel.Dock="Right" Text="Test"
+                               TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </DockPanel>
             </CheckBox>
 
         </StackPanel>
     </Design.PreviewWith>
 
-    <Style Selector="CheckBox.Thumbnail">
+    <Style Selector="CheckBox.TreeItem">
         <Setter Property="BorderBrush" Value="#e1e1e1" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Background="{TemplateBinding Background}"

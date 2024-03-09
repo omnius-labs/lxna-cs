@@ -10,7 +10,8 @@
         <StyleInclude Source="/View/Styles/Base.xaml" />
         <StyleInclude Source="/View/Styles/SideBar.xaml" />
         <StyleInclude Source="/View/Styles/OptionMenu.xaml" />
-        <StyleInclude Source="/View/Styles/TreeListView.xaml" />
         <StyleInclude Source="/View/Styles/Thumbnail.xaml" />
+        <StyleInclude Source="/View/Styles/TreeCheck.xaml" />
+        <StyleInclude Source="/View/Styles/TreeItem.xaml" />
     </Application.Styles>
 </Application>

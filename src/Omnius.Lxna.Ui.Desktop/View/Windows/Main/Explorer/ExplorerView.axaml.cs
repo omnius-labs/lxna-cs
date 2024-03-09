@@ -12,7 +12,7 @@ public interface IExplorerViewCommands
 
 public partial class ExplorerView : UserControl, IExplorerViewCommands
 {
-    private readonly ListBox _treeNodesListBox;
+    private readonly ItemsRepeater _treeNodesRepeater;
     private readonly ScrollViewer _thumbnailsViewer;
     private readonly ItemsRepeater _thumbnailsRepeater;
 
@@ -20,12 +20,12 @@ public partial class ExplorerView : UserControl, IExplorerViewCommands
     {
         this.InitializeComponent();
 
-        _treeNodesListBox = this.FindControl<ListBox>("TreeNodeListBox") ?? throw new NullReferenceException();
+        _treeNodesRepeater = this.FindControl<ItemsRepeater>("TreeNodesRepeater") ?? throw new NullReferenceException();
         _thumbnailsViewer = this.FindControl<ScrollViewer>("ThumbnailsViewer") ?? throw new NullReferenceException();
         _thumbnailsRepeater = this.FindControl<ItemsRepeater>("ThumbnailsRepeater") ?? throw new NullReferenceException();
 
         this.DataContextChanged += this.OnDataContextChanged;
-        _treeNodesListBox.SelectionChanged += this.OnTreeNodeSelectionChanged;
+        _treeNodesRepeater.Tapped += this.OnTreeNodeTapped;
         _thumbnailsRepeater.DoubleTapped += this.OnThumbnailDoubleTapped;
         _thumbnailsRepeater.ElementPrepared += this.OnThumbnailPrepared;
         _thumbnailsRepeater.ElementClearing += this.OnThumbnailClearing;
@@ -49,13 +49,14 @@ public partial class ExplorerView : UserControl, IExplorerViewCommands
         }
     }
 
-    private void OnTreeNodeSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void OnTreeNodeTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (this.DataContext is ExplorerViewModel viewModel)
         {
-            if (_treeNodesListBox.SelectedItem is TreeNodeModel model)
+            if (e.Source is IDataContextProvider control)
             {
-                viewModel.NotifyTreeNodeTapped(model);
+                if (control.DataContext is null) return;
+                viewModel.NotifyTreeNodeTapped(control.DataContext);
             }
         }
     }

@@ -25,8 +25,8 @@
     <Panel>
         <Panel ZIndex="1" IsEnabled="{Binding IsWaiting.Value}" IsVisible="{Binding IsWaiting.Value}">
             <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <pr:ProgressRing DockPanel.Dock="Top" IsIndeterminate="True" BorderThickness="10" Width="100" Height="100" />
-                <Button DockPanel.Dock="Bottom" Content="Cancel" Command="{Binding CancelWaitCommand}" />
+                <pr:ProgressRing Margin="0,0,0,16" DockPanel.Dock="Top" HorizontalAlignment="Center" VerticalAlignment="Center" IsIndeterminate="True" BorderThickness="10" Width="200" Height="200" />
+                <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Cancel" Command="{Binding CancelWaitCommand}"/>
             </DockPanel>
         </Panel>
         <Grid ZIndex="0" IsEnabled="{Binding !IsWaiting.Value}">
@@ -35,40 +35,41 @@
                 <ColumnDefinition Width="8" />
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ListBox x:Name="TreeNodeListBox" ItemsSource="{Binding RootTreeNode.VisibleChildren}" ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <VirtualizingStackPanel />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Panel>
-                            <Border Padding="{Binding Level, Converter={StaticResource LevelPaddingConverter}, ConverterParameter=30}">
+            <ScrollViewer x:Name="TreeNodesViewer" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <ItemsRepeater x:Name="TreeNodesRepeater" HorizontalAlignment="Stretch" ItemsSource="{Binding RootTreeNode.VisibleChildren}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Orientation="Vertical" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Classes="TreeItem" Height="32"
+                                    IsChecked="{ReflectionBinding IsSelected}"
+                                    Padding="{Binding Level, Converter={StaticResource LevelPaddingConverter}, ConverterParameter=30}" >
                                 <Grid ColumnDefinitions="Auto,*">
-                                    <CheckBox Grid.Column="0" Classes="Tree" IsChecked="{Binding IsExpanded}" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="1" Focusable="True" Text="{Binding Name}" Margin="5 0 0 0" VerticalAlignment="Center" />
+                                    <CheckBox Classes="TreeCheck" Grid.Column="0" Margin="8,0,8,0"
+                                            IsChecked="{ReflectionBinding IsExpanded}" />
+                                    <TextBlock Grid.Column="1" Text="{ReflectionBinding Name}"
+                                               TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </Grid>
-                            </Border>
-                        </Panel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                            </CheckBox>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </ScrollViewer>
             <GridSplitter Grid.Column="1" />
-            <ScrollViewer Grid.Column="2" x:Name="ThumbnailsViewer" HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer Grid.Column="2" x:Name="ThumbnailsViewer" HorizontalScrollBarVisibility="Disabled" IsVisible="{Binding !IsWaiting.Value}">
                 <ItemsRepeater x:Name="ThumbnailsRepeater" HorizontalAlignment="Stretch" ItemsSource="{ReflectionBinding Thumbnails}">
                     <ItemsRepeater.Layout>
                         <UniformGridLayout MinItemHeight="{Binding ThumbnailHeight.Value}" MinItemWidth="{Binding ThumbnailWidth.Value}" MinColumnSpacing="2" MinRowSpacing="2"/>
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox Classes="Thumbnail" IsHitTestVisible="True"
+                            <CheckBox Classes="Thumbnail"
                                     Height="{ReflectionBinding Height}" Width="{ReflectionBinding Width}"
                                     IsChecked="{ReflectionBinding IsSelected}"
-                                    
                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                                 <DockPanel Margin="8">
-                                    <TextBlock DockPanel.Dock="Bottom" Grid.Row="1" Text="{ReflectionBinding Name}"
+                                    <TextBlock DockPanel.Dock="Bottom" Text="{ReflectionBinding Name}"
                                                TextWrapping="Wrap" Margin="8" HorizontalAlignment="Center" MaxHeight="50" />
                                     <Image HorizontalAlignment="Center" Source="{ReflectionBinding Image}" />
                                 </DockPanel>
