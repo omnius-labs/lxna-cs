@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
+using Omnius.Core.Helpers;
 using Omnius.Lxna.Components.Image;
+using Omnius.Lxna.Components.Storage;
 using Omnius.Lxna.Components.Thumbnail;
 using Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 using Omnius.Lxna.Ui.Desktop.View;
@@ -32,9 +34,16 @@ public partial class Bootstrapper : AsyncDisposableBase
 
         try
         {
+            var tempDirectoryPath = Path.Combine(_lxnaEnvironment.StorageDirectoryPath, "tmp");
+            if (Directory.Exists(tempDirectoryPath)) Directory.Delete(tempDirectoryPath, true);
+            DirectoryHelper.CreateDirectory(tempDirectoryPath);
+
             var bytesPool = BytesPool.Shared;
 
             var uiStatus = await UiStatus.LoadAsync(Path.Combine(_lxnaEnvironment.StateDirectoryPath, UI_STATUS_FILE_NAME));
+
+            var storageOptions = new LocalStorageOptions { TempDirectoryPath = tempDirectoryPath };
+            var storage = new LocalStorage(bytesPool, storageOptions);
 
             var imageConverter = await ImageConverter.CreateAsync(bytesPool, cancellationToken);
 
@@ -52,9 +61,11 @@ public partial class Bootstrapper : AsyncDisposableBase
             serviceCollection.AddSingleton(_lxnaEnvironment);
             serviceCollection.AddSingleton<IBytesPool>(bytesPool);
             serviceCollection.AddSingleton(uiStatus);
+
+            serviceCollection.AddSingleton<IStorage>(storage);
             serviceCollection.AddSingleton(imageConverter);
-            serviceCollection.AddSingleton(directoryThumbnailGenerator);
-            serviceCollection.AddSingleton(fileThumbnailGenerator);
+            serviceCollection.AddSingleton<IDirectoryThumbnailGenerator>(directoryThumbnailGenerator);
+            serviceCollection.AddSingleton<IFileThumbnailGenerator>(fileThumbnailGenerator);
             serviceCollection.AddSingleton<ThumbnailsViewer>();
 
             serviceCollection.AddSingleton<IApplicationDispatcher, ApplicationDispatcher>();
@@ -88,7 +99,8 @@ public partial class Bootstrapper : AsyncDisposableBase
         var uiStatus = _serviceProvider.GetRequiredService<UiStatus>();
         await uiStatus.SaveAsync(Path.Combine(_lxnaEnvironment.StateDirectoryPath, UI_STATUS_FILE_NAME));
 
-        await _serviceProvider.GetRequiredService<FileThumbnailGenerator>().DisposeAsync();
+        await _serviceProvider.GetRequiredService<IFileThumbnailGenerator>().DisposeAsync();
+        await _serviceProvider.GetRequiredService<IDirectoryThumbnailGenerator>().DisposeAsync();
         await _serviceProvider.GetRequiredService<ThumbnailsViewer>().DisposeAsync();
     }
 

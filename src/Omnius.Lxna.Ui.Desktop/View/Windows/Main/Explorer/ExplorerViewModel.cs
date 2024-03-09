@@ -40,11 +40,10 @@ public class ExplorerViewModel : ExplorerViewModelBase
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     private readonly LxnaEnvironment _lxnaEnvironment;
+    private readonly IStorage _storage;
     private readonly ThumbnailsViewer _thumbnailsViewer;
     private readonly IApplicationDispatcher _applicationDispatcher;
     private readonly IDialogService _dialogService;
-
-    private IStorage _storage = null!;
 
     private IExplorerViewCommands? _commands;
 
@@ -59,9 +58,10 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     private readonly CompositeDisposable _disposable = new();
 
-    public ExplorerViewModel(LxnaEnvironment lxnaEnvironment, UiStatus uiStatus, ThumbnailsViewer ThumbnailsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
+    public ExplorerViewModel(LxnaEnvironment lxnaEnvironment, UiStatus uiStatus, IStorage storage, ThumbnailsViewer ThumbnailsViewer, IApplicationDispatcher applicationDispatcher, IDialogService dialogService)
     {
         _lxnaEnvironment = lxnaEnvironment;
+        _storage = storage;
         _thumbnailsViewer = ThumbnailsViewer;
         _applicationDispatcher = applicationDispatcher;
         _dialogService = dialogService;
@@ -97,13 +97,6 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     private async void Init()
     {
-        var tempDirectoryPath = Path.Combine(_lxnaEnvironment.StorageDirectoryPath, "tmp/explorer");
-        if (Directory.Exists(tempDirectoryPath)) Directory.Delete(tempDirectoryPath, true);
-        DirectoryHelper.CreateDirectory(tempDirectoryPath);
-
-        var storageOptions = new LocalStorageOptions { TempDirectoryPath = tempDirectoryPath };
-        _storage = await LocalStorage.CreateAsync(BytesPool.Shared, storageOptions);
-
         foreach (var directory in await _storage.FindDirectoriesAsync())
         {
             var child = new TreeNodeModel(_isExpandedChangedActionPipe.Caller)
@@ -283,7 +276,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
                     var oldThumbnails = this.Thumbnails!.ToArray();
 
                     _thumbnails.Clear();
-                    _thumbnails.AddRange(result.Thumbnails);
+                    _thumbnails.AddRange(result);
 
                     foreach (var model in oldThumbnails)
                     {

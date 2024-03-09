@@ -5,7 +5,12 @@ using Omnius.Lxna.Components.Storage;
 
 namespace Omnius.Lxna.Components.Thumbnail;
 
-public sealed class DirectoryThumbnailGenerator
+public interface IDirectoryThumbnailGenerator : IAsyncDisposable
+{
+    ValueTask<DirectoryThumbnailResult> GenerateAsync(IDirectory directory, DirectoryThumbnailOptions options, CancellationToken cancellationToken = default);
+}
+
+public sealed class DirectoryThumbnailGenerator : AsyncDisposableBase, IDirectoryThumbnailGenerator
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -23,6 +28,10 @@ public sealed class DirectoryThumbnailGenerator
 
         _imageConverter = imageConverter;
         _bytesPool = bytesPool;
+    }
+
+    protected override async ValueTask OnDisposeAsync()
+    {
     }
 
     public async ValueTask<DirectoryThumbnailResult> GenerateAsync(IDirectory directory, DirectoryThumbnailOptions options, CancellationToken cancellationToken = default)

@@ -20,7 +20,12 @@ public record FileThumbnailGeneratorOptions
     public required int Concurrency { get; init; }
 }
 
-public sealed class FileThumbnailGenerator : AsyncDisposableBase
+public interface IFileThumbnailGenerator : IAsyncDisposable
+{
+    ValueTask<FileThumbnailResult> GenerateAsync(IFile file, FileThumbnailOptions options, bool isCacheOnly, CancellationToken cancellationToken = default);
+}
+
+public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnailGenerator
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 

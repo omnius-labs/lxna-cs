@@ -10,17 +10,13 @@ using Omnius.Lxna.Components.Thumbnail;
 
 namespace Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 
-public record struct ThumbnailsViewerLoadResult
-{
-    public ImmutableArray<Thumbnail<object>> Thumbnails { get; init; }
-}
-
+// FIXME: use TimeProvider
 public class ThumbnailsViewer : AsyncDisposableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly DirectoryThumbnailGenerator _directoryThumbnailGenerator;
-    private readonly FileThumbnailGenerator _fileThumbnailGenerator;
+    private readonly IDirectoryThumbnailGenerator _directoryThumbnailGenerator;
+    private readonly IFileThumbnailGenerator _fileThumbnailGenerator;
     private readonly IApplicationDispatcher _applicationDispatcher;
 
     private ImmutableArray<Thumbnail<object>> _thumbnails = ImmutableArray<Thumbnail<object>>.Empty;
@@ -32,7 +28,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
 
     private readonly AsyncLock _asyncLock = new();
 
-    public ThumbnailsViewer(DirectoryThumbnailGenerator directoryThumbnailGenerator, FileThumbnailGenerator fileThumbnailGenerator, IApplicationDispatcher applicationDispatcher)
+    public ThumbnailsViewer(IDirectoryThumbnailGenerator directoryThumbnailGenerator, IFileThumbnailGenerator fileThumbnailGenerator, IApplicationDispatcher applicationDispatcher)
     {
         _directoryThumbnailGenerator = directoryThumbnailGenerator;
         _fileThumbnailGenerator = fileThumbnailGenerator;
@@ -70,7 +66,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
         _changedActionPipe.Caller.Call();
     }
 
-    public async ValueTask<ThumbnailsViewerLoadResult> LoadAsync(IDirectory directory, int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan,
+    public async ValueTask<IReadOnlyList<Thumbnail<object>>> LoadAsync(IDirectory directory, int thumbnailWidth, int thumbnailHeight, TimeSpan rotationSpan,
         Comparison<object> comparison, CancellationToken cancellationToken = default)
     {
         await Task.Delay(1, cancellationToken).ConfigureAwait(false);
@@ -108,7 +104,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
             var rotateTask = this.RotateAsync(rotationSpan);
             _task = Task.WhenAll(loadTask, rotateTask);
 
-            return new ThumbnailsViewerLoadResult { Thumbnails = _thumbnails };
+            return _thumbnails;
         }
     }
 

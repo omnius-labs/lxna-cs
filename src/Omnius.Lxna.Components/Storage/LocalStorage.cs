@@ -8,7 +8,6 @@ namespace Omnius.Lxna.Components.Storage;
 public record LocalStorageOptions
 {
     public required string TempDirectoryPath { get; init; }
-    public string? RootDirectoryPath { get; set; }
 }
 
 public sealed class LocalStorage : IStorage
@@ -16,20 +15,15 @@ public sealed class LocalStorage : IStorage
     private readonly LocalStorageOptions _options;
     private readonly IBytesPool _bytesPool;
 
-    private LocalStorage(IBytesPool bytesPool, LocalStorageOptions options)
+    public LocalStorage(IBytesPool bytesPool, LocalStorageOptions options)
     {
         _options = options;
         _bytesPool = bytesPool;
     }
 
-    public static async ValueTask<LocalStorage> CreateAsync(IBytesPool bytesPool, LocalStorageOptions options, CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<IDirectory>> FindDirectoriesAsync(string? rootDirectoryPath = null, CancellationToken cancellationToken = default)
     {
-        return new LocalStorage(bytesPool, options);
-    }
-
-    public async ValueTask<IEnumerable<IDirectory>> FindDirectoriesAsync(CancellationToken cancellationToken = default)
-    {
-        if (_options.RootDirectoryPath is string rootDirectoryPath)
+        if (rootDirectoryPath is not null)
         {
             return [new LocalDirectory(_bytesPool, PathHelper.Normalize(rootDirectoryPath), _options.TempDirectoryPath)];
         }
