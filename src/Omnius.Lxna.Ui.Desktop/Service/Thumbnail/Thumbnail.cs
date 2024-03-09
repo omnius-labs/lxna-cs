@@ -17,6 +17,8 @@ public sealed class Thumbnail<T> : BindableBase
     private readonly int _index;
     private double _width;
     private double _height;
+
+    private bool _isSelected = false;
     private Bitmap? _image = null;
     private ImmutableArray<ThumbnailContent> _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
     private int _currentOffset = -1;
@@ -53,6 +55,12 @@ public sealed class Thumbnail<T> : BindableBase
     public int Index => _index;
     public double Width => _width;
     public double Height => _height;
+
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => this.SetProperty(ref _isSelected, value);
+    }
 
     public string Name
     {

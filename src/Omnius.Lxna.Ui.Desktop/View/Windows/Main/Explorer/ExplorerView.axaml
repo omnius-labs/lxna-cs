@@ -64,6 +64,8 @@
                         <DataTemplate>
                             <CheckBox Classes="Thumbnail" IsHitTestVisible="True"
                                     Height="{ReflectionBinding Height}" Width="{ReflectionBinding Width}"
+                                    IsChecked="{ReflectionBinding IsSelected}"
+                                    
                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                                 <DockPanel Margin="8">
                                     <TextBlock DockPanel.Dock="Bottom" Grid.Row="1" Text="{ReflectionBinding Name}"
