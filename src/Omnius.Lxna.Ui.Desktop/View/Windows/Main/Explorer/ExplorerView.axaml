@@ -38,7 +38,7 @@
             <ScrollViewer x:Name="TreeNodesViewer" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                 <ItemsRepeater x:Name="TreeNodesRepeater" HorizontalAlignment="Stretch" ItemsSource="{Binding RootTreeNode.VisibleChildren}">
                     <ItemsRepeater.Layout>
-                        <StackLayout Orientation="Vertical" />
+                        <StackLayout Spacing="1" Orientation="Vertical" />
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
