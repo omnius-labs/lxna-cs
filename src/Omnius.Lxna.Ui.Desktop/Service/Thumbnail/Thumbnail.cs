@@ -136,7 +136,21 @@ public sealed class Thumbnail<T> : BindableBase
 
     public void Clear()
     {
-        this.Set(Enumerable.Empty<ThumbnailContent>());
+        lock (_lockObject)
+        {
+            if (_thumbnailContents.Length == 0) return;
+
+            foreach (var content in _thumbnailContents)
+            {
+                content.Image.Dispose();
+            }
+
+            _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
+            _currentOffset = -1;
+            _nextOffset = 0;
+
+            this.RaisePropertyChanged(nameof(this.Image));
+        }
     }
 
     public bool TryRotate()

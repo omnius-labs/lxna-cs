@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Avalonia.Threading;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Collections;
@@ -20,7 +21,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
     private readonly IApplicationDispatcher _applicationDispatcher;
 
     private ImmutableArray<Thumbnail<object>> _thumbnails = ImmutableArray<Thumbnail<object>>.Empty;
-    private LockedSet<Thumbnail<object>> _shownSet = new LockedSet<Thumbnail<object>>(new HashSet<Thumbnail<object>>());
+    private LockedSet<Thumbnail<object>> _preparedThumbnails = new LockedSet<Thumbnail<object>>(new HashSet<Thumbnail<object>>());
 
     private Task _task = Task.CompletedTask;
     private ActionPipe _changedActionPipe = new();
@@ -42,18 +43,22 @@ public class ThumbnailsViewer : AsyncDisposableBase
 
     public void ThumbnailPrepared(Thumbnail<object> thumbnail)
     {
-        lock (_shownSet.LockObject)
+        // Index == 0はThumbnailClearingが常に呼ばれないため、除外 (Avaloniaのバグ？)
+        if (thumbnail.Index == 0) return;
+
+        lock (_preparedThumbnails.LockObject)
         {
-            // ThumbnailPreparedが呼ばれた物は、必ずThumbnailClearingが呼ばれるわけではない、らしい (Avaloniaのバグ？)
+            // ThumbnailPreparedが呼ばれた物は、必ずThumbnailClearingが呼ばれるわけではない (Avaloniaのバグ？)
             // その対策のため、著しく離れたindexが存在する場合、削除する
-            foreach (var shownThumbnail in _shownSet)
+            foreach (var shownThumbnail in _preparedThumbnails)
             {
                 if (Math.Abs(thumbnail.Index - shownThumbnail.Index) < 128) continue;
+
                 shownThumbnail.Clear();
-                _shownSet.Remove(shownThumbnail);
+                _preparedThumbnails.Remove(shownThumbnail);
             }
 
-            _shownSet.Add(thumbnail);
+            _preparedThumbnails.Add(thumbnail);
         }
 
         _changedActionPipe.Caller.Call();
@@ -62,7 +67,8 @@ public class ThumbnailsViewer : AsyncDisposableBase
     public void ThumbnailClearing(Thumbnail<object> thumbnail)
     {
         thumbnail.Clear();
-        _shownSet.Remove(thumbnail);
+        _preparedThumbnails.Remove(thumbnail);
+
         _changedActionPipe.Caller.Call();
     }
 
@@ -124,15 +130,15 @@ public class ThumbnailsViewer : AsyncDisposableBase
             {
                 await changedEvent.WaitAsync(canceledTokenSource.Token);
 
-                var shownThumbnailSet = new HashSet<Thumbnail<object>>(this.GetShownModels());
+                var shownThumbnailSet = new HashSet<Thumbnail<object>>(this.ComputeShownThumbnails());
 
                 using var changedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(canceledTokenSource.Token);
                 using var changedActionListener2 = _changedActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => changedTokenSource.Cancel()));
 
                 try
                 {
-                    await this.LoadThumbnailAsync(shownThumbnailSet.Where(n => n.Image == null), width, height, false, changedTokenSource.Token);
                     await this.LoadThumbnailAsync(shownThumbnailSet.Where(n => n.Image == null), width, height, true, changedTokenSource.Token);
+                    await this.LoadThumbnailAsync(shownThumbnailSet.Where(n => n.Image == null), width, height, false, changedTokenSource.Token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -212,7 +218,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
             {
                 await Task.Delay(rotationSpan, canceledTokenSource.Token).ConfigureAwait(false);
 
-                var models = this.GetShownModels().Where(n => n.IsRotatable).ToArray();
+                var models = this.ComputeShownThumbnails().Where(n => n.IsRotatable).ToArray();
 
                 await _applicationDispatcher.InvokeAsync(() =>
                 {
@@ -220,7 +226,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
                     {
                         model.TryRotate();
                     }
-                });
+                }, DispatcherPriority.Background, canceledTokenSource.Token);
             }
         }
         catch (OperationCanceledException)
@@ -232,16 +238,16 @@ public class ThumbnailsViewer : AsyncDisposableBase
         }
     }
 
-    private Thumbnail<object>[] GetShownModels()
+    private Thumbnail<object>[] ComputeShownThumbnails()
     {
         var thumbnails = _thumbnails;
-        var shownSet = _shownSet;
-        if (shownSet.Count == 0) return [];
+        var preparedThumbnails = _preparedThumbnails;
+        if (preparedThumbnails.Count == 0) return [];
 
         int minIndex = thumbnails.Length;
         int maxIndex = 0;
 
-        foreach (var thumbnail in shownSet)
+        foreach (var thumbnail in preparedThumbnails)
         {
             minIndex = Math.Min(minIndex, thumbnail.Index);
             maxIndex = Math.Max(maxIndex, thumbnail.Index);
