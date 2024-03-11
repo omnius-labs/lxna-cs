@@ -34,7 +34,7 @@ jobs:
         run: |
           cd ./pub/linux-x64 && zip -r ../../lxna-linux-x64-${{ steps.variables.outputs.release_version }}.zip ./*
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             lxna-linux-x64-${{ steps.variables.outputs.release_version }}.zip
@@ -71,7 +71,7 @@ jobs:
           files: ./pub/win-x64
           dest: lxna-win-x64-${{ steps.variables.outputs.release_version }}.zip
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             lxna-win-x64-${{ steps.variables.outputs.release_version }}.zip
