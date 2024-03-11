@@ -16,7 +16,7 @@ namespace Omnius.Lxna.Components
             var storageOptions = new LocalStorageOptions { TempDirectoryPath = tempDirPath, };
             var storage = new LocalStorage(BytesPool.Shared, storageOptions);
 
-            var rootDirs = await storage.FindDirectoriesAsync();
+            var rootDirs = await storage.FindDirectoriesAsync(testRootDirPath);
             using var rootDir = rootDirs.Single();
             Assert.Equal(new NestedPath(testRootDirPath), rootDir.LogicalPath);
 
