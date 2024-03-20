@@ -3,20 +3,19 @@ using Avalonia.Media.Imaging;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Streams;
-using Omnius.Lxna.Components.Storage;
 using Omnius.Lxna.Components.Thumbnail;
 
 namespace Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 
-public sealed class Thumbnail<T> : BindableBase
-    where T : notnull
+public sealed class Thumbnail : BindableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private T _item;
+    private readonly object _tag;
+    private readonly string _name;
     private readonly int _index;
-    private double _width;
-    private double _height;
+    private readonly double _width;
+    private readonly double _height;
 
     private bool _isSelected = false;
     private Bitmap? _image = null;
@@ -26,9 +25,10 @@ public sealed class Thumbnail<T> : BindableBase
 
     private readonly object _lockObject = new();
 
-    public Thumbnail(T item, int index, double width, double height)
+    public Thumbnail(object tag, string name, int index, double width, double height)
     {
-        _item = item;
+        _tag = tag;
+        _name = name;
         _index = index;
         _width = width;
         _height = height;
@@ -45,13 +45,10 @@ public sealed class Thumbnail<T> : BindableBase
         }
 
         _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
-        _currentOffset = -1;
-        _nextOffset = 0;
-
-        this.RaisePropertyChanged(nameof(this.Image));
     }
 
-    public T Item => _item;
+    public object Tag => _tag;
+    public string Name => _name;
     public int Index => _index;
     public double Width => _width;
     public double Height => _height;
@@ -60,23 +57,6 @@ public sealed class Thumbnail<T> : BindableBase
     {
         get => _isSelected;
         set => this.SetProperty(ref _isSelected, value);
-    }
-
-    public string Name
-    {
-        get
-        {
-            if (_item is IFile file)
-            {
-                return file.Name;
-            }
-            else if (_item is IDirectory directory)
-            {
-                return directory.Name;
-            }
-
-            throw new NotSupportedException($"not support {_item!.GetType()}");
-        }
     }
 
     public Bitmap? Image
@@ -139,6 +119,9 @@ public sealed class Thumbnail<T> : BindableBase
         lock (_lockObject)
         {
             if (_thumbnailContents.Length == 0) return;
+
+            _image?.Dispose();
+            _image = null;
 
             foreach (var content in _thumbnailContents)
             {
