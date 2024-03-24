@@ -47,7 +47,7 @@ public partial class Bootstrapper : AsyncDisposableBase
 
             var imageConverter = await ImageConverter.CreateAsync(bytesPool, cancellationToken);
 
-            var directoryThumbnailGenerator = new DirectoryThumbnailGenerator(imageConverter, bytesPool);
+            var directoryThumbnailGenerator = await DirectoryThumbnailGenerator.CreateAsync(imageConverter, bytesPool, cancellationToken);
 
             var fileThumbnailGeneratorOptions = new FileThumbnailGeneratorOptions
             {

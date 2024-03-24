@@ -50,11 +50,11 @@ public sealed class ImageConverter
         }
     }
 
-    public async ValueTask ConvertAsync(Stream inStream, Stream outStream, int width, int height, ImageResizeType resizeType, ImageFormatType formatType, CancellationToken cancellationToken = default)
+    public async ValueTask ConvertAsync(Stream inStream, Stream outStream, ImageResizeType resizeType, int width, int height, ImageFormatType formatType, CancellationToken cancellationToken = default)
     {
         try
         {
-            await this.InternalImageSharpConvertAsync(inStream, outStream, width, height, resizeType, formatType, cancellationToken);
+            await this.InternalImageSharpConvertAsync(inStream, outStream, resizeType, width, height, formatType, cancellationToken);
         }
         catch (SixLabors.ImageSharp.ImageFormatException)
         {
@@ -65,7 +65,7 @@ public sealed class ImageConverter
                 await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken);
                 bitmapStream.Seek(0, SeekOrigin.Begin);
 
-                await this.InternalImageSharpConvertAsync(bitmapStream, outStream, width, height, resizeType, formatType, cancellationToken);
+                await this.InternalImageSharpConvertAsync(bitmapStream, outStream, resizeType, width, height, formatType, cancellationToken);
             }
         }
     }
@@ -91,7 +91,7 @@ public sealed class ImageConverter
         }
     }
 
-    private async ValueTask InternalImageSharpConvertAsync(Stream inStream, Stream outStream, int width, int height, ImageResizeType resizeType, ImageFormatType formatType, CancellationToken cancellationToken = default)
+    private async ValueTask InternalImageSharpConvertAsync(Stream inStream, Stream outStream, ImageResizeType resizeType, int width, int height, ImageFormatType formatType, CancellationToken cancellationToken = default)
     {
         using var image = SixLabors.ImageSharp.Image.Load(inStream);
 

@@ -88,7 +88,7 @@ public class PreviewWindowModel : PreviewWindowModelBase
             using (var inStream = await file.GetStreamAsync(cancellationToken))
             using (var outStream = new RecyclableMemoryStream(_bytesPool))
             {
-                await _imageConverter.ConvertAsync(inStream, outStream, (int)_imageSize.Width, (int)_imageSize.Height, ImageResizeType.Min, ImageFormatType.Png, cancellationToken: cancellationToken);
+                await _imageConverter.ConvertAsync(inStream, outStream, ImageResizeType.Min, (int)_imageSize.Width, (int)_imageSize.Height, ImageFormatType.Png, cancellationToken: cancellationToken);
                 outStream.Seek(0, SeekOrigin.Begin);
 
                 this.Source?.Value?.Dispose();

@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Assets/*">
+    <None Update="Assets/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -27,6 +27,7 @@
     <PackageReference Include="SharpCompress" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" />
     <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="Generator.Equals" />
   </ItemGroup>
 
 </Project>

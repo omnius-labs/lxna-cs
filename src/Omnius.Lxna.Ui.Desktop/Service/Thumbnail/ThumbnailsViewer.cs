@@ -12,7 +12,6 @@ using Omnius.Lxna.Components.Thumbnail;
 
 namespace Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 
-// FIXME: use TimeProvider
 public class ThumbnailsViewer : AsyncDisposableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();

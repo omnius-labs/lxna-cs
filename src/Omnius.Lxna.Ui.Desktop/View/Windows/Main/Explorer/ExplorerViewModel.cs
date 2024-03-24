@@ -204,6 +204,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         var dirs = new List<IDirectory>();
         dirs.AddRange(await directory.FindDirectoriesAsync(cancellationToken));
+        dirs.Sort((x, y) => LogicalStringComparer.Instance.Compare(x.Name, y.Name));
 
         var archives = new List<IDirectory>();
 
@@ -216,6 +217,8 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
             archives.Add(archive);
         }
+
+        archives.Sort((x, y) => LogicalStringComparer.Instance.Compare(x.Name, y.Name));
 
         return CollectionHelper.Unite(dirs, archives).ToArray();
     }
