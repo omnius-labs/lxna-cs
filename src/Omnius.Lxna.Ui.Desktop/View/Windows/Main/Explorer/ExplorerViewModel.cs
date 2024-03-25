@@ -260,15 +260,8 @@ public class ExplorerViewModel : ExplorerViewModelBase
                 {
                     _commands!.ThumbnailsScrollToTop();
 
-                    var oldThumbnails = this.Thumbnails!.ToArray();
-
-                    _thumbnails.Clear();
-                    _thumbnails.AddRange(_thumbnailsViewer.Thumbnails);
-
-                    foreach (var model in oldThumbnails)
-                    {
-                        model.Dispose();
-                    }
+                    var oldThumbnails = _thumbnails.Replace(_thumbnailsViewer.Thumbnails);
+                    oldThumbnails.Dispose();
 
                     _isBusy!.Value = false;
                 }, DispatcherPriority.Background, cancellationTokenSource.Token);
@@ -279,14 +272,8 @@ public class ExplorerViewModel : ExplorerViewModelBase
                 {
                     _commands!.ThumbnailsScrollToTop();
 
-                    var oldThumbnails = this.Thumbnails!.ToArray();
-
-                    _thumbnails.Clear();
-
-                    foreach (var model in oldThumbnails)
-                    {
-                        model.Dispose();
-                    }
+                    var oldThumbnails = _thumbnails.Replace([]);
+                    oldThumbnails.Dispose();
 
                     _isBusy!.Value = false;
                 });
@@ -299,7 +286,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
         return (x, y) switch
         {
             (IFile fx, IFile fy) => LogicalStringComparer.Instance.Compare(fx.Name, fy.Name),
-            (IDirectory dx, IDirectory dy) when (dx.Attributes & dy.Attributes).HasFlag(DirectoryAttributes.Archive) => LogicalStringComparer.Instance.Compare(dx.Name, dy.Name),
+            (IDirectory dx, IDirectory dy) when (dx.Attributes & dy.Attributes).HasFlag(DirectoryAttributes.Unknown) => dx.Attributes.CompareTo(dy.Attributes),
             (IDirectory dx, IDirectory dy) => LogicalStringComparer.Instance.Compare(dx.Name, dy.Name),
             _ => 0
         };

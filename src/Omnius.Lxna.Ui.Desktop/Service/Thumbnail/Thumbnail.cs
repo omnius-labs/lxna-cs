@@ -39,11 +39,7 @@ public sealed class Thumbnail : BindableBase
         _image?.Dispose();
         _image = null;
 
-        foreach (var content in _thumbnailContents)
-        {
-            content.Image.Dispose();
-        }
-
+        _thumbnailContents.Dispose();
         _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
     }
 
@@ -101,12 +97,9 @@ public sealed class Thumbnail : BindableBase
     {
         lock (_lockObject)
         {
-            foreach (var content in _thumbnailContents)
-            {
-                content.Image.Dispose();
-            }
-
+            _thumbnailContents.Dispose();
             _thumbnailContents = contents.ToImmutableArray();
+
             _currentOffset = -1;
             _nextOffset = 0;
 
@@ -123,12 +116,9 @@ public sealed class Thumbnail : BindableBase
             _image?.Dispose();
             _image = null;
 
-            foreach (var content in _thumbnailContents)
-            {
-                content.Image.Dispose();
-            }
-
+            _thumbnailContents.Dispose();
             _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
+
             _currentOffset = -1;
             _nextOffset = 0;
 
