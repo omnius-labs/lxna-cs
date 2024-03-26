@@ -6,6 +6,9 @@
             "type": "shell",
             "linux": {
                 "command": "bash ${workspaceFolder}/eng/gen-envfile.sh"
+            },
+            "osx": {
+                "command": "touch .env"
             }
         },
         {
