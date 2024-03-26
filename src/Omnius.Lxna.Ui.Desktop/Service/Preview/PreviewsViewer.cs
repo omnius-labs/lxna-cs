@@ -27,10 +27,10 @@ public class PreviewsViewer
         _bytesPool = bytesPool;
     }
 
-    public async ValueTask<Preview> GetPreviewAsync(int index, CancellationToken cancellationToken = default)
-    {
-        var preview = new Preview(file, _imageConverter, _bytesPool);
-        await preview.InitAsync(cancellationToken);
-        return preview;
-    }
+    // public async ValueTask<Preview> GetPreviewAsync(int index, CancellationToken cancellationToken = default)
+    // {
+    // var preview = new Preview(file, _imageConverter, _bytesPool);
+    // await preview.InitAsync(cancellationToken);
+    // return preview;
+    // }
 }

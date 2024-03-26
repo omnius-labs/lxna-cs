@@ -3,7 +3,13 @@
     "tasks": [
         {
             "label": "gen-envfile",
-            "type": "shell",
+            "windows": {
+                "command": "pwsh",
+                "args": [
+                    "-Command",
+                    "if (!(Test-Path .env)) { New-Item .env -ItemType File }"
+                ]
+            },
             "linux": {
                 "command": "bash ${workspaceFolder}/eng/gen-envfile.sh"
             },
