@@ -129,9 +129,9 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     public override async void NotifyThumbnailDoubleTapped(object item)
     {
-        if (item is Thumbnail thumbnail && thumbnail.Tag is IFile file)
+        if (item is Thumbnail thumbnail && thumbnail.Item is IFile file)
         {
-            var files = _thumbnails.Select(x => x.Tag).OfType<IFile>().ToArray();
+            var files = _thumbnails.Select(x => x.Item).OfType<IFile>().ToArray();
             var position = Array.IndexOf(files, file);
 
             await _dialogService.ShowPreviewWindowAsync(files, position);

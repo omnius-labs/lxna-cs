@@ -12,7 +12,25 @@ using Omnius.Lxna.Components.Thumbnail;
 
 namespace Omnius.Lxna.Ui.Desktop.Service.Preview;
 
-// TODO: バックグラウンド読み込み、オンメモリキャッシュを実装する
 public class PreviewsViewer
 {
+    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
+    private readonly ImmutableList<IFile> _files;
+    private readonly ImageConverter _imageConverter;
+    private readonly IBytesPool _bytesPool;
+
+    public PreviewsViewer(IEnumerable<IFile> files, ImageConverter imageConverter, IBytesPool bytesPool)
+    {
+        _files = files.ToImmutableList();
+        _imageConverter = imageConverter;
+        _bytesPool = bytesPool;
+    }
+
+    public async ValueTask<Preview> GetPreviewAsync(int index, CancellationToken cancellationToken = default)
+    {
+        var preview = new Preview(file, _imageConverter, _bytesPool);
+        await preview.InitAsync(cancellationToken);
+        return preview;
+    }
 }

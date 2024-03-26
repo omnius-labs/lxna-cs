@@ -3,6 +3,7 @@ using Avalonia.Media.Imaging;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Streams;
+using Omnius.Lxna.Components.Storage;
 using Omnius.Lxna.Components.Thumbnail;
 
 namespace Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
@@ -11,8 +12,7 @@ public sealed class Thumbnail : BindableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly object _tag;
-    private readonly string _name;
+    private readonly object _item;
     private readonly int _index;
     private readonly double _width;
     private readonly double _height;
@@ -25,10 +25,9 @@ public sealed class Thumbnail : BindableBase
 
     private readonly object _lockObject = new();
 
-    public Thumbnail(object tag, string name, int index, double width, double height)
+    public Thumbnail(object tag, int index, double width, double height)
     {
-        _tag = tag;
-        _name = name;
+        _item = tag;
         _index = index;
         _width = width;
         _height = height;
@@ -43,8 +42,21 @@ public sealed class Thumbnail : BindableBase
         _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
     }
 
-    public object Tag => _tag;
-    public string Name => _name;
+    public object Item => _item;
+
+    public string Name
+    {
+        get
+        {
+            return _item switch
+            {
+                IFile file => file.Name,
+                IDirectory directory => directory.Name,
+                _ => string.Empty,
+            };
+        }
+    }
+
     public int Index => _index;
     public double Width => _width;
     public double Height => _height;

@@ -80,15 +80,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
             items.Sort(comparison);
 
             _thumbnails = items
-                .Select((n, i) =>
-                {
-                    return n switch
-                    {
-                        IFile file => new Thumbnail(file, file.Name, i, thumbnailWidth, thumbnailHeight),
-                        IDirectory dir => new Thumbnail(dir, dir.Name, i, thumbnailWidth, thumbnailHeight),
-                        _ => null,
-                    };
-                })
+                .Select((item, index) => new Thumbnail(item, index, thumbnailWidth, thumbnailHeight))
                 .WhereNotNull()
                 .ToImmutableArray();
 
@@ -147,7 +139,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (thumbnail.Tag is IFile file)
+            if (thumbnail.Item is IFile file)
             {
                 var options = new FileThumbnailOptions
                 {
@@ -168,7 +160,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
                     });
                 }
             }
-            else if (thumbnail.Tag is IDirectory dir)
+            else if (thumbnail.Item is IDirectory dir)
             {
                 var options = new DirectoryThumbnailOptions
                 {

@@ -5,9 +5,9 @@ using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Image;
 using Omnius.Lxna.Components.Storage;
 
-namespace Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
+namespace Omnius.Lxna.Ui.Desktop.Service.Preview;
 
-public sealed class Preview : BindableBase
+public sealed class Preview : BindableBase, IDisposable
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
