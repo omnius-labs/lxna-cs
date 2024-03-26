@@ -37,8 +37,6 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
 
     private static readonly HashSet<string> _movieExtensionSet = new HashSet<string>() { ".mp4", ".avi", ".wmv", ".mov", ".m4v", ".mkv", ".mpg", ".flv" };
 
-    private static readonly Base16 _base16 = new Base16();
-
     public static async ValueTask<FileThumbnailGenerator> CreateAsync(ImageConverter imageConverter, IBytesPool bytesPool, FileThumbnailGeneratorOptions options, CancellationToken cancellationToken = default)
     {
         var result = new FileThumbnailGenerator(imageConverter, bytesPool, options);
@@ -53,7 +51,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
         _bytesPool = bytesPool;
         _stateDirectoryPath = options.StateDirectoryPath;
         _concurrency = options.Concurrency;
-        _thumbnailGeneratorRepository = new ThumbnailGeneratorRepository(Path.Combine(_stateDirectoryPath, "ThumbnailGenerators.db"), _bytesPool);
+        _thumbnailGeneratorRepository = new ThumbnailGeneratorRepository(Path.Combine(_stateDirectoryPath, "FileThumbnailGenerator.db"), _bytesPool);
     }
 
     internal async ValueTask InitAsync(CancellationToken cancellationToken = default)
@@ -108,7 +106,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
             using (var inStream = await file.GetStreamAsync(cancellationToken).ConfigureAwait(false))
             using (var outStream = new RecyclableMemoryStream(_bytesPool))
             {
-                await _imageConverter.ConvertAsync(inStream, outStream, options.Width, options.Height, options.ResizeType, options.FormatType).ConfigureAwait(false);
+                await _imageConverter.ConvertAsync(inStream, outStream, options.ResizeType, options.Width, options.Height, options.FormatType).ConfigureAwait(false);
                 outStream.Seek(0, SeekOrigin.Begin);
 
                 var image = outStream.ToMemoryOwner();
@@ -261,7 +259,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
         inStream.Seek(0, SeekOrigin.Begin);
         await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
-        await _imageConverter.ConvertAsync(inStream, outStream, width, height, resizeType, formatType).ConfigureAwait(false);
+        await _imageConverter.ConvertAsync(inStream, outStream, resizeType, width, height, formatType).ConfigureAwait(false);
 
         return (seekSec, outStream.ToMemoryOwner());
     }
@@ -288,7 +286,7 @@ public sealed class FileThumbnailGenerator : AsyncDisposableBase, IFileThumbnail
         inStream.Seek(0, SeekOrigin.Begin);
         await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
-        await _imageConverter.ConvertAsync(inStream, outStream, width, height, resizeType, formatType).ConfigureAwait(false);
+        await _imageConverter.ConvertAsync(inStream, outStream, resizeType, width, height, formatType).ConfigureAwait(false);
 
         return outStream.ToMemoryOwner();
     }

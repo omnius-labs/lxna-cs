@@ -6,11 +6,19 @@
         "ciphertext",
         "Decrypter",
         "Encrypter",
+        "ffprobe",
+        "Lanczos",
+        "loglevel",
         "lxna",
         "Magick",
         "Newtonsoft",
+        "nokey",
+        "noprint",
         "Omni",
         "Omnius",
-        "Remoting"
+        "Remoting",
+        "Resampler",
+        "Resizer",
+        "vframes"
     ]
 }

@@ -8,7 +8,7 @@ namespace Omnius.Lxna.Ui.Desktop.View;
 
 public interface IDialogService
 {
-    ValueTask ShowPicturePreviewWindowAsync(IFile file, CancellationToken cancellationToken = default);
+    ValueTask ShowPreviewWindowAsync(IEnumerable<IFile> files, int position, CancellationToken cancellationToken = default);
 }
 
 public class DialogService : IDialogService
@@ -26,15 +26,15 @@ public class DialogService : IDialogService
         _clipboardService = clipboardService;
     }
 
-    public async ValueTask ShowPicturePreviewWindowAsync(IFile file, CancellationToken cancellationToken = default)
+    public async ValueTask ShowPreviewWindowAsync(IEnumerable<IFile> files, int position, CancellationToken cancellationToken = default)
     {
         await _applicationDispatcher.InvokeAsync(async () =>
         {
-            var window = new PicturePreviewWindow(Path.Combine(_lxnaEnvironment.StateDirectoryPath, "windows", "picture_preview"));
+            var window = new PreviewWindow(Path.Combine(_lxnaEnvironment.StateDirectoryPath, "windows", "picture_preview"));
             var serviceProvider = Bootstrapper.Instance.GetServiceProvider();
 
-            var viewModel = serviceProvider.GetRequiredService<PicturePreviewWindowModel>();
-            await viewModel.InitializeAsync(file, cancellationToken);
+            var viewModel = serviceProvider.GetRequiredService<PreviewWindowModel>();
+            await viewModel.InitializeAsync(files, position, cancellationToken);
             window.DataContext = viewModel;
 
             await window.ShowDialog(_mainWindowProvider.GetMainWindow());

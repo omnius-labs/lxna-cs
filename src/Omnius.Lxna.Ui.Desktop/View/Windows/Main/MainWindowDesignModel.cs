@@ -16,7 +16,7 @@ public class MainWindowDesignModel : MainWindowModelBase
         this.ExplorerViewModel = new ExplorerViewDesignModel();
 
         this.SettingsCommand = new AsyncReactiveCommand().AddTo(_disposable);
-        this.SettingsCommand.Subscribe(async () => await this.SettingsAsync()).AddTo(_disposable);
+        this.SettingsCommand.Subscribe(this.SettingsAsync).AddTo(_disposable);
     }
 
     protected override async ValueTask OnDisposeAsync()
