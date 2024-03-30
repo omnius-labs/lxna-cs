@@ -10,7 +10,6 @@ namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 public partial class PreviewWindow : RestorableWindow
 {
     private Panel _panel = null!;
-    private Image _image = null!;
 
     public PreviewWindow()
         : base()
@@ -35,7 +34,6 @@ public partial class PreviewWindow : RestorableWindow
         AvaloniaXamlLoader.Load(this);
 
         _panel = this.FindControl<Panel>("Panel") ?? throw new NullReferenceException();
-        _image = this.FindControl<Image>("Image") ?? throw new NullReferenceException();
 
         _panel.SizeChanged += this.OnPanelSizeChanged;
     }

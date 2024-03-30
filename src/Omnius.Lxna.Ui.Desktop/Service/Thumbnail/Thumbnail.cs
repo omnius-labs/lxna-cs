@@ -18,6 +18,7 @@ public sealed class Thumbnail : BindableBase
     private readonly double _height;
 
     private bool _isSelected = false;
+    private ThumbnailState _state = ThumbnailState.None;
     private Bitmap? _image = null;
     private ImmutableArray<ThumbnailContent> _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
     private int _currentOffset = -1;
@@ -35,11 +36,22 @@ public sealed class Thumbnail : BindableBase
 
     public void Dispose()
     {
+        this.Cleanup();
+    }
+
+    private void Cleanup()
+    {
         _image?.Dispose();
         _image = null;
 
-        _thumbnailContents.Dispose();
-        _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
+        if (_thumbnailContents.Length > 0)
+        {
+            _thumbnailContents.Dispose();
+            _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
+        }
+
+        _currentOffset = -1;
+        _nextOffset = 0;
     }
 
     public object Item => _item;
@@ -65,6 +77,12 @@ public sealed class Thumbnail : BindableBase
     {
         get => _isSelected;
         set => this.SetProperty(ref _isSelected, value);
+    }
+
+    public ThumbnailState State
+    {
+        get => _state;
+        private set => this.SetProperty(ref _state, value);
     }
 
     public Bitmap? Image
@@ -100,12 +118,12 @@ public sealed class Thumbnail : BindableBase
 
     public bool IsRotatable => _thumbnailContents.Length > 1;
 
-    public void Set(ThumbnailContent content)
+    public void SetResult(ThumbnailContent content)
     {
-        this.Set([content]);
+        this.SetResult([content]);
     }
 
-    public void Set(IEnumerable<ThumbnailContent> contents)
+    public void SetResult(IEnumerable<ThumbnailContent> contents)
     {
         lock (_lockObject)
         {
@@ -116,6 +134,18 @@ public sealed class Thumbnail : BindableBase
             _nextOffset = 0;
 
             this.RaisePropertyChanged(nameof(this.Image));
+            this.State = ThumbnailState.Loaded;
+        }
+    }
+
+    public void SetError()
+    {
+        lock (_lockObject)
+        {
+            this.Cleanup();
+
+            this.RaisePropertyChanged(nameof(this.Image));
+            this.State = ThumbnailState.Error;
         }
     }
 
@@ -123,18 +153,10 @@ public sealed class Thumbnail : BindableBase
     {
         lock (_lockObject)
         {
-            if (_thumbnailContents.Length == 0) return;
-
-            _image?.Dispose();
-            _image = null;
-
-            _thumbnailContents.Dispose();
-            _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
-
-            _currentOffset = -1;
-            _nextOffset = 0;
+            this.Cleanup();
 
             this.RaisePropertyChanged(nameof(this.Image));
+            this.State = ThumbnailState.None;
         }
     }
 
@@ -157,4 +179,11 @@ public sealed class Thumbnail : BindableBase
 
         return true;
     }
+}
+
+public enum ThumbnailState
+{
+    None,
+    Loaded,
+    Error,
 }

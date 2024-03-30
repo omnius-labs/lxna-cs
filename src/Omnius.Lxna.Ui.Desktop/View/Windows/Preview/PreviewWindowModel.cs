@@ -47,8 +47,6 @@ public class PreviewWindowModel : PreviewWindowModelBase
     {
         _files = files.ToImmutableArray();
         _position = position;
-
-        await this.LoadAsync(cancellationToken);
     }
 
     protected override async ValueTask OnDisposeAsync()
@@ -74,9 +72,11 @@ public class PreviewWindowModel : PreviewWindowModelBase
         }
     }
 
-    public void NotifyImageSizeChanged(Size newSize)
+    public async void NotifyImageSizeChanged(Size newSize)
     {
         _imageSize = newSize;
+
+        await this.LoadAsync();
     }
 
     private async Task LoadAsync(CancellationToken cancellationToken = default)

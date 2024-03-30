@@ -12,6 +12,7 @@ public sealed class Preview : BindableBase, IDisposable
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     private readonly IFile _file;
+    private readonly int _index;
     private readonly ImageConverter _imageConverter;
     private readonly IBytesPool _bytesPool;
     private readonly RecyclableMemoryStream _imageStream;
@@ -22,16 +23,17 @@ public sealed class Preview : BindableBase, IDisposable
 
     private readonly AsyncLock _asyncLock = new();
 
-    public static async ValueTask<Preview> CreateAsync(IFile file, ImageConverter imageConverter, IBytesPool bytesPool, CancellationToken cancellationToken = default)
+    public static async ValueTask<Preview> CreateAsync(IFile file, int index, ImageConverter imageConverter, IBytesPool bytesPool, CancellationToken cancellationToken = default)
     {
-        var preview = new Preview(file, imageConverter, bytesPool);
+        var preview = new Preview(file, index, imageConverter, bytesPool);
         await preview.InitAsync(cancellationToken);
         return preview;
     }
 
-    internal Preview(IFile file, ImageConverter imageConverter, IBytesPool bytesPool)
+    private Preview(IFile file, int index, ImageConverter imageConverter, IBytesPool bytesPool)
     {
         _file = file;
+        _index = index;
         _imageConverter = imageConverter;
         _bytesPool = bytesPool;
         _imageStream = new RecyclableMemoryStream(_bytesPool);
@@ -52,6 +54,7 @@ public sealed class Preview : BindableBase, IDisposable
     }
 
     public IFile File => _file;
+    public int Index => _index;
 
     public async ValueTask<ReadOnlyMemory<byte>> GetImageBytesAsync(int width, int height, CancellationToken cancellationToken = default)
     {
