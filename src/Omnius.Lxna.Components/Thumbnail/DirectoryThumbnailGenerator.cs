@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
+using Generator.Equals;
 using Omnius.Core;
 using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Image;
 using Omnius.Lxna.Components.Storage;
-using Generator.Equals;
 
 namespace Omnius.Lxna.Components.Thumbnail;
 
