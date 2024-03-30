@@ -60,13 +60,13 @@ public partial class PreviewWindow : RestorableWindow
 
         {
             var wheelScrollObservable = Observable.FromEventPattern<PointerWheelEventArgs>(
-                h => _panel.PointerWheelChanged += h,
-                h => _panel.PointerWheelChanged -= h)
+                h => this.PointerWheelChanged += h,
+                h => this.PointerWheelChanged -= h)
                 .Select(e => e.EventArgs.Delta.Y);
             var sampledObservable = wheelScrollObservable
-                .Sample(TimeSpan.FromMilliseconds(500));
+                .Sample(TimeSpan.FromMilliseconds(100));
             sampledObservable
-                .Subscribe(this.PanelOnPointerWheelChanged)
+                .Subscribe(this.OnPointerWheelChanged)
                 .AddTo(_disposable);
         }
     }
@@ -81,7 +81,7 @@ public partial class PreviewWindow : RestorableWindow
         _disposable.Dispose();
     }
 
-    private void PanelOnPointerWheelChanged(double y)
+    private void OnPointerWheelChanged(double y)
     {
         Dispatcher.UIThread.Invoke(() =>
         {

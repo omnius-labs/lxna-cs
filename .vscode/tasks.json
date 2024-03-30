@@ -11,7 +11,8 @@
                 ]
             },
             "linux": {
-                "command": "bash ${workspaceFolder}/eng/gen-envfile.sh"
+                "command": "bash",
+                "args": ["${workspaceFolder}/eng/gen-envfile.sh"]
             },
             "osx": {
                 "command": "touch .env"

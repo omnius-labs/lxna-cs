@@ -137,87 +137,84 @@ public partial class PreviewsViewer : AsyncDisposableBase
                 await Task.Delay(1).ConfigureAwait(false);
 
                 using var changedEvent = new AutoResetEvent(true);
-                using var changedActionListener1 = _changedActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => changedEvent.Set()));
+                using var rootChangedActionListener = _changedActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => changedEvent.Set()));
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     await changedEvent.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                    using (await _asyncLock.LockAsync(cancellationToken).ConfigureAwait(false))
+                    using var changedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    using var changedActionListener = _changedActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => changedCancellationTokenSource.Cancel()));
+
+                    try
                     {
-                        foreach (var (index, preview) in _cachedPreviewMap.ToArray())
-                        {
-                            if (_currentWidth == preview.Width && _currentHeight == preview.Height) continue;
-                            _cachedPreviewMap.Remove(index);
-                            preview.Dispose();
-                        }
-                    }
+                        var changedCancellationToken = changedCancellationTokenSource.Token;
 
-                    while (!cancellationToken.IsCancellationRequested)
-                    {
-                        var indexes = new List<int>();
-
-                        foreach (var i in Enumerable.Range(_currentIndex - _preloadBehindCount, _preloadBehindCount + _preloadAheadCount + 1))
+                        using (await _asyncLock.LockAsync(changedCancellationToken).ConfigureAwait(false))
                         {
-                            if (i < 0 || i >= _files.Count) continue;
-                            indexes.Add(i);
-                        }
-
-                        using (await _asyncLock.LockAsync(cancellationToken).ConfigureAwait(false))
-                        {
-                            foreach (var i in _cachedPreviewMap.Keys.Where(n => !indexes.Contains(n)).ToList())
+                            foreach (var (index, preview) in _cachedPreviewMap.ToArray())
                             {
-                                var preview = _cachedPreviewMap[i];
-                                _cachedPreviewMap.Remove(i);
+                                if (_currentWidth == preview.Width && _currentHeight == preview.Height) continue;
+                                _cachedPreviewMap.Remove(index);
                                 preview.Dispose();
                             }
+                        }
 
-                            foreach (var i in indexes.ToArray())
+                        while (!changedCancellationToken.IsCancellationRequested)
+                        {
+                            var indexes = new List<int>();
+
+                            foreach (var i in Enumerable.Range(_currentIndex - _preloadBehindCount, _preloadBehindCount + _preloadAheadCount + 1))
                             {
-                                if (!_cachedPreviewMap.ContainsKey(i)) continue;
-                                indexes.Remove(i);
+                                if (i < 0 || i >= _files.Count) continue;
+                                indexes.Add(i);
                             }
-                        }
 
-                        if (indexes.Count == 0) break;
-
-                        indexes.Sort((x, y) =>
-                        {
-                            int c = Math.Abs(x - _currentIndex).CompareTo(Math.Abs(y - _currentIndex));
-                            if (c != 0) return c;
-                            return y.CompareTo(x);
-                        });
-
-                        int targetIndex;
-                        int targetWidth;
-                        int targetHeight;
-
-                        using (await _asyncLock.LockAsync(cancellationToken).ConfigureAwait(false))
-                        {
-                            targetIndex = indexes.First();
-                            targetWidth = _currentWidth;
-                            targetHeight = _currentHeight;
-                        }
-
-                        using var changedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                        using var changedActionListener = _changedActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => changedCancellationTokenSource.Cancel()));
-
-                        try
-                        {
-                            var preview = await Preview.CreateAsync(_files[targetIndex], targetIndex, _currentWidth, _currentHeight, _imageConverter, _bytesPool, changedCancellationTokenSource.Token).ConfigureAwait(false);
-
-                            using (await _asyncLock.LockAsync(changedCancellationTokenSource.Token).ConfigureAwait(false))
+                            using (await _asyncLock.LockAsync(changedCancellationToken).ConfigureAwait(false))
                             {
-                                _cachedPreviewMap[targetIndex] = preview;
+                                foreach (var i in _cachedPreviewMap.Keys.Where(n => !indexes.Contains(n)).ToList())
+                                {
+                                    var preview = _cachedPreviewMap[i];
+                                    _cachedPreviewMap.Remove(i);
+                                    preview.Dispose();
+                                }
+
+                                foreach (var i in indexes.ToArray())
+                                {
+                                    if (!_cachedPreviewMap.ContainsKey(i)) continue;
+                                    indexes.Remove(i);
+                                }
+                            }
+
+                            if (indexes.Count == 0) break;
+
+                            indexes.Sort((x, y) =>
+                            {
+                                int c = Math.Abs(x - _currentIndex).CompareTo(Math.Abs(y - _currentIndex));
+                                if (c != 0) return c;
+                                return y.CompareTo(x);
+                            });
+
+                            int targetIndex = indexes.First();
+                            int targetWidth = _currentWidth;
+                            int targetHeight = _currentHeight;
+
+                            {
+                                var preview = await Preview.CreateAsync(_files[targetIndex], targetIndex, targetWidth, targetHeight, _imageConverter, _bytesPool, changedCancellationToken).ConfigureAwait(false);
+
+                                using (await _asyncLock.LockAsync(changedCancellationToken).ConfigureAwait(false))
+                                {
+                                    _cachedPreviewMap[targetIndex] = preview;
+                                }
                             }
 
                             _loadedEvent.Set();
 
                             _logger.Debug($"Loaded preview. index: {targetIndex}");
                         }
-                        catch (OperationCanceledException)
-                        {
-                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
                     }
                 }
             }
