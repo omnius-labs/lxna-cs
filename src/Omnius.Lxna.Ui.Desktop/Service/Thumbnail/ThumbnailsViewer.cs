@@ -142,12 +142,12 @@ public class ThumbnailsViewer : AsyncDisposableBase
 
             try
             {
-                using var changeEvent = new AutoResetEvent(true);
-                using var rootChangedActionListener = _changedActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => changeEvent.Set()));
+                using var changedEvent = new AutoResetEvent(true);
+                using var rootChangedActionListener = _changedActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => changedEvent.Set()));
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    await changeEvent.WaitAsync(cancellationToken).ConfigureAwait(false);
+                    await changedEvent.WaitAsync(cancellationToken).ConfigureAwait(false);
 
                     while (!cancellationToken.IsCancellationRequested)
                     {

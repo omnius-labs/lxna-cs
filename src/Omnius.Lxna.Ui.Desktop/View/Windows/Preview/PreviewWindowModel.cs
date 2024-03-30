@@ -1,10 +1,10 @@
-using System.Collections.Immutable;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Omnius.Core;
+using Omnius.Core.Avalonia;
 using Omnius.Core.Streams;
-using Omnius.Lxna.Components.Image;
 using Omnius.Lxna.Components.Storage;
+using Omnius.Lxna.Ui.Desktop.Service.Preview;
 using Omnius.Lxna.Ui.Desktop.Shared;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -25,18 +25,21 @@ public class PreviewWindowModel : PreviewWindowModelBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly ImageConverter _imageConverter;
+    private readonly PreviewsViewer _previewsViewer;
+    private readonly IApplicationDispatcher _applicationDispatcher;
     private readonly IBytesPool _bytesPool;
 
-    private ImmutableArray<IFile> _files;
     private int _position;
-    private Size _imageSize;
+    private Size _size;
+
+    private readonly AsyncLock _asyncLock = new();
 
     private readonly CompositeDisposable _disposable = new();
 
-    public PreviewWindowModel(ImageConverter imageConverter, IBytesPool bytesPool, UiStatus uiStatus)
+    public PreviewWindowModel(UiStatus uiStatus, PreviewsViewer previewsViewer, IApplicationDispatcher applicationDispatcher, IBytesPool bytesPool)
     {
-        _imageConverter = imageConverter;
+        _previewsViewer = previewsViewer;
+        _applicationDispatcher = applicationDispatcher;
         _bytesPool = bytesPool;
 
         this.Status = uiStatus.PicturePreview ??= new PreviewWindowStatus();
@@ -45,7 +48,8 @@ public class PreviewWindowModel : PreviewWindowModelBase
 
     public override async ValueTask InitializeAsync(IEnumerable<IFile> files, int position, CancellationToken cancellationToken = default)
     {
-        _files = files.ToImmutableArray();
+        await _previewsViewer.LoadAsync(files, 10, 10, cancellationToken).ConfigureAwait(false);
+
         _position = position;
     }
 
@@ -56,49 +60,61 @@ public class PreviewWindowModel : PreviewWindowModelBase
 
     public async void NotifyNext()
     {
-        if (_position + 1 < _files.Length)
+        using (await _asyncLock.LockAsync().ConfigureAwait(false))
         {
-            _position++;
-            await this.LoadAsync();
+            if (_position + 1 < _previewsViewer.Files.Count)
+            {
+                if (await this.TryLoadAsync(_position + 1).ConfigureAwait(false)) _position++;
+            }
         }
     }
 
     public async void NotifyPrev()
     {
-        if (_position - 1 >= 0)
+        using (await _asyncLock.LockAsync().ConfigureAwait(false))
         {
-            _position--;
-            await this.LoadAsync();
+            if (_position - 1 >= 0)
+            {
+                if (await this.TryLoadAsync(_position - 1).ConfigureAwait(false)) _position--;
+            }
         }
     }
 
     public async void NotifyImageSizeChanged(Size newSize)
     {
-        _imageSize = newSize;
-
-        await this.LoadAsync();
+        using (await _asyncLock.LockAsync().ConfigureAwait(false))
+        {
+            _size = newSize;
+            _previewsViewer.SetSize((int)_size.Width, (int)_size.Height);
+            await this.TryLoadAsync(_position).ConfigureAwait(false);
+        }
     }
 
-    private async Task LoadAsync(CancellationToken cancellationToken = default)
+    private async ValueTask<bool> TryLoadAsync(int position, CancellationToken cancellationToken = default)
     {
-        var file = _files[_position];
-
         try
         {
-            using (var inStream = await file.GetStreamAsync(cancellationToken))
-            using (var outStream = new RecyclableMemoryStream(_bytesPool))
-            {
-                await _imageConverter.ConvertAsync(inStream, outStream, ImageResizeType.Min, (int)_imageSize.Width, (int)_imageSize.Height, ImageFormatType.Png, cancellationToken: cancellationToken);
-                outStream.Seek(0, SeekOrigin.Begin);
+            var bytes = await _previewsViewer.GetPreviewAsync(position, cancellationToken).ConfigureAwait(false);
 
-                this.Source?.Value?.Dispose();
-                var source = new Bitmap(outStream);
-                this.Source!.Value = source;
+            using (var stream = new RecyclableMemoryStream(_bytesPool))
+            {
+                stream.Write(bytes.Span);
+                stream.Seek(0, SeekOrigin.Begin);
+
+                await _applicationDispatcher.InvokeAsync(() =>
+                {
+                    this.Source?.Value?.Dispose();
+                    var source = new Bitmap(stream);
+                    this.Source!.Value = source;
+                }).ConfigureAwait(false);
+
+                return true;
             }
         }
         catch (Exception e)
         {
             _logger.Error(e);
+            return false;
         }
     }
 }

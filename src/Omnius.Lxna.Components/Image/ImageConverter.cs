@@ -16,7 +16,7 @@ public sealed class ImageConverter
     public static async ValueTask<ImageConverter> CreateAsync(IBytesPool bytesPool, CancellationToken cancellationToken = default)
     {
         var result = new ImageConverter(bytesPool);
-        await result.InitAsync(cancellationToken);
+        await result.InitAsync(cancellationToken).ConfigureAwait(false);
 
         return result;
     }
@@ -34,7 +34,7 @@ public sealed class ImageConverter
     {
         try
         {
-            await this.InternalImageSharpConvertAsync(inStream, outStream, formatType, cancellationToken);
+            await this.InternalImageSharpConvertAsync(inStream, outStream, formatType, cancellationToken).ConfigureAwait(false);
         }
         catch (SixLabors.ImageSharp.ImageFormatException)
         {
@@ -42,10 +42,10 @@ public sealed class ImageConverter
 
             using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
             {
-                await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken);
+                await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken).ConfigureAwait(false);
                 bitmapStream.Seek(0, SeekOrigin.Begin);
 
-                await this.InternalImageSharpConvertAsync(bitmapStream, outStream, formatType, cancellationToken);
+                await this.InternalImageSharpConvertAsync(bitmapStream, outStream, formatType, cancellationToken).ConfigureAwait(false);
             }
         }
     }
@@ -54,7 +54,7 @@ public sealed class ImageConverter
     {
         try
         {
-            await this.InternalImageSharpConvertAsync(inStream, outStream, resizeType, width, height, formatType, cancellationToken);
+            await this.InternalImageSharpConvertAsync(inStream, outStream, resizeType, width, height, formatType, cancellationToken).ConfigureAwait(false);
         }
         catch (SixLabors.ImageSharp.ImageFormatException)
         {
@@ -62,10 +62,10 @@ public sealed class ImageConverter
 
             using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
             {
-                await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken);
+                await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken).ConfigureAwait(false);
                 bitmapStream.Seek(0, SeekOrigin.Begin);
 
-                await this.InternalImageSharpConvertAsync(bitmapStream, outStream, resizeType, width, height, formatType, cancellationToken);
+                await this.InternalImageSharpConvertAsync(bitmapStream, outStream, resizeType, width, height, formatType, cancellationToken).ConfigureAwait(false);
             }
         }
     }

@@ -1,15 +1,21 @@
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using Omnius.Core.Avalonia;
+using Reactive.Bindings.Extensions;
 
 namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
 public partial class PreviewWindow : RestorableWindow
 {
     private Panel _panel = null!;
+
+    private readonly CompositeDisposable _disposable = new();
 
     public PreviewWindow()
         : base()
@@ -35,7 +41,34 @@ public partial class PreviewWindow : RestorableWindow
 
         _panel = this.FindControl<Panel>("Panel") ?? throw new NullReferenceException();
 
-        _panel.SizeChanged += this.OnPanelSizeChanged;
+        {
+            var sizeChangedObservable = Observable.FromEventPattern<SizeChangedEventArgs>(
+                h => _panel.SizeChanged += h,
+                h => _panel.SizeChanged -= h)
+                .Select(e => e.EventArgs.NewSize);
+            var firstEventObservable = sizeChangedObservable
+                .Take(1);
+            var remainingEventsObservable = sizeChangedObservable
+                .Skip(1)
+                .Throttle(TimeSpan.FromSeconds(2));
+            var mergedObservable = firstEventObservable
+                .Concat(remainingEventsObservable);
+            mergedObservable
+                .Subscribe(this.PanelOnSizeChanged)
+                .AddTo(_disposable);
+        }
+
+        {
+            var wheelScrollObservable = Observable.FromEventPattern<PointerWheelEventArgs>(
+                h => _panel.PointerWheelChanged += h,
+                h => _panel.PointerWheelChanged -= h)
+                .Select(e => e.EventArgs.Delta.Y);
+            var sampledObservable = wheelScrollObservable
+                .Sample(TimeSpan.FromMilliseconds(500));
+            sampledObservable
+                .Subscribe(this.PanelOnPointerWheelChanged)
+                .AddTo(_disposable);
+        }
     }
 
     private async void OnClosed()
@@ -44,28 +77,36 @@ public partial class PreviewWindow : RestorableWindow
         {
             await disposable.DisposeAsync();
         }
+
+        _disposable.Dispose();
     }
 
-    protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+    private void PanelOnPointerWheelChanged(double y)
     {
-        if (this.DataContext is PreviewWindowModel viewModel)
+        Dispatcher.UIThread.Invoke(() =>
         {
-            if (e.Delta.Y < 0)
+            if (this.DataContext is PreviewWindowModel viewModel)
             {
-                viewModel.NotifyNext();
+                if (y < 0)
+                {
+                    viewModel.NotifyNext();
+                }
+                else if (y > 0)
+                {
+                    viewModel.NotifyPrev();
+                }
             }
-            else if (e.Delta.Y > 0)
-            {
-                viewModel.NotifyPrev();
-            }
-        }
+        });
     }
 
-    private void OnPanelSizeChanged(object? sender, SizeChangedEventArgs e)
+    private void PanelOnSizeChanged(Size newSize)
     {
-        if (this.DataContext is PreviewWindowModel viewModel)
+        Dispatcher.UIThread.Invoke(() =>
         {
-            viewModel.NotifyImageSizeChanged(e.NewSize);
-        }
+            if (this.DataContext is PreviewWindowModel viewModel)
+            {
+                viewModel.NotifyImageSizeChanged(newSize);
+            }
+        });
     }
 }

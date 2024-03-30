@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Runtime.ExceptionServices;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Streams;
@@ -7,77 +8,96 @@ using Omnius.Lxna.Components.Storage;
 
 namespace Omnius.Lxna.Ui.Desktop.Service.Preview;
 
-public sealed class Preview : BindableBase, IDisposable
+public partial class PreviewsViewer
 {
-    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
-    private readonly IFile _file;
-    private readonly int _index;
-    private readonly ImageConverter _imageConverter;
-    private readonly IBytesPool _bytesPool;
-    private readonly RecyclableMemoryStream _imageStream;
-
-    private IMemoryOwner<byte>? _resizedImageBytes;
-    private int _resizedImageWidth;
-    private int _resizedImageHeight;
-
-    private readonly AsyncLock _asyncLock = new();
-
-    public static async ValueTask<Preview> CreateAsync(IFile file, int index, ImageConverter imageConverter, IBytesPool bytesPool, CancellationToken cancellationToken = default)
+    private sealed class Preview : BindableBase, IDisposable
     {
-        var preview = new Preview(file, index, imageConverter, bytesPool);
-        await preview.InitAsync(cancellationToken);
-        return preview;
-    }
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private Preview(IFile file, int index, ImageConverter imageConverter, IBytesPool bytesPool)
-    {
-        _file = file;
-        _index = index;
-        _imageConverter = imageConverter;
-        _bytesPool = bytesPool;
-        _imageStream = new RecyclableMemoryStream(_bytesPool);
-    }
+        private readonly IFile _file;
+        private readonly int _index;
+        private readonly int _width;
+        private readonly int _height;
+        private readonly ImageConverter _imageConverter;
+        private readonly IBytesPool _bytesPool;
 
-    private async ValueTask InitAsync(CancellationToken cancellationToken = default)
-    {
-        using (var inStream = await _file.GetStreamAsync(cancellationToken))
+        private IMemoryOwner<byte>? _imageBytes;
+
+        private PreviewState _previewState;
+        private ExceptionDispatchInfo? _exception;
+
+        private readonly AsyncLock _asyncLock = new();
+
+        public static async ValueTask<Preview> CreateAsync(IFile file, int index, int width, int height, ImageConverter imageConverter, IBytesPool bytesPool, CancellationToken cancellationToken = default)
         {
-            await _imageConverter.ConvertAsync(inStream, _imageStream, ImageFormatType.Png, cancellationToken);
-            _imageStream.Seek(0, SeekOrigin.Begin);
+            var preview = new Preview(file, index, width, height, imageConverter, bytesPool);
+            await preview.InitAsync(cancellationToken).ConfigureAwait(false);
+            return preview;
         }
-    }
 
-    public void Dispose()
-    {
-        _imageStream?.Dispose();
-    }
-
-    public IFile File => _file;
-    public int Index => _index;
-
-    public async ValueTask<ReadOnlyMemory<byte>> GetImageBytesAsync(int width, int height, CancellationToken cancellationToken = default)
-    {
-        using (await _asyncLock.LockAsync(cancellationToken))
+        private Preview(IFile file, int index, int width, int height, ImageConverter imageConverter, IBytesPool bytesPool)
         {
-            if (_resizedImageBytes != null && _resizedImageWidth == width && _resizedImageHeight == height)
+            _file = file;
+            _index = index;
+            _width = width;
+            _height = height;
+            _imageConverter = imageConverter;
+            _bytesPool = bytesPool;
+        }
+
+        private async ValueTask InitAsync(CancellationToken cancellationToken = default)
+        {
+            try
             {
-                return _resizedImageBytes.Memory;
+                using (var inStream = await _file.GetStreamAsync(cancellationToken).ConfigureAwait(false))
+                using (var outStream = new RecyclableMemoryStream(_bytesPool))
+                {
+                    await _imageConverter.ConvertAsync(inStream, outStream, ImageResizeType.Min, _width, _height, ImageFormatType.Png, cancellationToken).ConfigureAwait(false);
+                    outStream.Seek(0, SeekOrigin.Begin);
+
+                    _imageBytes = outStream.ToMemoryOwner();
+                    _previewState = PreviewState.Loaded;
+                }
             }
-
-            _imageStream.Seek(0, SeekOrigin.Begin);
-
-            using (var outStream = new RecyclableMemoryStream(_bytesPool))
+            catch (Exception e)
             {
-                await _imageConverter.ConvertAsync(_imageStream, outStream, ImageResizeType.Min, width, height, ImageFormatType.Png, cancellationToken);
-                outStream.Seek(0, SeekOrigin.Begin);
-
-                _resizedImageBytes = outStream.ToMemoryOwner();
-                _resizedImageWidth = width;
-                _resizedImageHeight = height;
-
-                return _resizedImageBytes.Memory;
+                _previewState = PreviewState.Error;
+                _exception = ExceptionDispatchInfo.Capture(e);
             }
         }
+
+        public void Dispose()
+        {
+            _imageBytes?.Dispose();
+        }
+
+        public IFile File => _file;
+        public int Index => _index;
+        public int Width => _width;
+        public int Height => _height;
+        public PreviewState State => _previewState;
+
+        public async ValueTask<ReadOnlyMemory<byte>> GetImageBytesAsync(CancellationToken cancellationToken = default)
+        {
+            if (_previewState == PreviewState.Error) _exception?.Throw();
+
+            try
+            {
+                return _imageBytes?.Memory ?? ReadOnlyMemory<byte>.Empty;
+            }
+            catch (Exception e)
+            {
+                _previewState = PreviewState.Error;
+                _exception = ExceptionDispatchInfo.Capture(e);
+                throw;
+            }
+        }
     }
+}
+
+public enum PreviewState
+{
+    None,
+    Loaded,
+    Error,
 }

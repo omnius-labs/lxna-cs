@@ -5,6 +5,7 @@ using Omnius.Core.Helpers;
 using Omnius.Lxna.Components.Image;
 using Omnius.Lxna.Components.Storage;
 using Omnius.Lxna.Components.Thumbnail;
+using Omnius.Lxna.Ui.Desktop.Service.Preview;
 using Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 using Omnius.Lxna.Ui.Desktop.View;
 using Omnius.Lxna.Ui.Desktop.View.Windows;
@@ -67,6 +68,7 @@ public partial class Bootstrapper : AsyncDisposableBase
             serviceCollection.AddSingleton<IDirectoryThumbnailGenerator>(directoryThumbnailGenerator);
             serviceCollection.AddSingleton<IFileThumbnailGenerator>(fileThumbnailGenerator);
             serviceCollection.AddSingleton<ThumbnailsViewer>();
+            serviceCollection.AddSingleton<PreviewsViewer>();
 
             serviceCollection.AddSingleton<IApplicationDispatcher, ApplicationDispatcher>();
             serviceCollection.AddSingleton<IMainWindowProvider, MainWindowProvider>();
@@ -102,6 +104,7 @@ public partial class Bootstrapper : AsyncDisposableBase
         await _serviceProvider.GetRequiredService<IFileThumbnailGenerator>().DisposeAsync();
         await _serviceProvider.GetRequiredService<IDirectoryThumbnailGenerator>().DisposeAsync();
         await _serviceProvider.GetRequiredService<ThumbnailsViewer>().DisposeAsync();
+        await _serviceProvider.GetRequiredService<PreviewsViewer>().DisposeAsync();
     }
 
     public ServiceProvider GetServiceProvider()
