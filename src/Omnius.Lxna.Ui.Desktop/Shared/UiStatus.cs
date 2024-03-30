@@ -11,7 +11,7 @@ public sealed class UiStatus
     public int Version { get; init; }
     public MainWindowStatus? MainWindow { get; set; }
     public ExplorerViewStatus? ExplorerView { get; set; }
-    public PicturePreviewWindowStatus? PicturePreview { get; set; }
+    public PreviewWindowStatus? PicturePreview { get; set; }
     public SettingsWindowStatus? SettingsWindow { get; set; }
 
     public static async ValueTask<UiStatus> LoadAsync(string configPath)
@@ -60,7 +60,7 @@ public sealed class ExplorerViewStatus : BindableBase
     }
 }
 
-public sealed class PicturePreviewWindowStatus : BindableBase
+public sealed class PreviewWindowStatus : BindableBase
 {
 }
 

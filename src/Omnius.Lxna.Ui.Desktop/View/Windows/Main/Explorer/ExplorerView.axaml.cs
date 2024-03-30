@@ -1,7 +1,11 @@
+using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
+using Omnius.Core;
 using Omnius.Core.Avalonia;
+using Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 
 namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
@@ -27,13 +31,13 @@ public partial class ExplorerView : UserControl, IExplorerViewCommands
         this.DataContextChanged += this.OnDataContextChanged;
         _treeNodesRepeater.Tapped += this.OnTreeNodeTapped;
         _thumbnailsRepeater.DoubleTapped += this.OnThumbnailDoubleTapped;
-        _thumbnailsRepeater.ElementPrepared += this.OnThumbnailPrepared;
-        _thumbnailsRepeater.ElementClearing += this.OnThumbnailClearing;
+        _thumbnailsRepeater.ElementPrepared += this.OnThumbnailElementPrepared;
     }
 
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
+        // _thumbnailsRepeater.ItemsSourceView!.CollectionChanged += this.OnThumbnailsRepeaterItemsChanged;
     }
 
     public void ThumbnailsScrollToTop()
@@ -73,21 +77,12 @@ public partial class ExplorerView : UserControl, IExplorerViewCommands
         }
     }
 
-    private void OnThumbnailPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
+    private void OnThumbnailElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
     {
         if (this.DataContext is ExplorerViewModel viewModel)
         {
-            if (e.Element.DataContext is null) return;
-            viewModel.NotifyThumbnailPrepared(e.Element.DataContext);
-        }
-    }
-
-    private void OnThumbnailClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
-    {
-        if (this.DataContext is ExplorerViewModel viewModel)
-        {
-            if (e.Element.DataContext is null) return;
-            viewModel.NotifyThumbnailClearing(e.Element.DataContext);
+            var items = _thumbnailsRepeater.GetLogicalChildren().Cast<IDataContextProvider>().Select(n => n.DataContext).WhereNotNull().ToList();
+            viewModel.NotifyThumbnailsChanged(items);
         }
     }
 }

@@ -8,17 +8,17 @@ using Omnius.Lxna.Components.Thumbnail;
 
 namespace Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 
-public sealed class Thumbnail<T> : BindableBase
-    where T : notnull
+public sealed class Thumbnail : BindableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private T _item;
+    private readonly object _item;
     private readonly int _index;
-    private double _width;
-    private double _height;
+    private readonly double _width;
+    private readonly double _height;
 
     private bool _isSelected = false;
+    private ThumbnailState _state = ThumbnailState.None;
     private Bitmap? _image = null;
     private ImmutableArray<ThumbnailContent> _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
     private int _currentOffset = -1;
@@ -26,9 +26,9 @@ public sealed class Thumbnail<T> : BindableBase
 
     private readonly object _lockObject = new();
 
-    public Thumbnail(T item, int index, double width, double height)
+    public Thumbnail(object tag, int index, double width, double height)
     {
-        _item = item;
+        _item = tag;
         _index = index;
         _width = width;
         _height = height;
@@ -36,22 +36,39 @@ public sealed class Thumbnail<T> : BindableBase
 
     public void Dispose()
     {
+        this.Cleanup();
+    }
+
+    private void Cleanup()
+    {
         _image?.Dispose();
         _image = null;
 
-        foreach (var content in _thumbnailContents)
+        if (_thumbnailContents.Length > 0)
         {
-            content.Image.Dispose();
+            _thumbnailContents.Dispose();
+            _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
         }
 
-        _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
         _currentOffset = -1;
         _nextOffset = 0;
-
-        this.RaisePropertyChanged(nameof(this.Image));
     }
 
-    public T Item => _item;
+    public object Item => _item;
+
+    public string Name
+    {
+        get
+        {
+            return _item switch
+            {
+                IFile file => file.Name,
+                IDirectory directory => directory.Name,
+                _ => string.Empty,
+            };
+        }
+    }
+
     public int Index => _index;
     public double Width => _width;
     public double Height => _height;
@@ -62,21 +79,10 @@ public sealed class Thumbnail<T> : BindableBase
         set => this.SetProperty(ref _isSelected, value);
     }
 
-    public string Name
+    public ThumbnailState State
     {
-        get
-        {
-            if (_item is IFile file)
-            {
-                return file.Name;
-            }
-            else if (_item is IDirectory directory)
-            {
-                return directory.Name;
-            }
-
-            throw new NotSupportedException($"not support {_item!.GetType()}");
-        }
+        get => _state;
+        private set => this.SetProperty(ref _state, value);
     }
 
     public Bitmap? Image
@@ -112,25 +118,34 @@ public sealed class Thumbnail<T> : BindableBase
 
     public bool IsRotatable => _thumbnailContents.Length > 1;
 
-    public void Set(ThumbnailContent content)
+    public void SetResult(ThumbnailContent content)
     {
-        this.Set([content]);
+        this.SetResult([content]);
     }
 
-    public void Set(IEnumerable<ThumbnailContent> contents)
+    public void SetResult(IEnumerable<ThumbnailContent> contents)
     {
         lock (_lockObject)
         {
-            foreach (var content in _thumbnailContents)
-            {
-                content.Image.Dispose();
-            }
-
+            _thumbnailContents.Dispose();
             _thumbnailContents = contents.ToImmutableArray();
+
             _currentOffset = -1;
             _nextOffset = 0;
 
             this.RaisePropertyChanged(nameof(this.Image));
+            this.State = ThumbnailState.Loaded;
+        }
+    }
+
+    public void SetError()
+    {
+        lock (_lockObject)
+        {
+            this.Cleanup();
+
+            this.RaisePropertyChanged(nameof(this.Image));
+            this.State = ThumbnailState.Error;
         }
     }
 
@@ -138,18 +153,10 @@ public sealed class Thumbnail<T> : BindableBase
     {
         lock (_lockObject)
         {
-            if (_thumbnailContents.Length == 0) return;
-
-            foreach (var content in _thumbnailContents)
-            {
-                content.Image.Dispose();
-            }
-
-            _thumbnailContents = ImmutableArray<ThumbnailContent>.Empty;
-            _currentOffset = -1;
-            _nextOffset = 0;
+            this.Cleanup();
 
             this.RaisePropertyChanged(nameof(this.Image));
+            this.State = ThumbnailState.None;
         }
     }
 
@@ -172,4 +179,11 @@ public sealed class Thumbnail<T> : BindableBase
 
         return true;
     }
+}
+
+public enum ThumbnailState
+{
+    None,
+    Loaded,
+    Error,
 }
