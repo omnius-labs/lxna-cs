@@ -30,7 +30,8 @@ public sealed class ImageConverter
     {
     }
 
-    public async ValueTask ConvertAsync(Stream inStream, Stream outStream, ImageFormatType formatType, CancellationToken cancellationToken = default)
+    public async ValueTask ConvertAsync(Stream inStream, Stream outStream, ImageFormatType formatType,
+        string? inputFileExtension = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -42,7 +43,7 @@ public sealed class ImageConverter
 
             using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
             {
-                await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken).ConfigureAwait(false);
+                await this.InternalMagickImageConvertAsync(inStream, bitmapStream, inputFileExtension, cancellationToken).ConfigureAwait(false);
                 bitmapStream.Seek(0, SeekOrigin.Begin);
 
                 await this.InternalImageSharpConvertAsync(bitmapStream, outStream, formatType, cancellationToken).ConfigureAwait(false);
@@ -50,7 +51,8 @@ public sealed class ImageConverter
         }
     }
 
-    public async ValueTask ConvertAsync(Stream inStream, Stream outStream, ImageResizeType resizeType, int width, int height, ImageFormatType formatType, CancellationToken cancellationToken = default)
+    public async ValueTask ConvertAsync(Stream inStream, Stream outStream, ImageResizeType resizeType, int width, int height, ImageFormatType formatType,
+        string? inputFileExtension = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -62,7 +64,7 @@ public sealed class ImageConverter
 
             using (var bitmapStream = new RecyclableMemoryStream(_bytesPool))
             {
-                await this.InternalMagickImageConvertAsync(inStream, bitmapStream, cancellationToken).ConfigureAwait(false);
+                await this.InternalMagickImageConvertAsync(inStream, bitmapStream, inputFileExtension, cancellationToken).ConfigureAwait(false);
                 bitmapStream.Seek(0, SeekOrigin.Begin);
 
                 await this.InternalImageSharpConvertAsync(bitmapStream, outStream, resizeType, width, height, formatType, cancellationToken).ConfigureAwait(false);
@@ -70,16 +72,15 @@ public sealed class ImageConverter
         }
     }
 
-    private async ValueTask InternalMagickImageConvertAsync(Stream inStream, Stream outStream, CancellationToken cancellationToken = default)
+    private async ValueTask InternalMagickImageConvertAsync(Stream inStream, Stream outStream, string? inputFileExtension = null, CancellationToken cancellationToken = default)
     {
         try
         {
             var magickFormat = MagickFormat.Unknown;
 
-            if (inStream is FileStream fileStream)
+            if (inputFileExtension is not null)
             {
-                var ext = Path.GetExtension(fileStream.Name);
-                if (ext == ".svg") magickFormat = MagickFormat.Svg;
+                if (inputFileExtension == ".svg") magickFormat = MagickFormat.Svg;
             }
 
             using var magickImage = new MagickImage(inStream, magickFormat);
@@ -91,9 +92,26 @@ public sealed class ImageConverter
         }
     }
 
+    private async ValueTask InternalImageSharpConvertAsync(Stream inStream, Stream outStream, ImageFormatType formatType, CancellationToken cancellationToken = default)
+    {
+        using var image = await SixLabors.ImageSharp.Image.LoadAsync(inStream).ConfigureAwait(false);
+
+        if (formatType == ImageFormatType.Png)
+        {
+            var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder()
+            {
+                CompressionLevel = SixLabors.ImageSharp.Formats.Png.PngCompressionLevel.Level1
+            };
+            await image.SaveAsync(outStream, encoder, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        throw new NotSupportedException();
+    }
+
     private async ValueTask InternalImageSharpConvertAsync(Stream inStream, Stream outStream, ImageResizeType resizeType, int width, int height, ImageFormatType formatType, CancellationToken cancellationToken = default)
     {
-        using var image = SixLabors.ImageSharp.Image.Load(inStream);
+        using var image = await SixLabors.ImageSharp.Image.LoadAsync(inStream).ConfigureAwait(false);
 
         image.Mutate(x =>
         {
@@ -117,21 +135,10 @@ public sealed class ImageConverter
 
         if (formatType == ImageFormatType.Png)
         {
-            var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
-            await image.SaveAsync(outStream, encoder, cancellationToken).ConfigureAwait(false);
-            return;
-        }
-
-        throw new NotSupportedException();
-    }
-
-    private async ValueTask InternalImageSharpConvertAsync(Stream inStream, Stream outStream, ImageFormatType formatType, CancellationToken cancellationToken = default)
-    {
-        using var image = SixLabors.ImageSharp.Image.Load(inStream);
-
-        if (formatType == ImageFormatType.Png)
-        {
-            var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
+            var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder()
+            {
+                CompressionLevel = SixLabors.ImageSharp.Formats.Png.PngCompressionLevel.Level1
+            };
             await image.SaveAsync(outStream, encoder, cancellationToken).ConfigureAwait(false);
             return;
         }

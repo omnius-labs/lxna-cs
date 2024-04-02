@@ -5,17 +5,15 @@
             "label": "gen-envfile",
             "windows": {
                 "command": "pwsh",
-                "args": [
-                    "-Command",
-                    "if (!(Test-Path .env)) { New-Item .env -ItemType File }"
-                ]
+                "args": ["-File", "${workspaceFolder}/eng/gen-envfile-win.ps1"]
             },
             "linux": {
                 "command": "bash",
-                "args": ["${workspaceFolder}/eng/gen-envfile.sh"]
+                "args": ["${workspaceFolder}/eng/gen-envfile-linux.sh"]
             },
             "osx": {
-                "command": "touch .env"
+                "command": "bash",
+                "args": ["${workspaceFolder}/eng/gen-envfile-mac.sh"]
             }
         },
         {

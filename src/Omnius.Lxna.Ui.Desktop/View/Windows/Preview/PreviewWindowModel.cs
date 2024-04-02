@@ -4,6 +4,7 @@ using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Storage;
+using Omnius.Lxna.Ui.Desktop.Service.Internal;
 using Omnius.Lxna.Ui.Desktop.Service.Preview;
 using Omnius.Lxna.Ui.Desktop.Shared;
 using Reactive.Bindings;
@@ -29,10 +30,10 @@ public class PreviewWindowModel : PreviewWindowModelBase
     private readonly IApplicationDispatcher _applicationDispatcher;
     private readonly IBytesPool _bytesPool;
 
-    private int _position;
+    private int _currentPosition;
     private Size _size;
 
-    private readonly AsyncLock _asyncLock = new();
+    private FunctionDebouncer<int> _onLoadPreviewDebouncer;
 
     private readonly CompositeDisposable _disposable = new();
 
@@ -43,6 +44,9 @@ public class PreviewWindowModel : PreviewWindowModelBase
         _bytesPool = bytesPool;
 
         this.Status = uiStatus.PicturePreview ??= new PreviewWindowStatus();
+
+        _onLoadPreviewDebouncer = new FunctionDebouncer<int>(this.LoadPreviewAsync);
+
         this.Source = new ReactivePropertySlim<Bitmap>().AddTo(_disposable);
     }
 
@@ -50,7 +54,7 @@ public class PreviewWindowModel : PreviewWindowModelBase
     {
         await _previewsViewer.LoadAsync(files, 10, 10, cancellationToken).ConfigureAwait(false);
 
-        _position = position;
+        _currentPosition = position;
     }
 
     protected override async ValueTask OnDisposeAsync()
@@ -60,41 +64,34 @@ public class PreviewWindowModel : PreviewWindowModelBase
 
     public async void NotifyNext()
     {
-        using (await _asyncLock.LockAsync().ConfigureAwait(false))
+        if (_currentPosition + 1 < _previewsViewer.Files.Count)
         {
-            if (_position + 1 < _previewsViewer.Files.Count)
-            {
-                if (await this.TryLoadAsync(_position + 1).ConfigureAwait(false)) _position++;
-            }
+            _onLoadPreviewDebouncer.Call(_currentPosition + 1);
         }
     }
 
     public async void NotifyPrev()
     {
-        using (await _asyncLock.LockAsync().ConfigureAwait(false))
+        if (_currentPosition - 1 >= 0)
         {
-            if (_position - 1 >= 0)
-            {
-                if (await this.TryLoadAsync(_position - 1).ConfigureAwait(false)) _position--;
-            }
+            _onLoadPreviewDebouncer.Call(_currentPosition - 1);
         }
     }
 
     public async void NotifyImageSizeChanged(Size newSize)
     {
-        using (await _asyncLock.LockAsync().ConfigureAwait(false))
-        {
-            _size = newSize;
-            _previewsViewer.SetSize((int)_size.Width, (int)_size.Height);
-            await this.TryLoadAsync(_position).ConfigureAwait(false);
-        }
+        _size = newSize;
+        _previewsViewer.SetSize((int)_size.Width, (int)_size.Height);
+        _onLoadPreviewDebouncer.Call(_currentPosition);
     }
 
-    private async ValueTask<bool> TryLoadAsync(int position, CancellationToken cancellationToken = default)
+    private async Task LoadPreviewAsync(int position)
     {
+        await Task.Delay(1).ConfigureAwait(false);
+
         try
         {
-            var bytes = await _previewsViewer.GetPreviewAsync(position, cancellationToken).ConfigureAwait(false);
+            var bytes = await _previewsViewer.GetPreviewAsync(position).ConfigureAwait(false);
 
             using (var stream = new RecyclableMemoryStream(_bytesPool))
             {
@@ -106,15 +103,13 @@ public class PreviewWindowModel : PreviewWindowModelBase
                     this.Source?.Value?.Dispose();
                     var source = new Bitmap(stream);
                     this.Source!.Value = source;
+                    _currentPosition = position;
                 }).ConfigureAwait(false);
-
-                return true;
             }
         }
         catch (Exception e)
         {
             _logger.Error(e);
-            return false;
         }
     }
 }

@@ -42,7 +42,7 @@
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox Classes="TreeItem" Height="32"
+                            <RadioButton Classes="TreeItem" Height="32"
                                     IsChecked="{ReflectionBinding IsSelected}"
                                     Padding="{Binding Level, Converter={StaticResource LevelPaddingConverter}, ConverterParameter=30}" >
                                 <Grid ColumnDefinitions="Auto,*">
@@ -51,7 +51,7 @@
                                     <TextBlock Grid.Column="1" Text="{ReflectionBinding Name}"
                                             TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </Grid>
-                            </CheckBox>
+                            </RadioButton>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>
@@ -64,7 +64,7 @@
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox Classes="Thumbnail"
+                            <RadioButton Classes="Thumbnail"
                                     Height="{ReflectionBinding Height}" Width="{ReflectionBinding Width}"
                                     IsChecked="{ReflectionBinding IsSelected}"
                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
@@ -73,7 +73,7 @@
                                             TextWrapping="Wrap" Margin="8" HorizontalAlignment="Center" MaxHeight="50" />
                                     <Image HorizontalAlignment="Center" Source="{ReflectionBinding Image}" />
                                 </DockPanel>
-                            </CheckBox>
+                            </RadioButton>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>

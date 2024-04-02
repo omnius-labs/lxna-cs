@@ -4,6 +4,7 @@
         "Avalonia",
         "Bootstrapper",
         "ciphertext",
+        "Debouncer",
         "Decrypter",
         "Encrypter",
         "ffprobe",

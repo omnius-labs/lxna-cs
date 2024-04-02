@@ -9,8 +9,6 @@ namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
 public class ExplorerViewDesignModel : ExplorerViewModelBase
 {
-    private ActionPipe<TreeNodeModel> _isExpandedChangedActionPipe = new();
-
     private readonly CompositeDisposable _disposable = new();
 
     public ExplorerViewDesignModel()
@@ -19,15 +17,15 @@ public class ExplorerViewDesignModel : ExplorerViewModelBase
         this.IsWaiting = _isBusy.ToReadOnlyReactivePropertySlim().AddTo(_disposable);
         this.TreeViewWidth = new ReactivePropertySlim<GridLength>(new GridLength(240)).AddTo(_disposable);
 
-        var rootTreeNode = new RootTreeNodeModel(_isExpandedChangedActionPipe.Caller)
+        var rootTreeNode = new RootTreeNodeModel((_) => { })
         {
             Name = "/",
         };
-        rootTreeNode.AddChild(new RootTreeNodeModel(_isExpandedChangedActionPipe.Caller)
+        rootTreeNode.AddChild(new RootTreeNodeModel((_) => { })
         {
             Name = @"C:\",
         });
-        rootTreeNode.AddChild(new RootTreeNodeModel(_isExpandedChangedActionPipe.Caller)
+        rootTreeNode.AddChild(new RootTreeNodeModel((_) => { })
         {
             Name = @"D:\",
         });

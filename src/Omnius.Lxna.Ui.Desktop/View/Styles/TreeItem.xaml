@@ -17,19 +17,19 @@
             </StackPanel.Styles>
 
             <Label Classes="separator" Content="TreeItem" />
-            <CheckBox Classes="TreeItem" IsHitTestVisible="True" Height="36"
+            <RadioButton Classes="TreeItem" IsHitTestVisible="True" Height="36"
                     HorizontalAlignment="Stretch" VerticalContentAlignment="Center">
                 <DockPanel Margin="8">
                     <CheckBox DockPanel.Dock="Left" />
                     <TextBlock DockPanel.Dock="Right" Text="Test"
                                TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </DockPanel>
-            </CheckBox>
+            </RadioButton>
 
         </StackPanel>
     </Design.PreviewWith>
 
-    <Style Selector="CheckBox.TreeItem">
+    <Style Selector="RadioButton.TreeItem">
         <Setter Property="BorderBrush" Value="#e1e1e1" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="CornerRadius" Value="0" />

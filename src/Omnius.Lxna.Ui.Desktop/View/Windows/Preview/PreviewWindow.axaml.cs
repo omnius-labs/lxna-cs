@@ -39,36 +39,10 @@ public partial class PreviewWindow : RestorableWindow
     {
         AvaloniaXamlLoader.Load(this);
 
+        this.PointerWheelChanged += (sender, e) => this.OnPointerWheelChanged(e.Delta.Y);
+
         _panel = this.FindControl<Panel>("Panel") ?? throw new NullReferenceException();
-
-        {
-            var sizeChangedObservable = Observable.FromEventPattern<SizeChangedEventArgs>(
-                h => _panel.SizeChanged += h,
-                h => _panel.SizeChanged -= h)
-                .Select(e => e.EventArgs.NewSize);
-            var firstEventObservable = sizeChangedObservable
-                .Take(1);
-            var remainingEventsObservable = sizeChangedObservable
-                .Skip(1)
-                .Throttle(TimeSpan.FromSeconds(2));
-            var mergedObservable = firstEventObservable
-                .Concat(remainingEventsObservable);
-            mergedObservable
-                .Subscribe(this.PanelOnSizeChanged)
-                .AddTo(_disposable);
-        }
-
-        {
-            var wheelScrollObservable = Observable.FromEventPattern<PointerWheelEventArgs>(
-                h => this.PointerWheelChanged += h,
-                h => this.PointerWheelChanged -= h)
-                .Select(e => e.EventArgs.Delta.Y);
-            var sampledObservable = wheelScrollObservable
-                .Sample(TimeSpan.FromMilliseconds(100));
-            sampledObservable
-                .Subscribe(this.OnPointerWheelChanged)
-                .AddTo(_disposable);
-        }
+        _panel.SizeChanged += (sender, e) => this.PanelOnSizeChanged(e.NewSize);
     }
 
     private async void OnClosed()
@@ -83,20 +57,17 @@ public partial class PreviewWindow : RestorableWindow
 
     private void OnPointerWheelChanged(double y)
     {
-        Dispatcher.UIThread.Invoke(() =>
+        if (this.DataContext is PreviewWindowModel viewModel)
         {
-            if (this.DataContext is PreviewWindowModel viewModel)
+            if (y < 0)
             {
-                if (y < 0)
-                {
-                    viewModel.NotifyNext();
-                }
-                else if (y > 0)
-                {
-                    viewModel.NotifyPrev();
-                }
+                viewModel.NotifyNext();
             }
-        });
+            else if (y > 0)
+            {
+                viewModel.NotifyPrev();
+            }
+        }
     }
 
     private void PanelOnSizeChanged(Size newSize)

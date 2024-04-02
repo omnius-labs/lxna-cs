@@ -17,7 +17,7 @@
             </StackPanel.Styles>
 
             <Label Classes="separator" Content="Thumbnail" />
-            <CheckBox Classes="Thumbnail" IsHitTestVisible="True" Width="256" Height="256"
+            <RadioButton Classes="Thumbnail" IsHitTestVisible="True" Width="256" Height="256"
                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                 <DockPanel Margin="8">
                     <TextBlock DockPanel.Dock="Bottom" Grid.Row="1" Text="Test"
@@ -26,12 +26,12 @@
                         <skp:Svg Path="/Assets/settings.svg" />
                     </Panel>
                 </DockPanel>
-            </CheckBox>
+            </RadioButton>
 
         </StackPanel>
     </Design.PreviewWith>
 
-    <Style Selector="CheckBox.Thumbnail">
+    <Style Selector="RadioButton.Thumbnail">
         <Setter Property="BorderBrush" Value="#e1e1e1" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
