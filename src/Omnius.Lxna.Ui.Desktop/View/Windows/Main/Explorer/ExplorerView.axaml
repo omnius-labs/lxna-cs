@@ -49,7 +49,7 @@
                                     <CheckBox Classes="TreeCheck" Grid.Column="0" Margin="8,0,8,0"
                                             IsChecked="{ReflectionBinding IsExpanded}" />
                                     <TextBlock Grid.Column="1" Text="{ReflectionBinding Name}"
-                                               TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                            TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </Grid>
                             </CheckBox>
                         </DataTemplate>
@@ -70,7 +70,7 @@
                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                                 <DockPanel Margin="8">
                                     <TextBlock DockPanel.Dock="Bottom" Text="{ReflectionBinding Name}"
-                                               TextWrapping="Wrap" Margin="8" HorizontalAlignment="Center" MaxHeight="50" />
+                                            TextWrapping="Wrap" Margin="8" HorizontalAlignment="Center" MaxHeight="50" />
                                     <Image HorizontalAlignment="Center" Source="{ReflectionBinding Image}" />
                                 </DockPanel>
                             </CheckBox>
