@@ -60,10 +60,9 @@ public sealed class DirectoryThumbnailGenerator : AsyncDisposableBase, IDirector
         using (var inStream = new FileStream(path, FileMode.Open))
         using (var outStream = new RecyclableMemoryStream(_bytesPool))
         {
-            await _imageConverter.ConvertAsync(inStream, outStream, ImageFormatType.Png, ".svg", cancellationToken);
+            await _imageConverter.ConvertAsync(inStream, outStream, ImageFormatType.Png, null, cancellationToken);
             outStream.Seek(0, SeekOrigin.Begin);
             return await outStream.ToBytesAsync();
-
         }
     }
 
@@ -87,7 +86,7 @@ public sealed class DirectoryThumbnailGenerator : AsyncDisposableBase, IDirector
             using (var inStream = new MemoryStream(_originCache[type]))
             using (var outStream = new RecyclableMemoryStream(_bytesPool))
             {
-                await _imageConverter.ConvertAsync(inStream, outStream, options.ResizeType, options.Width, options.Height, ImageFormatType.Png, null, cancellationToken);
+                await _imageConverter.ConvertAsync(inStream, outStream, ImageFormatType.Png, options.ResizeType, options.Width, options.Height, null, cancellationToken);
                 outStream.Seek(0, SeekOrigin.Begin);
                 var image = outStream.ToMemoryOwner();
 

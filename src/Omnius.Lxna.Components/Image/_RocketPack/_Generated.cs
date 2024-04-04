@@ -5,20 +5,25 @@ namespace Omnius.Lxna.Components.Image;
 
 public enum ImageResizeType : byte
 {
-    Pad = 0,
+    Unknown = 0,
     Crop = 1,
-    Max = 2,
-    Min = 3,
+    Pad = 2,
+    BoxPad = 3,
+    Max = 4,
+    Min = 5,
 }
 public enum ImageResizePositionType : byte
 {
-    Center = 0,
+    Unknown = 0,
+    Center = 1,
 }
 public enum ImageResizeResamplerType : byte
 {
-    Lanczos3 = 0,
+    Unknown = 0,
+    Lanczos3 = 1,
 }
 public enum ImageFormatType : byte
 {
-    Png = 0,
+    Unknown = 0,
+    Png = 1,
 }

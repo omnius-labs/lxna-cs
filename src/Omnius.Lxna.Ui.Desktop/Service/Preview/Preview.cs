@@ -52,7 +52,7 @@ public partial class PreviewsViewer
                 using (var inStream = await _file.GetStreamAsync(cancellationToken).ConfigureAwait(false))
                 using (var outStream = new RecyclableMemoryStream(_bytesPool))
                 {
-                    await _imageConverter.ConvertAsync(inStream, outStream, ImageResizeType.Min, _width, _height, ImageFormatType.Png, null, cancellationToken).ConfigureAwait(false);
+                    await _imageConverter.ConvertAsync(inStream, outStream, ImageFormatType.Png, ImageResizeType.Min, _width, _height, null, cancellationToken).ConfigureAwait(false);
                     outStream.Seek(0, SeekOrigin.Begin);
 
                     _imageBytes = outStream.ToMemoryOwner();

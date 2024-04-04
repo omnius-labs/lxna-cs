@@ -125,6 +125,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         if (item is TreeNodeModel node && node.Tag is IDirectory directory)
         {
+            node.IsSelected = true;
             this.SelectedTreeNode!.Value = node;
         }
     }

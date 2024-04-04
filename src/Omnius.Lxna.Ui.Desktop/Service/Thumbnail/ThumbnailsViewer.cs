@@ -221,7 +221,7 @@ public class ThumbnailsViewer : AsyncDisposableBase
                     Width = this.Width,
                     Height = this.Height,
                     FormatType = ImageFormatType.Png,
-                    ResizeType = ImageResizeType.Min,
+                    ResizeType = ImageResizeType.BoxPad,
                 };
                 var result = await _directoryThumbnailGenerator.GenerateAsync(dir, options, cancellationToken).ConfigureAwait(false);
 
