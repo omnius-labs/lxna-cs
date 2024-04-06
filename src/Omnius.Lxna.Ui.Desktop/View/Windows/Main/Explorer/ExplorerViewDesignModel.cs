@@ -37,9 +37,4 @@ public class ExplorerViewDesignModel : ExplorerViewModelBase
     {
         _disposable.Dispose();
     }
-
-    public override void NotifyThumbnailDoubleTapped(object item) { }
-    public override void NotifyTreeNodeTapped(object item) { }
-    public override void SetViewCommands(IExplorerViewCommands commands) { }
-    public override void NotifyThumbnailsChanged(IEnumerable<object> items) { }
 }

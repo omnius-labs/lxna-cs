@@ -26,6 +26,8 @@ public class FuncDebouncer<T> : AsyncDisposableBase
         if (_currentTask is not null) await _currentTask;
     }
 
+    public bool IsRunning => _running;
+
     public void Signal(T param)
     {
         lock (_lockObject)

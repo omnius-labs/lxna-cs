@@ -33,13 +33,14 @@ public partial class PreviewsViewer : AsyncDisposableBase
         }
     }
 
+    public bool IsLoaded => _previewsLoader is not null;
     public IReadOnlyList<IFile> Files => _previewsLoader?.Files ?? ImmutableList<IFile>.Empty;
 
-    public void SetSize(int width, int height)
+    public void Resize(int width, int height)
     {
         if (_previewsLoader is null) throw new NullReferenceException();
 
-        _previewsLoader.SetSize(width, height);
+        _previewsLoader.Resize(width, height);
     }
 
     public async ValueTask<ReadOnlyMemory<byte>> GetPreviewAsync(int index, CancellationToken cancellationToken = default)
@@ -49,7 +50,7 @@ public partial class PreviewsViewer : AsyncDisposableBase
         return await _previewsLoader.GetPreviewAsync(index, cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask LoadAsync(IEnumerable<IFile> files, int preloadBehindCount, int preloadAheadCount, CancellationToken cancellationToken = default)
+    public async ValueTask LoadAsync(IEnumerable<IFile> files, int preloadBehindCount, int preloadAheadCount, int width, int height, CancellationToken cancellationToken = default)
     {
         await Task.Delay(1, cancellationToken);
 
@@ -60,7 +61,7 @@ public partial class PreviewsViewer : AsyncDisposableBase
                 await _previewsLoader.DisposeAsync().ConfigureAwait(false);
             }
 
-            _previewsLoader = await PreviewsLoader.CreateAsync(files, _imageConverter, preloadBehindCount, preloadAheadCount, _bytesPool, cancellationToken).ConfigureAwait(false);
+            _previewsLoader = await PreviewsLoader.CreateAsync(files, _imageConverter, preloadBehindCount, preloadAheadCount, width, height, _bytesPool, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -88,19 +89,21 @@ public partial class PreviewsViewer : AsyncDisposableBase
 
         private readonly AsyncLock _asyncLock = new();
 
-        public static async ValueTask<PreviewsLoader> CreateAsync(IEnumerable<IFile> files, ImageConverter imageConverter, int preloadBehindCount, int preloadAheadCount, IBytesPool bytesPool, CancellationToken cancellationToken = default)
+        public static async ValueTask<PreviewsLoader> CreateAsync(IEnumerable<IFile> files, ImageConverter imageConverter, int preloadBehindCount, int preloadAheadCount, int width, int height, IBytesPool bytesPool, CancellationToken cancellationToken = default)
         {
-            var previewsLoader = new PreviewsLoader(files, imageConverter, preloadBehindCount, preloadAheadCount, bytesPool);
+            var previewsLoader = new PreviewsLoader(files, imageConverter, preloadBehindCount, preloadAheadCount, width, height, bytesPool);
             await previewsLoader.InitAsync(cancellationToken).ConfigureAwait(false);
             return previewsLoader;
         }
 
-        private PreviewsLoader(IEnumerable<IFile> files, ImageConverter imageConverter, int preloadBehindCount, int preloadAheadCount, IBytesPool bytesPool)
+        private PreviewsLoader(IEnumerable<IFile> files, ImageConverter imageConverter, int preloadBehindCount, int preloadAheadCount, int width, int height, IBytesPool bytesPool)
         {
             _files = files.ToImmutableList();
             _imageConverter = imageConverter;
             _preloadBehindCount = preloadBehindCount;
             _preloadAheadCount = preloadAheadCount;
+            _currentWidth = width;
+            _currentHeight = height;
             _bytesPool = bytesPool;
         }
 
@@ -122,7 +125,7 @@ public partial class PreviewsViewer : AsyncDisposableBase
 
         public IReadOnlyList<IFile> Files => _files;
 
-        public void SetSize(int width, int height)
+        public void Resize(int width, int height)
         {
             _currentWidth = width;
             _currentHeight = height;

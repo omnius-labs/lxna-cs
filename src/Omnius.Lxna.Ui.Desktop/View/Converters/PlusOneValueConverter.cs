@@ -1,5 +1,5 @@
-using Avalonia.Data.Converters;
 using System.Globalization;
+using Avalonia.Data.Converters;
 
 namespace Omnius.Lxna.Ui.Desktop.View.Converters;
 

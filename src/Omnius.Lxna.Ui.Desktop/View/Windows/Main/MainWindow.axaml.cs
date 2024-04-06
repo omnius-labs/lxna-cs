@@ -21,13 +21,13 @@ public partial class MainWindow : RestorableWindow
 #if DEBUG
         this.AttachDevTools();
 #endif
-
-        this.Closed += new EventHandler((_, _) => this.OnClosed());
     }
 
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
+
+        this.Closed += new EventHandler((_, _) => this.OnClosed());
     }
 
     private async void OnClosed()

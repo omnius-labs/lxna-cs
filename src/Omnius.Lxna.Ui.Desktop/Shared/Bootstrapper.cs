@@ -67,8 +67,8 @@ public partial class Bootstrapper : AsyncDisposableBase
             serviceCollection.AddSingleton(imageConverter);
             serviceCollection.AddSingleton<IDirectoryThumbnailGenerator>(directoryThumbnailGenerator);
             serviceCollection.AddSingleton<IFileThumbnailGenerator>(fileThumbnailGenerator);
-            serviceCollection.AddSingleton<ThumbnailsViewer>();
-            serviceCollection.AddSingleton<PreviewsViewer>();
+            serviceCollection.AddTransient<ThumbnailsViewer>();
+            serviceCollection.AddTransient<PreviewsViewer>();
 
             serviceCollection.AddSingleton<IApplicationDispatcher, ApplicationDispatcher>();
             serviceCollection.AddSingleton<IMainWindowProvider, MainWindowProvider>();

@@ -29,11 +29,6 @@ public abstract class ExplorerViewModelBase : AsyncDisposableBase
     public ReactivePropertySlim<int>? ThumbnailHeight { get; protected set; }
 
     public AvaloniaList<Thumbnail> Thumbnails { get; } = new();
-
-    public abstract void SetViewCommands(IExplorerViewCommands commands);
-    public abstract void NotifyTreeNodeTapped(object item);
-    public abstract void NotifyThumbnailDoubleTapped(object item);
-    public abstract void NotifyThumbnailsChanged(IEnumerable<object> items);
 }
 
 public class ExplorerViewModel : ExplorerViewModelBase
@@ -53,9 +48,10 @@ public class ExplorerViewModel : ExplorerViewModelBase
     private FuncDebouncer<TreeNodeModel> _refreshTreeNodeChildrenDebouncer;
     private ActionDebouncer _refreshThumbnailsDebouncer;
 
-    private readonly ReactivePropertySlim<bool> _isBusy;
-
     private NestedPath _selectedPath = NestedPath.Empty;
+
+    private readonly ReactivePropertySlim<bool> _isBusyRefreshTreeNodeChildren;
+    private readonly ReactivePropertySlim<bool> _isBusyRefreshThumbnails;
 
     private readonly AsyncLock _asyncLock = new();
 
@@ -74,16 +70,19 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
         this.Status = uiStatus.ExplorerView ??= new ExplorerViewStatus();
 
-        _isBusy = new ReactivePropertySlim<bool>(false).AddTo(_disposable);
-        this.IsWaiting = _isBusy
+        _isBusyRefreshTreeNodeChildren = new ReactivePropertySlim<bool>(false).AddTo(_disposable);
+        _isBusyRefreshThumbnails = new ReactivePropertySlim<bool>(false).AddTo(_disposable);
+        var isBusy = _isBusyRefreshTreeNodeChildren
+            .CombineLatest(_isBusyRefreshThumbnails, (treeNodeChildren, thumbnails) => treeNodeChildren || thumbnails);
+        this.IsWaiting = isBusy
             // trueに設定されたときのみにフィルタする
             .Where(x => x == true)
             // 遅延を設定
             .SelectMany(_ => Observable.Timer(TimeSpan.FromSeconds(1))
-                .TakeUntil(_isBusy.Where(x => x == false))
+                .TakeUntil(isBusy.Where(x => x == false))
                 .Select(__ => true))
             // falseに設定された場合、即座に結果をfalseにする
-            .Merge(_isBusy.Where(x => x == false).Select(x => false))
+            .Merge(isBusy.Where(x => x == false).Select(x => false))
             // 結果を反映
             .ToReadOnlyReactivePropertySlim();
         this.CancelWaitCommand = new ReactiveCommand().AddTo(_disposable);
@@ -119,12 +118,12 @@ public class ExplorerViewModel : ExplorerViewModelBase
         await _thumbnailsViewer.DisposeAsync();
     }
 
-    public override void SetViewCommands(IExplorerViewCommands commands)
+    public void SetViewCommands(IExplorerViewCommands commands)
     {
         _commands = commands;
     }
 
-    public override void NotifyTreeNodeTapped(object item)
+    public void NotifyTreeNodeTapped(object item)
     {
         if (item is TreeNodeModel node && node.Tag is IDirectory dir)
         {
@@ -133,7 +132,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
         }
     }
 
-    public override async void NotifyThumbnailDoubleTapped(object item)
+    public async void NotifyThumbnailDoubleTapped(object item)
     {
         if (item is Thumbnail thumbnail)
         {
@@ -159,7 +158,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
         }
     }
 
-    public override void NotifyThumbnailsChanged(IEnumerable<object> items)
+    public void NotifyThumbnailsChanged(IEnumerable<object> items)
     {
         var thumbnails = items.OfType<Thumbnail>().ToArray();
         _thumbnailsViewer.SetPreparedThumbnails(thumbnails);
@@ -177,54 +176,51 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         await Task.Delay(1).ConfigureAwait(false);
 
-        using (await _asyncLock.LockAsync())
+        if (treeNode.Tag is not IDirectory) return;
+        var dir = (IDirectory)treeNode.Tag;
+
+        await _applicationDispatcher.InvokeAsync(() =>
         {
-            if (treeNode.Tag is not IDirectory) return;
-            var dir = (IDirectory)treeNode.Tag;
+            _isBusyRefreshTreeNodeChildren!.Value = true;
+        }, DispatcherPriority.Background).ConfigureAwait(false);
+
+        try
+        {
+            using var cancellationTokenSource = new CancellationTokenSource();
+            using var unregister = _cancelWaitActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => cancellationTokenSource.Cancel()));
+
+            var directories = await this.FindDirectories(dir, cancellationTokenSource.Token).ConfigureAwait(false);
 
             await _applicationDispatcher.InvokeAsync(() =>
             {
-                _isBusy!.Value = true;
-            }, DispatcherPriority.Background).ConfigureAwait(false);
-
-            try
-            {
-                using var cancellationTokenSource = new CancellationTokenSource();
-                using var unregister = _cancelWaitActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => cancellationTokenSource.Cancel()));
-
-                var directories = await this.FindDirectories(dir, cancellationTokenSource.Token).ConfigureAwait(false);
-
-                await _applicationDispatcher.InvokeAsync(() =>
+                var children = directories.Select(dir =>
                 {
-                    var children = directories.Select(dir =>
+                    return new TreeNodeModel(_refreshTreeNodeChildrenDebouncer.Signal)
                     {
-                        return new TreeNodeModel(_refreshTreeNodeChildrenDebouncer.Signal)
-                        {
-                            Name = dir.Name,
-                            Tag = dir
-                        };
-                    }).ToArray();
+                        Name = dir.Name,
+                        Tag = dir
+                    };
+                }).ToArray();
 
-                    treeNode.ClearChildren();
-                    treeNode.AddChildren(children);
+                treeNode.ClearChildren();
+                treeNode.AddChildren(children);
 
-                    _isBusy!.Value = false;
-                }, DispatcherPriority.Background, cancellationTokenSource.Token).ConfigureAwait(false);
-            }
-            catch (Exception)
+                _isBusyRefreshTreeNodeChildren!.Value = false;
+            }, DispatcherPriority.Background, cancellationTokenSource.Token).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            await _applicationDispatcher.InvokeAsync(() =>
             {
-                await _applicationDispatcher.InvokeAsync(() =>
-                {
-                    treeNode.IsExpanded = false;
-                    treeNode.ClearChildren();
-                    _isBusy!.Value = false;
-                }, DispatcherPriority.Background).ConfigureAwait(false);
-            }
+                treeNode.IsExpanded = false;
+                treeNode.ClearChildren();
+                _isBusyRefreshTreeNodeChildren!.Value = false;
+            }, DispatcherPriority.Background).ConfigureAwait(false);
+        }
 
-            if (dir.LogicalPath != _selectedPath)
-            {
-                _refreshThumbnailsDebouncer.Signal();
-            }
+        if (dir.LogicalPath != _selectedPath)
+        {
+            _refreshThumbnailsDebouncer.Signal();
         }
     }
 
@@ -255,70 +251,67 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         await Task.Delay(1).ConfigureAwait(false);
 
-        using (await _asyncLock.LockAsync())
+        TreeNodeModel? treeNode = null;
+        IDirectory? dir = null;
+
+        await _applicationDispatcher.InvokeAsync(() =>
         {
-            TreeNodeModel? treeNode = null;
-            IDirectory? dir = null;
+            foreach (var n in this.RootTreeNode!.VisibleChildren)
+            {
+                if (n.Tag is not IDirectory d || d.LogicalPath != _selectedPath) continue;
+                treeNode = n;
+                dir = d;
+            }
+        }, DispatcherPriority.Background).ConfigureAwait(false);
+
+        if (treeNode is null || dir is null) return;
+
+        await _applicationDispatcher.InvokeAsync(() =>
+        {
+            treeNode.IsSelected = true;
+            _isBusyRefreshThumbnails!.Value = true;
+        }, DispatcherPriority.Background).ConfigureAwait(false);
+
+        using var cancellationTokenSource = new CancellationTokenSource();
+        using var unregister = _cancelWaitActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => cancellationTokenSource.Cancel()));
+
+        try
+        {
+            var comparison = this.GenComparison();
+            await _thumbnailsViewer.LoadAsync(dir, 256, 256, TimeSpan.FromSeconds(1), comparison, cancellationTokenSource.Token).ConfigureAwait(false);
 
             await _applicationDispatcher.InvokeAsync(() =>
             {
-                foreach (var n in this.RootTreeNode!.VisibleChildren)
-                {
-                    if (n.Tag is not IDirectory d || d.LogicalPath != _selectedPath) continue;
-                    treeNode = n;
-                    dir = d;
-                }
-            }, DispatcherPriority.Background).ConfigureAwait(false);
+                _commands!.ThumbnailsViewerScrollToTop();
 
-            if (treeNode is null || dir is null) return;
+                var oldThumbnails = this.Thumbnails.ToArray();
+                this.Thumbnails.Clear();
+                oldThumbnails.Dispose();
+            }, DispatcherPriority.Background, cancellationTokenSource.Token).ConfigureAwait(false);
 
             await _applicationDispatcher.InvokeAsync(() =>
             {
-                treeNode.IsSelected = true;
-                _isBusy!.Value = true;
+                this.Thumbnails.AddRange(_thumbnailsViewer.Thumbnails);
+
+                this.SelectedTreeNode!.Value = treeNode;
+
+                _isBusyRefreshThumbnails!.Value = false;
+            }, DispatcherPriority.Background, cancellationTokenSource.Token).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            await _applicationDispatcher.InvokeAsync(() =>
+            {
+                _commands!.ThumbnailsViewerScrollToTop();
+
+                var oldThumbnails = this.Thumbnails.ToArray();
+                this.Thumbnails.Clear();
+                oldThumbnails.Dispose();
+
+                this.SelectedTreeNode!.Value = treeNode;
+
+                _isBusyRefreshThumbnails!.Value = false;
             }, DispatcherPriority.Background).ConfigureAwait(false);
-
-            using var cancellationTokenSource = new CancellationTokenSource();
-            using var unregister = _cancelWaitActionPipe.Listener.Listen(() => ExceptionHelper.TryCatch<ObjectDisposedException>(() => cancellationTokenSource.Cancel()));
-
-            try
-            {
-                var comparison = this.GenComparison();
-                await _thumbnailsViewer.LoadAsync(dir, 256, 256, TimeSpan.FromSeconds(1), comparison, cancellationTokenSource.Token).ConfigureAwait(false);
-
-                await _applicationDispatcher.InvokeAsync(() =>
-                {
-                    _commands!.ThumbnailsViewerScrollToTop();
-
-                    var oldThumbnails = this.Thumbnails.ToArray();
-                    this.Thumbnails.Clear();
-                    oldThumbnails.Dispose();
-                }, DispatcherPriority.Background, cancellationTokenSource.Token).ConfigureAwait(false);
-
-                await _applicationDispatcher.InvokeAsync(() =>
-                {
-                    this.Thumbnails.AddRange(_thumbnailsViewer.Thumbnails);
-
-                    this.SelectedTreeNode!.Value = treeNode;
-
-                    _isBusy!.Value = false;
-                }, DispatcherPriority.Background, cancellationTokenSource.Token).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                await _applicationDispatcher.InvokeAsync(() =>
-                {
-                    _commands!.ThumbnailsViewerScrollToTop();
-
-                    var oldThumbnails = this.Thumbnails.ToArray();
-                    this.Thumbnails.Clear();
-                    oldThumbnails.Dispose();
-
-                    this.SelectedTreeNode!.Value = treeNode;
-
-                    _isBusy!.Value = false;
-                }, DispatcherPriority.Background).ConfigureAwait(false);
-            }
         }
     }
 

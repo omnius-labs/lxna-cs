@@ -31,14 +31,14 @@ public partial class PreviewWindow : RestorableWindow
 #if DEBUG
         this.AttachDevTools();
 #endif
-
-        this.Closed += new EventHandler((_, _) => this.OnClosed());
     }
 
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
 
+        this.Closed += new EventHandler((_, _) => this.OnClosed());
+        this.Loaded += (sender, e) => this.OnLoaded();
         this.PointerWheelChanged += (sender, e) => this.OnPointerWheelChanged(e.Delta.Y);
 
         _panel = this.FindControl<Panel>("Panel") ?? throw new NullReferenceException();
@@ -53,6 +53,14 @@ public partial class PreviewWindow : RestorableWindow
         }
 
         _disposable.Dispose();
+    }
+
+    private void OnLoaded()
+    {
+        if (this.DataContext is PreviewWindowModel viewModel)
+        {
+            viewModel.NotifyWindowsLoaded();
+        }
     }
 
     private void OnPointerWheelChanged(double y)
@@ -72,12 +80,9 @@ public partial class PreviewWindow : RestorableWindow
 
     private void PanelOnSizeChanged(Size newSize)
     {
-        Dispatcher.UIThread.Invoke(() =>
+        if (this.DataContext is PreviewWindowModel viewModel)
         {
-            if (this.DataContext is PreviewWindowModel viewModel)
-            {
-                viewModel.NotifyImageSizeChanged(newSize);
-            }
-        });
+            viewModel.NotifyImageSizeChanged(newSize);
+        }
     }
 }

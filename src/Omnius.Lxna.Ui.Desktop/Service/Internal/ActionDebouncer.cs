@@ -24,6 +24,8 @@ public class ActionDebouncer : AsyncDisposableBase
         if (_currentTask is not null) await _currentTask;
     }
 
+    public bool IsRunning => _running;
+
     public void Signal()
     {
         lock (_lockObject)
@@ -32,7 +34,7 @@ public class ActionDebouncer : AsyncDisposableBase
 
             if (_running) return;
             _running = true;
-            var _ = this.RunAsync();
+            _currentTask = this.RunAsync();
         }
     }
 
