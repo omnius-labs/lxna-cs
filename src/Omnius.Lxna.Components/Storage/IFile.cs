@@ -7,6 +7,7 @@ public interface IFile : IDisposable
     NestedPath LogicalPath { get; }
     FileAttributes Attributes { get; }
     bool IsReadOnly { get; }
+    bool IsArchive { get; }
     bool Exists { get; }
 
     ValueTask<string> GetPhysicalPathAsync(CancellationToken cancellationToken = default);

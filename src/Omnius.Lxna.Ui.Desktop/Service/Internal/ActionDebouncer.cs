@@ -1,23 +1,21 @@
 namespace Omnius.Lxna.Ui.Desktop.Service.Internal;
 
-public class FunctionDebouncer<T> where T : notnull
+public class ActionDebouncer
 {
-    private readonly Func<T, Task> _callback;
-    private T? _lastParam;
+    private readonly Func<Task> _callback;
     private bool _pending = false;
     private bool _running = false;
     private readonly object _lockObject = new();
 
-    public FunctionDebouncer(Func<T, Task> callback)
+    public ActionDebouncer(Func<Task> callback)
     {
         _callback = callback;
     }
 
-    public void Call(T param)
+    public void Signal()
     {
         lock (_lockObject)
         {
-            _lastParam = param;
             _pending = true;
 
             if (_running) return;
@@ -34,16 +32,13 @@ public class FunctionDebouncer<T> where T : notnull
         {
             for (; ; )
             {
-                T? lastParam;
-
                 lock (_lockObject)
                 {
                     if (!_pending) return;
-                    lastParam = _lastParam!;
                     _pending = false;
                 }
 
-                await _callback(lastParam).ConfigureAwait(false);
+                await _callback().ConfigureAwait(false);
             }
         }
         finally

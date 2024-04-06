@@ -18,6 +18,7 @@ internal sealed class LocalFile : IFile
 
         this.LogicalPath = new NestedPath(_physicalPath);
         this.Name = this.LogicalPath.GetName();
+        this.Extension = Path.GetExtension(this.Name);
     }
 
     public void Dispose()
@@ -26,7 +27,7 @@ internal sealed class LocalFile : IFile
     }
 
     public string Name { get; }
-    public string Extension => throw new NotImplementedException();
+    public string Extension { get; }
     public NestedPath LogicalPath { get; }
 
     public FileAttributes Attributes
@@ -38,8 +39,9 @@ internal sealed class LocalFile : IFile
         }
     }
 
-    public bool IsReadOnly => throw new NotImplementedException();
-    public bool Exists => throw new NotImplementedException();
+    public bool IsReadOnly => false;
+    public bool IsArchive => ArchivedFileExtractor.IsSupported(_physicalPath);
+    public bool Exists => File.Exists(_physicalPath);
 
     public async ValueTask<string> GetPhysicalPathAsync(CancellationToken cancellationToken = default)
     {

@@ -24,6 +24,7 @@ public sealed class ArchivedFile : IFile
 
         this.LogicalPath = logicalPath;
         this.Name = this.LogicalPath.GetName();
+        this.Extension = Path.GetExtension(this.Name);
     }
 
     public void Dispose()
@@ -33,7 +34,7 @@ public sealed class ArchivedFile : IFile
     }
 
     public string Name { get; }
-    public string Extension => throw new NotImplementedException();
+    public string Extension { get; }
     public NestedPath LogicalPath { get; }
     public FileAttributes Attributes
     {
@@ -43,8 +44,9 @@ public sealed class ArchivedFile : IFile
             return FileAttributes.Normal;
         }
     }
-    public bool IsReadOnly => throw new NotImplementedException();
-    public bool Exists => throw new NotImplementedException();
+    public bool IsReadOnly => true;
+    public bool IsArchive => ArchivedFileExtractor.IsSupported(_relativePath);
+    public bool Exists => true;
 
     public async ValueTask<string> GetPhysicalPathAsync(CancellationToken cancellationToken = default)
     {

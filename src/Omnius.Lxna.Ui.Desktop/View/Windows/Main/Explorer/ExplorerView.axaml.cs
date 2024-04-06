@@ -1,17 +1,14 @@
-using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Omnius.Core;
-using Omnius.Core.Avalonia;
-using Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 
 namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
 public interface IExplorerViewCommands
 {
-    void ThumbnailsScrollToTop();
+    void ThumbnailsViewerScrollToTop();
 }
 
 public partial class ExplorerView : UserControl, IExplorerViewCommands
@@ -40,7 +37,7 @@ public partial class ExplorerView : UserControl, IExplorerViewCommands
         // _thumbnailsRepeater.ItemsSourceView!.CollectionChanged += this.OnThumbnailsRepeaterItemsChanged;
     }
 
-    public void ThumbnailsScrollToTop()
+    public void ThumbnailsViewerScrollToTop()
     {
         _thumbnailsViewer.ScrollToHome();
     }
