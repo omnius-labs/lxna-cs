@@ -1,16 +1,29 @@
+using Omnius.Core;
+
 namespace Omnius.Lxna.Ui.Desktop.Service.Internal;
 
-public class FuncDebouncer<T> where T : notnull
+public class FuncDebouncer<T> : AsyncDisposableBase
+     where T : notnull
 {
-    private readonly Func<T, Task> _callback;
+    private readonly Func<T, CancellationToken, Task> _callback;
     private T? _lastParam;
     private bool _pending = false;
     private bool _running = false;
+
+    private Task? _currentTask;
+    private CancellationTokenSource _cancellationTokenSource = new();
     private readonly object _lockObject = new();
 
-    public FuncDebouncer(Func<T, Task> callback)
+    public FuncDebouncer(Func<T, CancellationToken, Task> callback)
     {
         _callback = callback;
+    }
+
+    protected override async ValueTask OnDisposeAsync()
+    {
+        _cancellationTokenSource.Cancel();
+
+        if (_currentTask is not null) await _currentTask;
     }
 
     public void Signal(T param)
@@ -22,7 +35,7 @@ public class FuncDebouncer<T> where T : notnull
 
             if (_running) return;
             _running = true;
-            var _ = this.RunAsync();
+            _currentTask = this.RunAsync();
         }
     }
 
@@ -43,8 +56,11 @@ public class FuncDebouncer<T> where T : notnull
                     _pending = false;
                 }
 
-                await _callback(lastParam).ConfigureAwait(false);
+                await _callback(lastParam, _cancellationTokenSource.Token).ConfigureAwait(false);
             }
+        }
+        catch (OperationCanceledException)
+        {
         }
         finally
         {

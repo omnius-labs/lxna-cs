@@ -114,6 +114,8 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         _disposable.Dispose();
 
+        await _refreshTreeNodeChildrenDebouncer.DisposeAsync();
+        await _refreshThumbnailsDebouncer.DisposeAsync();
         await _thumbnailsViewer.DisposeAsync();
     }
 
@@ -171,7 +173,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
         _refreshTreeNodeChildrenDebouncer.Signal(expendedTreeNode);
     }
 
-    private async Task RefreshTreeNodeChildren(TreeNodeModel treeNode)
+    private async Task RefreshTreeNodeChildren(TreeNodeModel treeNode, CancellationToken cancellationToken = default)
     {
         await Task.Delay(1).ConfigureAwait(false);
 
@@ -249,7 +251,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
         return CollectionHelper.Unite(dirs, archives).ToArray();
     }
 
-    private async Task RefreshThumbnails()
+    private async Task RefreshThumbnails(CancellationToken cancellationToken = default)
     {
         await Task.Delay(1).ConfigureAwait(false);
 
@@ -322,12 +324,21 @@ public class ExplorerViewModel : ExplorerViewModelBase
 
     private Comparison<object> GenComparison() => new Comparison<object>((x, y) =>
     {
-        return (x, y) switch
+        if (x is IFile fx && y is IFile fy)
         {
-            (IFile fx, IFile fy) => LogicalStringComparer.Instance.Compare(fx.Name, fy.Name),
-            (IDirectory dx, IDirectory dy) when (dx.Attributes & dy.Attributes).HasFlag(DirectoryAttributes.Unknown) => dx.Attributes.CompareTo(dy.Attributes),
-            (IDirectory dx, IDirectory dy) => LogicalStringComparer.Instance.Compare(dx.Name, dy.Name),
-            _ => 0
-        };
+            return LogicalStringComparer.Instance.Compare(fx.Name, fy.Name);
+        }
+        else if (x is IDirectory dx && y is IDirectory dy)
+        {
+            var c = dx.Attributes.CompareTo(dy.Attributes);
+            if (c != 0) return c;
+            return LogicalStringComparer.Instance.Compare(dx.Name, dy.Name);
+        }
+        else
+        {
+            var xi = x is IDirectory ? 0 : 1;
+            var yi = y is IDirectory ? 0 : 1;
+            return xi.CompareTo(yi);
+        }
     });
 }

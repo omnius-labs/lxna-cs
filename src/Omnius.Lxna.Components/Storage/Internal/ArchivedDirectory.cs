@@ -27,7 +27,7 @@ internal sealed class ArchivedDirectory : IDirectory
 
     public string Name { get; }
     public NestedPath LogicalPath { get; }
-    public DirectoryAttributes Attributes => throw new NotImplementedException();
+    public DirectoryAttributes Attributes => DirectoryAttributes.Archive;
     public bool IsReadOnly => throw new NotImplementedException();
     public bool Exists => throw new NotImplementedException();
 
