@@ -40,7 +40,7 @@ public sealed class DirectoryThumbnailGenerator : AsyncDisposableBase, IDirector
 
     internal async ValueTask InitAsync(CancellationToken cancellationToken = default)
     {
-        var basePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly()?.Location);
+        var basePath = System.AppContext.BaseDirectory;
         basePath ??= Directory.GetCurrentDirectory();
         var dirPath = Path.Combine(basePath, "Assets/Directory");
 
