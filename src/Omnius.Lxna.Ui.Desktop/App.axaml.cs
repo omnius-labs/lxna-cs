@@ -47,8 +47,8 @@ public class App : Application
     {
         this.Init();
 
-        var parsedResult = CommandLine.Parser.Default.ParseArguments<OptionArgs>(Environment.GetCommandLineArgs());
-        parsedResult.WithParsed(this.OnArgsParsed);
+        var parsedResult = CommandLine.Parser.Default.ParseArguments<Options>(Environment.GetCommandLineArgs());
+        parsedResult.WithParsed(this.OnParsed);
     }
 
     private void Init()
@@ -64,7 +64,7 @@ public class App : Application
         ImageMagick.MagickNET.Initialize(configFiles);
     }
 
-    public class OptionArgs
+    public class Options
     {
         [Option('s', "storage")]
         public string StorageDirectoryPath { get; set; } = "../storage";
@@ -73,7 +73,7 @@ public class App : Application
         public bool Verbose { get; set; } = false;
     }
 
-    private async void OnArgsParsed(OptionArgs options)
+    private async void OnParsed(Options options)
     {
         try
         {
@@ -95,7 +95,7 @@ public class App : Application
 
             _lockFileStream = new FileStream(Path.Combine(options.StorageDirectoryPath, "lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose);
 
-            _logger.Info("Starting...");
+            _logger.Info("---- Start ----");
             _logger.Info($"AssemblyInformationalVersion: {Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}");
 
             if (OperatingSystem.IsLinux())
@@ -143,7 +143,7 @@ public class App : Application
     {
         await Bootstrapper.Instance.DisposeAsync();
 
-        _logger.Info("Stopping...");
+        _logger.Info("---- End ----");
         NLog.LogManager.Shutdown();
 
         _lockFileStream?.Dispose();
