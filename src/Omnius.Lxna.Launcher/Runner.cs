@@ -44,6 +44,13 @@ public static class Runner
                     Arguments = $"-s {uiDesktopStoragePath}",
                     UseShellExecute = false,
                 };
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    uiDesktopProcessInfo.Environment["LANG"] = "en_US.UTF-8";
+                    uiDesktopProcessInfo.Environment["AVALONIA_SCREEN_SCALE_FACTORS"] = "XWAYLAND0=2";
+                }
+
                 using var uiDesktopProcess = Process.Start(uiDesktopProcessInfo);
 
                 // wait for ui-desktop exit
