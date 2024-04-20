@@ -15,6 +15,8 @@ public sealed class FileLock
 
     public async Task<IDisposable> LockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
     {
+        await Task.Delay(1).ConfigureAwait(false);
+
         var sw = Stopwatch.StartNew();
 
         for (; ; )

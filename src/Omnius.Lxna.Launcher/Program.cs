@@ -20,10 +20,10 @@ public class Program
         try
         {
             // zipがダウンロード済みの場合、アップデートを実行する
-            if (Updater.TryUpdate()) return;
+            if (Replacer.TryRun()) return;
 
             // バックグラウンドで、新しいバージョンをチェックし、新しいバージョンが見つかればダウンロードする
-            Downloader.Download();
+            Downloader.Run();
 
             // 本体を起動する
             await Runner.RunAsync();

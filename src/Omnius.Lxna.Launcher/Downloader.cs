@@ -12,7 +12,7 @@ public class Downloader
     private static readonly HttpClient _httpClient = new HttpClient();
     private const string Url = "https://docs.omnius-labs.com/releases/lxna.json";
 
-    public static async void Download()
+    public static async void Run()
     {
         var basePath = Directory.GetCurrentDirectory();
         string updatePath = Path.Combine(basePath, "update");

@@ -5,11 +5,11 @@ using Omnius.Lxna.Launcher.Helpers;
 
 namespace Omnius.Lxna.Launcher;
 
-public static class Updater
+public static class Replacer
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    public static bool TryUpdate()
+    public static bool TryRun()
     {
         bool result = false;
 

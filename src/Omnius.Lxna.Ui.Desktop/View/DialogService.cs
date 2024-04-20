@@ -9,6 +9,7 @@ namespace Omnius.Lxna.Ui.Desktop.View;
 public interface IDialogService
 {
     ValueTask ShowPreviewWindowAsync(IEnumerable<IFile> files, int position, CancellationToken cancellationToken = default);
+    ValueTask ShowSettingsWindowAsync(CancellationToken cancellationToken = default);
 }
 
 public class DialogService : IDialogService
@@ -30,11 +31,26 @@ public class DialogService : IDialogService
     {
         await _applicationDispatcher.InvokeAsync(async () =>
         {
-            var window = new PreviewWindow(Path.Combine(_lxnaEnvironment.StateDirectoryPath, "windows", "picture_preview"));
+            var window = new PreviewWindow(Path.Combine(_lxnaEnvironment.StateDirectoryPath, "windows", "preview"));
             var serviceProvider = Bootstrapper.Instance.GetServiceProvider();
 
             var viewModel = serviceProvider.GetRequiredService<PreviewWindowModel>();
             await viewModel.InitializeAsync(files, position, cancellationToken);
+            window.DataContext = viewModel;
+
+            await window.ShowDialog(_mainWindowProvider.GetMainWindow());
+        });
+    }
+
+    public async ValueTask ShowSettingsWindowAsync(CancellationToken cancellationToken = default)
+    {
+        await _applicationDispatcher.InvokeAsync(async () =>
+        {
+            var window = new SettingsWindow(Path.Combine(_lxnaEnvironment.StateDirectoryPath, "windows", "settings"));
+            var serviceProvider = Bootstrapper.Instance.GetServiceProvider();
+
+            var viewModel = serviceProvider.GetRequiredService<SettingsWindowModel>();
+            await viewModel.InitializeAsync(cancellationToken);
             window.DataContext = viewModel;
 
             await window.ShowDialog(_mainWindowProvider.GetMainWindow());

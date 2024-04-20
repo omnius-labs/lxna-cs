@@ -19,7 +19,7 @@ public static class Runner
             var basePath = Directory.GetCurrentDirectory();
             var fileLock = new FileLock(Path.Combine(basePath, "lock"));
 
-            using (fileLock.Lock(TimeSpan.FromSeconds(30)))
+            using (await fileLock.LockAsync(TimeSpan.FromSeconds(30)))
             {
                 // gen bin path
                 var uiDesktopPath = Path.Combine(basePath, "bin/ui-desktop/Omnius.Lxna.Ui.Desktop");
@@ -32,9 +32,6 @@ public static class Runner
 
                 // gen storage path
                 var uiDesktopStoragePath = Path.Combine(basePath, "storage/ui-desktop");
-
-                // find free port
-                var listenPort = FindFreeTcpPort();
 
                 // start ui-desktop
                 var uiDesktopProcessInfo = new ProcessStartInfo()
@@ -60,26 +57,6 @@ public static class Runner
         catch (Exception e)
         {
             _logger.Error(e, "Unexpected Exception");
-        }
-    }
-
-    private static int FindFreeTcpPort()
-    {
-        for (int i = 0; ; i++)
-        {
-            try
-            {
-                var port = Random.Shared.Next(10000, 60000);
-                using var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                socket.Bind(new IPEndPoint(IPAddress.Loopback, port));
-                socket.Close();
-
-                return port;
-            }
-            catch (Exception)
-            {
-                if (i >= 10) throw;
-            }
         }
     }
 }

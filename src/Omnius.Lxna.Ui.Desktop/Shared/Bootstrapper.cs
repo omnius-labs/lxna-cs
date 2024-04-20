@@ -78,6 +78,7 @@ public partial class Bootstrapper : AsyncDisposableBase
             serviceCollection.AddTransient<MainWindowModel>();
             serviceCollection.AddTransient<ExplorerViewModel>();
             serviceCollection.AddTransient<PreviewWindowModel>();
+            serviceCollection.AddTransient<SettingsWindowModel>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }
