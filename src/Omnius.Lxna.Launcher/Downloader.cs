@@ -65,7 +65,7 @@ public class Downloader
         using var stream = await _httpClient.GetStreamAsync(Url);
         using var doc = await JsonDocument.ParseAsync(stream);
         var version = doc.RootElement.GetProperty("version").GetString() ?? throw new InvalidOperationException("Version not found.");
-        var downloadUrl = doc.RootElement.GetProperty("urls").GetProperty(env).GetString() ?? throw new InvalidOperationException("Download URL not found.");
+        var downloadUrl = doc.RootElement.GetProperty("download_urls").GetProperty(env).GetString() ?? throw new InvalidOperationException("Download URL not found.");
         return (version, downloadUrl);
     }
 
