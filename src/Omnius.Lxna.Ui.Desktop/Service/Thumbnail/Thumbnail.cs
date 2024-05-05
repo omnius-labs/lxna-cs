@@ -3,8 +3,8 @@ using Avalonia.Media.Imaging;
 using Omnius.Core;
 using Omnius.Core.Avalonia;
 using Omnius.Core.Streams;
+using Omnius.Lxna.Components.Image;
 using Omnius.Lxna.Components.Storage;
-using Omnius.Lxna.Components.Thumbnail;
 
 namespace Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 

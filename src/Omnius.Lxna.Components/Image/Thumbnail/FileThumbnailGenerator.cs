@@ -8,11 +8,12 @@ using Omnius.Core.RocketPack;
 using Omnius.Core.Serialization;
 using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Image;
+using Omnius.Lxna.Components.Image.Internal;
 using Omnius.Lxna.Components.Storage;
 using Omnius.Lxna.Components.Thumbnail.Internal;
 using Omnius.Lxna.Components.Thumbnail.Internal.Repositories;
 
-namespace Omnius.Lxna.Components.Thumbnail;
+namespace Omnius.Lxna.Components.Image;
 
 public record FileThumbnailGeneratorOptions
 {

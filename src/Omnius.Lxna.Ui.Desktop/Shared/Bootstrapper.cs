@@ -4,7 +4,6 @@ using Omnius.Core.Avalonia;
 using Omnius.Core.Helpers;
 using Omnius.Lxna.Components.Image;
 using Omnius.Lxna.Components.Storage;
-using Omnius.Lxna.Components.Thumbnail;
 using Omnius.Lxna.Ui.Desktop.Service.Preview;
 using Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 using Omnius.Lxna.Ui.Desktop.View;

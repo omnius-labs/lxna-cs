@@ -5,7 +5,7 @@ using Omnius.Core.Streams;
 using Omnius.Lxna.Components.Image;
 using Omnius.Lxna.Components.Storage;
 
-namespace Omnius.Lxna.Components.Thumbnail;
+namespace Omnius.Lxna.Components.Image;
 
 public interface IDirectoryThumbnailGenerator : IAsyncDisposable
 {

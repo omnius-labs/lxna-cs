@@ -3,6 +3,7 @@ using Omnius.Core;
 using Omnius.Core.Helpers;
 using Omnius.Core.RocketPack;
 using Omnius.Lxna.Components.Image;
+using Omnius.Lxna.Components.Image.Internal;
 using Omnius.Lxna.Components.Internal;
 using Omnius.Lxna.Components.Storage;
 using Omnius.Lxna.Components.Thumbnail.Internal.Repositories.Entities;

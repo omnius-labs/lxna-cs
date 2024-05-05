@@ -20,6 +20,7 @@
         "Remoting",
         "Resampler",
         "Resizer",
+        "rpfs",
         "vframes"
     ]
 }
