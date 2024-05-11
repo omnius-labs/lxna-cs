@@ -1,7 +1,0 @@
-﻿syntax v1.0;
-
-namespace "Omnius.Lxna.Components.Thumbnail";
-
-message ThumbnailContent {
-    Image: bytes(capacity: 33554432, recyclable: true),
-}

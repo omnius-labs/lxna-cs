@@ -1,0 +1,38 @@
+<Window
+    x:Class="Lxna.Ui.Desktop.View.Windows.PreviewWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+    xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+    xmlns:local="clr-namespace:Lxna.Ui.Desktop.View.Windows"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:skp="clr-namespace:Avalonia.Svg.Skia;assembly=Avalonia.Svg.Skia"
+    Title="Picture Preview"
+    WindowStartupLocation="Manual"
+    d:DesignHeight="400"
+    d:DesignWidth="400"
+    x:CompileBindings="True"
+    x:DataType="local:PreviewWindowModelBase"
+    FontFamily="Meiryo UI, Lucida Grande, Ubuntu"
+    mc:Ignorable="d">
+
+    <Design.DataContext>
+        <local:PreviewWindowDesignModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="*,Auto">
+        <Panel Grid.Row="0" x:Name="Panel">
+            <Image x:Name="Image" Source="{Binding Source.Value}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </Panel>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+            <Slider Grid.Column="0" Value="{Binding Position.Value, Converter={StaticResource PlusOneValueConverter}}" Minimum="1" Maximum="{Binding Count.Value}"
+                    IsSnapToTickEnabled="True" TickFrequency="1" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <TextBox Text="{Binding Position.Value, Converter={StaticResource PlusOneValueConverter}}" />
+                <TextBlock Text="/" Width="10" VerticalAlignment="Center" />
+                <TextBox Text="{Binding Count.Value}" IsReadOnly="True" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

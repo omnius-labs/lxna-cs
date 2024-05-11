@@ -1,0 +1,83 @@
+<UserControl x:Class="Lxna.Ui.Desktop.View.Windows.ExplorerView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+        xmlns:ir="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.ItemsRepeater"
+        xmlns:pr="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia.ProgressRing"
+        xmlns:local="clr-namespace:Lxna.Ui.Desktop.View.Windows;assembly=Lxna.Ui.Desktop"
+        xmlns:c="clr-namespace:Core.Avalonia.Converters;assembly=Core.Avalonia"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:CompileBindings="True"
+        x:DataType="local:ExplorerViewModelBase"
+        mc:Ignorable="d"
+        d:DesignWidth="800"
+        d:DesignHeight="450" >
+    <UserControl.Resources>
+        <c:LevelPaddingConverter x:Key="LevelPaddingConverter"/>
+    </UserControl.Resources>
+
+    <Design.DataContext>
+        <local:ExplorerViewDesignModel />
+    </Design.DataContext>
+
+    <Panel>
+        <Panel ZIndex="1" IsEnabled="{Binding IsWaiting.Value}" IsVisible="{Binding IsWaiting.Value}">
+            <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <pr:ProgressRing Margin="0,0,0,16" DockPanel.Dock="Top" HorizontalAlignment="Center" VerticalAlignment="Center" IsIndeterminate="True" BorderThickness="10" Width="200" Height="200" />
+                <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Cancel" Command="{Binding CancelWaitCommand}"/>
+            </DockPanel>
+        </Panel>
+        <Grid ZIndex="0" IsEnabled="{Binding !IsWaiting.Value}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{Binding TreeViewWidth.Value, Mode=TwoWay}" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer x:Name="TreeNodesViewer" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <ItemsRepeater x:Name="TreeNodesRepeater" HorizontalAlignment="Stretch" ItemsSource="{Binding RootTreeNode.VisibleChildren}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="1" Orientation="Vertical" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <RadioButton Classes="TreeItem" Height="32"
+                                    IsChecked="{ReflectionBinding IsSelected}"
+                                    Padding="{Binding Level, Converter={StaticResource LevelPaddingConverter}, ConverterParameter=30}" >
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <CheckBox Classes="TreeCheck" Grid.Column="0" Margin="8,0,8,0"
+                                            IsChecked="{ReflectionBinding IsExpanded}" />
+                                    <TextBlock Grid.Column="1" Text="{ReflectionBinding Name}"
+                                            TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                </Grid>
+                            </RadioButton>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </ScrollViewer>
+            <GridSplitter Grid.Column="1" />
+            <ScrollViewer Grid.Column="2" x:Name="ThumbnailsViewer" HorizontalScrollBarVisibility="Disabled" IsVisible="{Binding !IsWaiting.Value}">
+                <ItemsRepeater x:Name="ThumbnailsRepeater" HorizontalAlignment="Stretch" ItemsSource="{ReflectionBinding Thumbnails}">
+                    <ItemsRepeater.Layout>
+                        <UniformGridLayout MinItemHeight="{Binding ThumbnailHeight.Value}" MinItemWidth="{Binding ThumbnailWidth.Value}" MinColumnSpacing="2" MinRowSpacing="2"/>
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <RadioButton Classes="Thumbnail"
+                                    Height="{ReflectionBinding Height}" Width="{ReflectionBinding Width}"
+                                    IsChecked="{ReflectionBinding IsSelected}"
+                                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                                <DockPanel Margin="8">
+                                    <TextBlock DockPanel.Dock="Bottom" Text="{ReflectionBinding Name}"
+                                            TextWrapping="Wrap" Margin="8" HorizontalAlignment="Center" MaxHeight="50" />
+                                    <Image HorizontalAlignment="Center" Source="{ReflectionBinding Image}" />
+                                </DockPanel>
+                            </RadioButton>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </ScrollViewer>
+        </Grid>
+    </Panel>
+</UserControl>

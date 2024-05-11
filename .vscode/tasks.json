@@ -22,7 +22,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/Omnius.Lxna.Ui.Desktop/Omnius.Lxna.Ui.Desktop.csproj",
+                "${workspaceFolder}/src/Lxna.Ui.Desktop/Lxna.Ui.Desktop.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -41,7 +41,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/Omnius.Lxna.Ui.Desktop/Omnius.Lxna.Ui.Desktop.csproj",
+                "${workspaceFolder}/src/Lxna.Ui.Desktop/Lxna.Ui.Desktop.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

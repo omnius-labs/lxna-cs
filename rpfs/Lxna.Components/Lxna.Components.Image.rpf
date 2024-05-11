@@ -1,0 +1,27 @@
+﻿syntax v1.0;
+
+namespace "Lxna.Components.Image";
+
+enum ImageResizeType : uint8 {
+    Unknown = 0,
+    Crop = 1,
+    Pad = 2,
+    BoxPad = 3,
+    Max = 4,
+    Min = 5,
+}
+
+enum ImageResizePositionType : uint8 {
+    Unknown = 0,
+    Center = 1,
+}
+
+enum ImageResizeResamplerType : uint8 {
+    Unknown = 0,
+    Lanczos3 = 1,
+}
+
+enum ImageFormatType : uint8 {
+    Unknown = 0,
+    Png = 1,
+}
