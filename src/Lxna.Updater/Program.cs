@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Reflection;
+using CommandLine;
 
 namespace Lxna.Launcher;
 
@@ -10,7 +11,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var basePath = Directory.GetCurrentDirectory();
-        SetLogsDirectory(Path.Combine(basePath, "storage/launcher/logs"));
+        SetLogsDirectory(Path.Combine(basePath, "../../storage/updater/logs"));
 
         _logger.Info("---- Start ----");
         _logger.Info(CultureInfo.InvariantCulture, "AssemblyInformationalVersion: {0}", Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion);
@@ -19,14 +20,12 @@ public class Program
 
         try
         {
-            // zipがダウンロード済みの場合、アップデートを実行する
-            if (Replacer.TryRun()) return;
-
-            // バックグラウンドで、新しいバージョンをチェックし、新しいバージョンが見つかればダウンロードする
-            Downloader.Run();
-
-            // 本体を起動する
-            await Runner.RunAsync();
+            var parsedResult = CommandLine.Parser.Default.ParseArguments<Options>(Environment.GetCommandLineArgs());
+            parsedResult = parsedResult.WithParsed(options =>
+            {
+                // zipがダウンロード済みの場合、アップデートを実行する
+                Replacer.TryReplace(options.BasePath!);
+            });
         }
         catch (Exception e)
         {

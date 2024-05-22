@@ -5,8 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Assets/**">
+    <None Update="Assets/Dir/normal.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>assets/dir/normal.png</Link>
     </None>
   </ItemGroup>
 
