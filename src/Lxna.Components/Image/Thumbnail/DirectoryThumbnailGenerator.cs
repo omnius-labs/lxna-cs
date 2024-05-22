@@ -42,7 +42,7 @@ public sealed class DirectoryThumbnailGenerator : AsyncDisposableBase, IDirector
     {
         var basePath = System.AppContext.BaseDirectory;
         basePath ??= Directory.GetCurrentDirectory();
-        var dirPath = Path.Combine(basePath, "Assets/Directory");
+        var dirPath = Path.Combine(basePath, "assets/dir");
 
         var builder = ImmutableDictionary.CreateBuilder<string, byte[]>();
 

@@ -16,6 +16,7 @@ public class App : Application
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     private FileStream? _lockFileStream;
+    private Updater? _updater;
 
     public override void Initialize()
     {
@@ -67,7 +68,7 @@ public class App : Application
     public class Options
     {
         [Option('s', "storage")]
-        public string StorageDirectoryPath { get; set; } = "../storage";
+        public string StorageDirectoryPath { get; set; } = "../storage/ui-desktop";
 
         [Option('v', "verbose")]
         public bool Verbose { get; set; } = false;
@@ -97,6 +98,15 @@ public class App : Application
 
             _logger.Info("---- Start ----");
             _logger.Info($"AssemblyInformationalVersion: {Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}");
+
+            _updater = await Updater.CreateAsync();
+
+            if (_updater.TryExecute())
+            {
+                _logger.Info("Update start");
+                this.ApplicationLifetime.Shutdown();
+                return;
+            }
 
             if (OperatingSystem.IsLinux())
             {
@@ -142,6 +152,8 @@ public class App : Application
     private async void Exit()
     {
         await Bootstrapper.Instance.DisposeAsync();
+
+        if (_updater is not null) await _updater.DisposeAsync();
 
         _logger.Info("---- End ----");
         NLog.LogManager.Shutdown();
