@@ -14,27 +14,11 @@
     <PackageReference Include="CommandLineParser" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(NativeDepsPlatform)' == 'Windows' ">
-    <None Update="Envs/win">
-      <Link>env</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup Condition=" '$(NativeDepsPlatform)' == 'Linux' ">
-    <None Update="Envs/linux">
-      <Link>env</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup Condition=" '$(NativeDepsPlatform)' == 'OSX' ">
-    <None Update="Envs/osx">
-      <Link>env</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
   <ItemGroup>
     <None Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update=".env.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

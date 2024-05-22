@@ -43,10 +43,10 @@ public static class Runner
                     UseShellExecute = false,
                 };
 
-                foreach (var (key, value) in ParseEnvFile(Path.Combine(basePath, "env")))
+                var envPath = Path.Combine(basePath, ".env." + GetCurrentPlatform());
+                foreach (var (key, value) in ParseEnvFile(envPath))
                 {
                     uiDesktopProcessInfo.Environment[key] = value;
-                    _logger.Info($"{key}={value}");
                 }
 
                 using var uiDesktopProcess = Process.Start(uiDesktopProcessInfo);
@@ -58,6 +58,26 @@ public static class Runner
         catch (Exception e)
         {
             _logger.Error(e, "Unexpected Exception");
+        }
+    }
+
+    public static string GetCurrentPlatform()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return "win";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return "linux";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return "osx";
+        }
+        else
+        {
+            throw new PlatformNotSupportedException();
         }
     }
 
