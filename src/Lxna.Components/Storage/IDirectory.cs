@@ -3,7 +3,7 @@ namespace Lxna.Components.Storage;
 public interface IDirectory : IDisposable
 {
     string Name { get; }
-    NestedPath LogicalPath { get; }
+    NestedPath LogicalNestedPath { get; }
     DirectoryAttributes Attributes { get; }
     bool IsReadOnly { get; }
     bool Exists { get; }
@@ -34,4 +34,5 @@ public enum DirectoryAttributes
     Unknown = 0,
     Normal = 0x01,
     Archive = 0x02,
+    ReadOnly = 0x04,
 }

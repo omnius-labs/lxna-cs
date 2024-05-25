@@ -127,7 +127,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
     {
         if (item is TreeNodeModel node && node.Tag is IDirectory dir)
         {
-            _selectedPath = dir.LogicalPath;
+            _selectedPath = dir.LogicalNestedPath;
             _refreshThumbnailsDebouncer.Signal();
         }
     }
@@ -138,7 +138,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
         {
             if (thumbnail.Item is IDirectory dir)
             {
-                _selectedPath = dir.LogicalPath;
+                _selectedPath = dir.LogicalNestedPath;
                 this.SelectedTreeNode!.Value.IsExpanded = true;
             }
             else if (thumbnail.Item is IFile archiveFile && archiveFile.IsArchive)
@@ -146,7 +146,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
                 using var archive = await archiveFile.TryConvertToDirectoryAsync().ConfigureAwait(false);
                 if (archive is null) return;
 
-                _selectedPath = archive.LogicalPath;
+                _selectedPath = archive.LogicalNestedPath;
                 this.SelectedTreeNode!.Value.IsExpanded = true;
             }
             else if (thumbnail.Item is IFile file)
@@ -218,7 +218,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
             }, DispatcherPriority.Background).ConfigureAwait(false);
         }
 
-        if (dir.LogicalPath != _selectedPath)
+        if (dir.LogicalNestedPath != _selectedPath)
         {
             _refreshThumbnailsDebouncer.Signal();
         }
@@ -258,7 +258,7 @@ public class ExplorerViewModel : ExplorerViewModelBase
         {
             foreach (var n in this.RootTreeNode!.VisibleChildren)
             {
-                if (n.Tag is not IDirectory d || d.LogicalPath != _selectedPath) continue;
+                if (n.Tag is not IDirectory d || d.LogicalNestedPath != _selectedPath) continue;
                 treeNode = n;
                 dir = d;
             }

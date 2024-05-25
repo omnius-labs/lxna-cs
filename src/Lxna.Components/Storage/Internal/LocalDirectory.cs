@@ -15,12 +15,12 @@ internal sealed class LocalDirectory : IDirectory
         _physicalPath = physicalPath;
         _tempPath = tempPath;
 
-        this.LogicalPath = new NestedPath(physicalPath);
-        this.Name = this.LogicalPath.GetName();
+        this.LogicalNestedPath = new NestedPath(physicalPath);
+        this.Name = this.LogicalNestedPath.GetName();
     }
 
     public string Name { get; }
-    public NestedPath LogicalPath { get; }
+    public NestedPath LogicalNestedPath { get; }
     public DirectoryAttributes Attributes => DirectoryAttributes.Normal;
     public bool IsReadOnly => throw new NotImplementedException();
     public bool Exists => throw new NotImplementedException();

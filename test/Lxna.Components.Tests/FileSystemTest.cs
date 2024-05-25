@@ -18,7 +18,7 @@ public class FileSystemTest
 
         var rootDirs = await storage.FindDirectoriesAsync(testRootDirPath);
         using var rootDir = rootDirs.Single();
-        Assert.Equal(new NestedPath(testRootDirPath), rootDir.LogicalPath);
+        Assert.Equal(new NestedPath(testRootDirPath), rootDir.LogicalNestedPath);
 
         var firstFiles = await rootDir.FindFilesAsync();
         using var firstZipFile = firstFiles.Single();
@@ -27,11 +27,11 @@ public class FileSystemTest
 
         using var firstZipDir = await firstZipFile.TryConvertToDirectoryAsync();
         Assert.NotNull(firstZipDir);
-        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), ""), firstZipDir.LogicalPath);
+        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), ""), firstZipDir.LogicalNestedPath);
 
         var firstZipDirInDirs = await firstZipDir.FindDirectoriesAsync();
         using var firstZipDirInDir = firstZipDirInDirs.Single();
-        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1"), firstZipDirInDir.LogicalPath);
+        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1"), firstZipDirInDir.LogicalNestedPath);
 
         var secondFiles = await firstZipDirInDir.FindFilesAsync();
         using var secondZipFile = secondFiles.Single();
@@ -40,11 +40,11 @@ public class FileSystemTest
 
         using var secondZipDir = await secondZipFile.TryConvertToDirectoryAsync();
         Assert.NotNull(secondZipDir);
-        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1/2.zip", ""), secondZipDir.LogicalPath);
+        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1/2.zip", ""), secondZipDir.LogicalNestedPath);
 
         var secondZipDirInDirs = await secondZipDir.FindDirectoriesAsync();
         using var secondZipDirInDir = secondZipDirInDirs.Single();
-        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1/2.zip", "2"), secondZipDirInDir.LogicalPath);
+        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1/2.zip", "2"), secondZipDirInDir.LogicalNestedPath);
 
         var thirdFiles = await secondZipDirInDir.FindFilesAsync();
         using var thirdZipFile = thirdFiles.Single();
@@ -53,10 +53,10 @@ public class FileSystemTest
 
         using var thirdZipDir = await thirdZipFile.TryConvertToDirectoryAsync();
         Assert.NotNull(thirdZipDir);
-        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1/2.zip", "2/3.zip", ""), thirdZipDir.LogicalPath);
+        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1/2.zip", "2/3.zip", ""), thirdZipDir.LogicalNestedPath);
 
         var thirdZipDirInDirs = await thirdZipDir.FindDirectoriesAsync();
         using var thirdZipDirInDir = thirdZipDirInDirs.Single();
-        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1/2.zip", "2/3.zip", "3"), thirdZipDirInDir.LogicalPath);
+        Assert.Equal(new NestedPath(Path.Combine(testRootDirPath, "1.zip"), "1/2.zip", "2/3.zip", "3"), thirdZipDirInDir.LogicalNestedPath);
     }
 }

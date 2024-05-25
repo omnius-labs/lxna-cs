@@ -17,8 +17,8 @@ internal sealed class ArchivedDirectory : IDirectory
         _tempPath = tempPath;
         _bytesPool = bytesPool;
 
-        this.LogicalPath = logicalPath;
-        this.Name = this.LogicalPath.GetName();
+        this.LogicalNestedPath = logicalPath;
+        this.Name = this.LogicalNestedPath.GetName();
     }
 
     public void Dispose()
@@ -26,7 +26,7 @@ internal sealed class ArchivedDirectory : IDirectory
     }
 
     public string Name { get; }
-    public NestedPath LogicalPath { get; }
+    public NestedPath LogicalNestedPath { get; }
     public DirectoryAttributes Attributes => DirectoryAttributes.Archive;
     public bool IsReadOnly => throw new NotImplementedException();
     public bool Exists => throw new NotImplementedException();
@@ -49,7 +49,7 @@ internal sealed class ArchivedDirectory : IDirectory
         foreach (var name in await extractor.FindDirectoriesAsync(_relativePath, cancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            results.Add(new ArchivedDirectory(_bytesPool, _createExtractor, NestedPath.Combine(this.LogicalPath, name), _tempPath));
+            results.Add(new ArchivedDirectory(_bytesPool, _createExtractor, NestedPath.Combine(this.LogicalNestedPath, name), _tempPath));
         }
 
         return results;
@@ -64,7 +64,7 @@ internal sealed class ArchivedDirectory : IDirectory
         foreach (var name in await extractor.FindFilesAsync(_relativePath, cancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            results.Add(new ArchivedFile(_bytesPool, extractor, NestedPath.Combine(this.LogicalPath, name), _tempPath));
+            results.Add(new ArchivedFile(_bytesPool, extractor, NestedPath.Combine(this.LogicalNestedPath, name), _tempPath));
         }
 
         return results;
