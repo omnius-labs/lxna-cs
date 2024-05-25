@@ -74,4 +74,4 @@ This project is released under the MIT License. For more details, please refer t
 
 ## Contributing
 
-If you would like to contribute to this project, please contact us through [Issues](https://github.com/lyrise/image-classifier-cs/issues) or [Pull Requests](https://github.com/lyrise/image-classifier-cs/pulls) on GitHub.
+If you would like to contribute to this project, please contact us through [Issues](https://github.com/omnius-labs/lxna-cs/issues) or [Pull Requests](https://github.com/omnius-labs/lxna-cs/pulls) on GitHub.
