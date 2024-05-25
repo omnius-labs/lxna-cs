@@ -27,21 +27,21 @@ Before installing Lxna, ensure your system has the necessary dependencies instal
 sudo apt-get install -y ffmpeg
 ```
 
-### Windows
+#### Windows
 
 ```sh
 scoop install ffmpeg
 ```
 
-## Installation
+### Installation
 
 Download the latest release from the link below.
 
 - [Download for Windows and Linux](https://github.com/omnius-labs/lxna-cs/releases)
 
-## Launching the Application
+### Launching the Application
 
-### Debian and Ubuntu
+#### Debian and Ubuntu
 
 To launch the application on Debian and Ubuntu, set the necessary environment variables as follows:
 
