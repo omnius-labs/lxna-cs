@@ -2,10 +2,12 @@
 
 You need to set the AVALONIA_SCREEN_SCALE_FACTORS environment variable.
 
-For debugging, you can set environment variables in the .env file with the following command.
+You can set environment variables in the .env file with the following command.
 
 ```sh
-SCALE=2 bash ./eng/gen-envfile.sh
+SCALE=2
+SCREEN=$(xrandr --listactivemonitors | awk -F " " '{ printf("%s", $4) }')
+export AVALONIA_SCREEN_SCALE_FACTORS="$SCREEN=$SCALE"
 ```
 
 ### Refs
@@ -16,10 +18,10 @@ SCALE=2 bash ./eng/gen-envfile.sh
 
 You need to set the LANG=en_US.UTF-8 environment variable.
 
-For debugging, you can set environment variables in the .env file with the following command.
+You can set environment variables in the .env file with the following command.
 
 ```sh
-SCALE=2 bash ./eng/gen-envfile.sh
+export LANG=en_US.UTF-8
 ```
 
 ### Refs
