@@ -31,21 +31,21 @@ Before installing Lxna, ensure your system has the necessary dependencies instal
 sudo apt-get install -y ffmpeg
 ```
 
-### Windows
+#### Windows
 
 ```sh
 scoop install ffmpeg
 ```
 
-## Installation
+### Installation
 
 Download the latest release from the link below.
 
 - [Download for Windows and Linux](https://github.com/omnius-labs/lxna-cs/releases)
 
-## Launching the Application
+### Launching the Application
 
-### Debian and Ubuntu
+#### Debian and Ubuntu
 
 To launch the application on Debian and Ubuntu, set the necessary environment variables as follows:
 
@@ -72,10 +72,10 @@ export AVALONIA_SCREEN_SCALE_FACTORS="$SCREEN=$SCALE"
 - Official Documentation: https://docs.omnius-labs.com/
 - Icons provided by: https://icooon-mono.com/
 
+## Contributing
+
+If you would like to contribute to this project, please contact us through [Issues](https://github.com/omnius-labs/lxna-cs/issues) or [Pull Requests](https://github.com/omnius-labs/lxna-cs/pulls) on GitHub.
+
 ## License
 
 This project is released under the MIT License. For more details, please refer to the [LICENSE](LICENSE.txt) file.
-
-## Contributing
-
-If you would like to contribute to this project, please contact us through [Issues](https://github.com/lyrise/image-classifier-cs/issues) or [Pull Requests](https://github.com/lyrise/image-classifier-cs/pulls) on GitHub.
