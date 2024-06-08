@@ -1,5 +1,5 @@
 <p align="center">
-<img width="128" src="https://github.com/omnius-labs/lxna-cs/blob/main/docs/logo.png?raw=true" alt="Opxs logo">
+<img width="128" src="https://github.com/omnius-labs/lxna-cs/blob/main/docs/logo.png?raw=true" alt="Lxna logo">
 </p>
 
 <h1 align="center">Lxna - Omnius File Manager (Desktop app)</h1>
