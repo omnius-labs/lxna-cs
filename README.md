@@ -1,4 +1,8 @@
-# Lxna - Omnius File Manager (Desktop app)
+<p align="center">
+<img width="128" src="https://github.com/omnius-labs/lxna-cs/blob/main/docs/logo.png?raw=true" alt="Opxs logo">
+</p>
+
+<h1 align="center">Lxna - Omnius File Manager (Desktop app)</h1>
 
 [![test](https://github.com/omnius-labs/lxna-cs/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/omnius-labs/lxna-cs/actions/workflows/test.yml)
 [![chat](https://badges.gitter.im/omnius-labs.svg)](https://gitter.im/omnius-labs/community)

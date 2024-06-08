@@ -9,6 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:skp="clr-namespace:Avalonia.Svg.Skia;assembly=Avalonia.Svg.Skia"
     Title="Picture Preview"
+    Icon="/Assets/lxna.ico"
     WindowStartupLocation="Manual"
     d:DesignHeight="400"
     d:DesignWidth="400"
