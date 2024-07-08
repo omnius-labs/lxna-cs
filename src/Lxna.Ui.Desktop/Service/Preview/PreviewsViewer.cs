@@ -1,12 +1,12 @@
 using System.Collections.Immutable;
-using Core.Base;
-using Core.Base.Helpers;
-using Core.Pipelines;
-using Lxna.Components.Image;
-using Lxna.Components.Storage;
+using Omnius.Core.Base;
+using Omnius.Core.Base.Helpers;
+using Omnius.Core.Pipelines;
+using Omnius.Lxna.Components.Image;
+using Omnius.Lxna.Components.Storage;
 using SharpCompress;
 
-namespace Lxna.Ui.Desktop.Service.Preview;
+namespace Omnius.Lxna.Ui.Desktop.Service.Preview;
 
 public partial class PreviewsViewer : AsyncDisposableBase
 {

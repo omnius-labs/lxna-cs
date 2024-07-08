@@ -4,14 +4,14 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using CommandLine;
-using Core.Base.Helpers;
-using Lxna.Ui.Desktop.Shared;
-using Lxna.Ui.Desktop.View.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using Omnius.Core.Base.Helpers;
+using Omnius.Lxna.Ui.Desktop.Shared;
+using Omnius.Lxna.Ui.Desktop.View.Windows;
 
-namespace Lxna.Ui.Desktop;
+namespace Omnius.Lxna.Ui.Desktop;
 
-public class App : Application
+public partial class App : Application
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -55,8 +55,8 @@ public class App : Application
     private void Init()
     {
         var configFiles = ImageMagick.Configuration.ConfigurationFiles.Default;
-        configFiles.Policy.Data = @"
-<policymap>
+        configFiles.Policy.Data =
+@"<policymap>
   <policy domain=""delegate"" rights=""none"" pattern=""*"" />
   <policy domain=""filter"" rights=""none"" pattern=""*"" />
   <policy domain=""coder"" rights=""none"" pattern=""*"" />
@@ -72,6 +72,9 @@ public class App : Application
 
         [Option('v', "verbose")]
         public bool Verbose { get; set; } = false;
+
+        [Option("skip-update")]
+        public bool SkipUpdate { get; set; } = false;
     }
 
     private async void OnParsed(Options options)
@@ -99,13 +102,18 @@ public class App : Application
             _logger.Info("---- Start ----");
             _logger.Info($"AssemblyInformationalVersion: {Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}");
 
-            _updater = await Updater.CreateAsync();
-
-            if (_updater.TryExecute())
+            if (!options.SkipUpdate)
             {
                 _logger.Info("Update start");
-                this.ApplicationLifetime.Shutdown();
-                return;
+                _updater = new Updater();
+
+                if (_updater.TryLaunchUpdater())
+                {
+                    this.ApplicationLifetime.Shutdown();
+                    return;
+                }
+
+                _updater.StartBackgroundZipDownload();
             }
 
             if (OperatingSystem.IsLinux())

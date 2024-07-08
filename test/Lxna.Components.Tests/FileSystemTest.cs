@@ -1,9 +1,9 @@
-using Core.Base;
-using Core.UnitTestToolkit;
-using Lxna.Components.Storage;
+using Omnius.Core.Base;
+using Omnius.Core.UnitTestToolkit;
+using Omnius.Lxna.Components.Storage;
 using Xunit;
 
-namespace Lxna.Components;
+namespace Omnius.Lxna.Components;
 
 public class FileSystemTest
 {

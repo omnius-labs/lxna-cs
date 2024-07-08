@@ -2,42 +2,30 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
-using Core.Base;
-using Core.Base.Helpers;
+using Omnius.Core.Base;
+using Omnius.Core.Base.Helpers;
 
-namespace Lxna.Ui.Desktop;
+namespace Omnius.Lxna.Ui.Desktop;
 
 public class Updater : AsyncDisposableBase
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-    private const string Url = "https://docs.omnius-labs.com/releases/lxna.json";
 
-    private Task _task = Task.CompletedTask;
-    private CancellationTokenSource _cts = new();
-
-    public static async ValueTask<Updater> CreateAsync()
-    {
-        var result = new Updater();
-        return result;
-    }
-
-    internal Updater()
-    {
-        _task = this.BackgroundDownloadAsync();
-    }
+    private Task _backgroundZipDownloadTask = Task.CompletedTask;
+    private readonly CancellationTokenSource _cts = new();
 
     protected override async ValueTask OnDisposeAsync()
     {
         _cts.Cancel();
-        await _task;
+        await _backgroundZipDownloadTask;
     }
 
-    private async Task BackgroundDownloadAsync()
+    public void StartBackgroundZipDownload()
     {
         try
         {
             var basePath = Directory.GetCurrentDirectory();
-            await ReleasedZipDownloader.TryDownloadAsync(basePath, _cts.Token);
+            _backgroundZipDownloadTask = ReleasedZipDownloader.TryDownloadAsync(basePath, _cts.Token).AsTask();
         }
         catch (OperationCanceledException)
         {
@@ -48,9 +36,19 @@ public class Updater : AsyncDisposableBase
         }
     }
 
-    public bool TryExecute()
+    public bool TryLaunchUpdater()
     {
-        return UpdaterLauncher.TryLaunchUpdater(Directory.GetCurrentDirectory());
+        try
+        {
+            var basePath = Directory.GetCurrentDirectory();
+            return UpdaterLauncher.TryLaunchUpdater(basePath);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex);
+        }
+
+        return false;
     }
 }
 
@@ -140,7 +138,7 @@ static class UpdaterLauncher
         {
             FileName = updaterPath,
             WorkingDirectory = Path.GetDirectoryName(updaterPath),
-            Arguments = $"-b {Path.Combine(basePath, "../")}",
+            Arguments = $"--base {Path.Combine(basePath, "../")}",
             UseShellExecute = false,
         };
 
@@ -165,7 +163,7 @@ static class UpdaterLauncher
 
         CopyFiles(srcPath, destPath);
 
-        return Path.Combine(destPath, "Lxna.Updater");
+        return Path.Combine(destPath, "Omnius.Lxna.Updater");
     }
 
     private static void CopyFiles(string sourcePath, string destinationPath)

@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
-using Lxna.Launcher.Helpers;
+using Omnius.Lxna.Launcher.Helpers;
 
-namespace Lxna.Launcher;
+namespace Omnius.Lxna.Launcher;
 
 public static class Replacer
 {
@@ -38,7 +38,7 @@ public static class Replacer
                 MoveFilesForReplace(binDirPath, Path.Combine(backupDirPath, "bin"));
                 CopyFilesForReplace(Path.Combine(newDirPath, "bin"), binDirPath);
 
-                var binExePath = Path.Combine(binDirPath, "Lxna.Ui.Desktop");
+                var binExePath = Path.Combine(binDirPath, "Omnius.Lxna.Ui.Desktop");
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {

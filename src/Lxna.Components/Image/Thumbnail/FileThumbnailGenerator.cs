@@ -2,18 +2,18 @@ using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
-using Core.Base;
-using Core.Collections;
-using Core.RocketPack;
-using Core.Serialization;
-using Core.Streams;
-using Lxna.Components.Image;
-using Lxna.Components.Image.Internal;
-using Lxna.Components.Storage;
-using Lxna.Components.Thumbnail.Internal;
-using Lxna.Components.Thumbnail.Internal.Repositories;
+using Omnius.Core.Base;
+using Omnius.Core.Collections;
+using Omnius.Core.RocketPack;
+using Omnius.Core.Serialization;
+using Omnius.Core.Streams;
+using Omnius.Lxna.Components.Image;
+using Omnius.Lxna.Components.Image.Internal;
+using Omnius.Lxna.Components.Storage;
+using Omnius.Lxna.Components.Thumbnail.Internal;
+using Omnius.Lxna.Components.Thumbnail.Internal.Repositories;
 
-namespace Lxna.Components.Image;
+namespace Omnius.Lxna.Components.Image;
 
 public record FileThumbnailGeneratorOptions
 {

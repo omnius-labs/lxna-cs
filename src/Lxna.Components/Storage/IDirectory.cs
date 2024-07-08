@@ -1,4 +1,4 @@
-namespace Lxna.Components.Storage;
+namespace Omnius.Lxna.Components.Storage;
 
 public interface IDirectory : IDisposable
 {

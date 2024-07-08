@@ -1,10 +1,10 @@
-using Core.Avalonia;
-using Lxna.Components.Storage;
-using Lxna.Ui.Desktop.Shared;
-using Lxna.Ui.Desktop.View.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using Omnius.Core.Avalonia;
+using Omnius.Lxna.Components.Storage;
+using Omnius.Lxna.Ui.Desktop.Shared;
+using Omnius.Lxna.Ui.Desktop.View.Windows;
 
-namespace Lxna.Ui.Desktop.View;
+namespace Omnius.Lxna.Ui.Desktop.View;
 
 public interface IDialogService
 {

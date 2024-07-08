@@ -1,6 +1,6 @@
-using Lxna.Components.Image;
+using Omnius.Lxna.Components.Image;
 
-namespace Lxna.Components.Thumbnail.Internal.Repositories.Entities;
+namespace Omnius.Lxna.Components.Thumbnail.Internal.Repositories.Entities;
 
 public class ThumbnailCacheIdEntity
 {

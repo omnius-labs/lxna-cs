@@ -1,6 +1,6 @@
 using Avalonia;
 
-namespace Lxna.Ui.Desktop;
+namespace Omnius.Lxna.Ui.Desktop;
 
 public static class Program
 {

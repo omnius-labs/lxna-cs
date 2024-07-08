@@ -1,6 +1,6 @@
-using Core.Base;
+using Omnius.Core.Base;
 
-namespace Lxna.Components.Storage.Internal;
+namespace Omnius.Lxna.Components.Storage.Internal;
 
 internal sealed class LocalFile : IFile
 {

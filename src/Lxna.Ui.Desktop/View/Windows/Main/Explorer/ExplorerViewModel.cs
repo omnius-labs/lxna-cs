@@ -2,20 +2,20 @@ using System.Reactive.Linq;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using Core.Avalonia;
-using Core.Base;
-using Core.Base.Helpers;
-using Core.Pipelines;
-using Core.Text;
-using Lxna.Components.Storage;
-using Lxna.Ui.Desktop.Service.Internal;
-using Lxna.Ui.Desktop.Service.Thumbnail;
-using Lxna.Ui.Desktop.Shared;
-using Lxna.Ui.Desktop.View.Helpers;
+using Omnius.Core.Avalonia;
+using Omnius.Core.Base;
+using Omnius.Core.Base.Helpers;
+using Omnius.Core.Pipelines;
+using Omnius.Core.Text;
+using Omnius.Lxna.Components.Storage;
+using Omnius.Lxna.Ui.Desktop.Service.Internal;
+using Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
+using Omnius.Lxna.Ui.Desktop.Shared;
+using Omnius.Lxna.Ui.Desktop.View.Helpers;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Lxna.Ui.Desktop.View.Windows;
+namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
 public abstract class ExplorerViewModelBase : AsyncDisposableBase
 {

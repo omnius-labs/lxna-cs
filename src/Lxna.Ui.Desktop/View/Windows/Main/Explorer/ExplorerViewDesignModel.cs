@@ -1,11 +1,11 @@
 using System.Reactive.Disposables;
 using Avalonia.Controls;
-using Core.Avalonia;
-using Core.Pipelines;
+using Omnius.Core.Avalonia;
+using Omnius.Core.Pipelines;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Lxna.Ui.Desktop.View.Windows;
+namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
 public class ExplorerViewDesignModel : ExplorerViewModelBase
 {

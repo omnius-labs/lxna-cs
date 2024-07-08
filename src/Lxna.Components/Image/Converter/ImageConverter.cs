@@ -1,11 +1,11 @@
-using Core.Base;
-using Core.Streams;
 using ImageMagick;
+using Omnius.Core.Base;
+using Omnius.Core.Streams;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
-namespace Lxna.Components.Image;
+namespace Omnius.Lxna.Components.Image;
 
 public sealed class ImageConverter
 {

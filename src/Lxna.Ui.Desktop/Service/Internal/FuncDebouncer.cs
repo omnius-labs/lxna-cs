@@ -1,6 +1,6 @@
-using Core.Base;
+using Omnius.Core.Base;
 
-namespace Lxna.Ui.Desktop.Service.Internal;
+namespace Omnius.Lxna.Ui.Desktop.Service.Internal;
 
 public class FuncDebouncer<T> : AsyncDisposableBase
      where T : notnull

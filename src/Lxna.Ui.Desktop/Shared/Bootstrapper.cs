@@ -1,15 +1,15 @@
-using Core.Avalonia;
-using Core.Base;
-using Core.Base.Helpers;
-using Lxna.Components.Image;
-using Lxna.Components.Storage;
-using Lxna.Ui.Desktop.Service.Preview;
-using Lxna.Ui.Desktop.Service.Thumbnail;
-using Lxna.Ui.Desktop.View;
-using Lxna.Ui.Desktop.View.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using Omnius.Core.Avalonia;
+using Omnius.Core.Base;
+using Omnius.Core.Base.Helpers;
+using Omnius.Lxna.Components.Image;
+using Omnius.Lxna.Components.Storage;
+using Omnius.Lxna.Ui.Desktop.Service.Preview;
+using Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
+using Omnius.Lxna.Ui.Desktop.View;
+using Omnius.Lxna.Ui.Desktop.View.Windows;
 
-namespace Lxna.Ui.Desktop.Shared;
+namespace Omnius.Lxna.Ui.Desktop.Shared;
 
 public partial class Bootstrapper : AsyncDisposableBase
 {

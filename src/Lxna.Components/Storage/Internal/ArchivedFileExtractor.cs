@@ -1,12 +1,12 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
-using Core.Base;
-using Core.Streams;
-using Lxna.Components.Storage.Internal.Helpers;
+using Omnius.Core.Base;
+using Omnius.Core.Streams;
+using Omnius.Lxna.Components.Storage.Internal.Helpers;
 using SharpCompress.Archives;
 
-namespace Lxna.Components.Storage.Internal;
+namespace Omnius.Lxna.Components.Storage.Internal;
 
 internal sealed partial class ArchivedFileExtractor : DisposableBase
 {

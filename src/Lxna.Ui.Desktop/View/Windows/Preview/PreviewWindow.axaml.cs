@@ -6,10 +6,10 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
-using Core.Avalonia;
+using Omnius.Core.Avalonia;
 using Reactive.Bindings.Extensions;
 
-namespace Lxna.Ui.Desktop.View.Windows;
+namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
 public partial class PreviewWindow : RestorableWindow
 {

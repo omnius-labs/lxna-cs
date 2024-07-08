@@ -1,14 +1,14 @@
 using System.Collections.Immutable;
 using Avalonia.Threading;
-using Core.Avalonia;
-using Core.Base;
-using Core.Base.Helpers;
-using Core.Pipelines;
-using Lxna.Components.Image;
-using Lxna.Components.Storage;
+using Omnius.Core.Avalonia;
+using Omnius.Core.Base;
+using Omnius.Core.Base.Helpers;
+using Omnius.Core.Pipelines;
+using Omnius.Lxna.Components.Image;
+using Omnius.Lxna.Components.Storage;
 using SharpCompress;
 
-namespace Lxna.Ui.Desktop.Service.Thumbnail;
+namespace Omnius.Lxna.Ui.Desktop.Service.Thumbnail;
 
 public class ThumbnailsViewer : AsyncDisposableBase
 {

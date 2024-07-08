@@ -2,9 +2,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
-using Core.Base;
+using Omnius.Core.Base;
 
-namespace Lxna.Ui.Desktop.View.Windows;
+namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
 public interface IExplorerViewCommands
 {

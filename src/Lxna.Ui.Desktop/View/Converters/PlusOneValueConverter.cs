@@ -1,7 +1,7 @@
 using System.Globalization;
 using Avalonia.Data.Converters;
 
-namespace Lxna.Ui.Desktop.View.Converters;
+namespace Omnius.Lxna.Ui.Desktop.View.Converters;
 
 public class PlusOneValueConverter : IValueConverter
 {

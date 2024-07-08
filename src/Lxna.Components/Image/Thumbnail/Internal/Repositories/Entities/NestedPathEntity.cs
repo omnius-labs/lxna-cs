@@ -1,6 +1,6 @@
-using Lxna.Components.Storage;
+using Omnius.Lxna.Components.Storage;
 
-namespace Lxna.Components.Thumbnail.Internal.Repositories.Entities;
+namespace Omnius.Lxna.Components.Thumbnail.Internal.Repositories.Entities;
 
 public class NestedPathEntity
 {

@@ -1,4 +1,4 @@
-namespace Lxna.Components.Internal;
+namespace Omnius.Lxna.Components.Internal;
 
 public static class LiteDatabaseHelper
 {

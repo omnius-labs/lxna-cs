@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Lxna.Components.Storage.Internal.Helpers;
+namespace Omnius.Lxna.Components.Storage.Internal.Helpers;
 
 internal static unsafe class PathHelper
 {

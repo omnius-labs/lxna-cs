@@ -1,4 +1,4 @@
-namespace Lxna.Ui.Desktop.Shared;
+namespace Omnius.Lxna.Ui.Desktop.Shared;
 
 public record LxnaEnvironment
 {

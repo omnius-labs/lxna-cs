@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Reflection;
 using CommandLine;
 
-namespace Lxna.Launcher;
+namespace Omnius.Lxna.Launcher;
 
 public class Program
 {

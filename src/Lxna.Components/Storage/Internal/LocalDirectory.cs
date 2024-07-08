@@ -1,7 +1,7 @@
-using Core.Base;
-using Lxna.Components.Storage.Internal.Helpers;
+using Omnius.Core.Base;
+using Omnius.Lxna.Components.Storage.Internal.Helpers;
 
-namespace Lxna.Components.Storage.Internal;
+namespace Omnius.Lxna.Components.Storage.Internal;
 
 internal sealed class LocalDirectory : IDirectory
 {

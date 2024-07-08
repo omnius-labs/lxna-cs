@@ -1,5 +1,5 @@
 
-namespace Lxna.Launcher.Helpers;
+namespace Omnius.Lxna.Launcher.Helpers;
 
 public static class DirectoryHelper
 {

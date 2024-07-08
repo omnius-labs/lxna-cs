@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace Lxna.Ui.Desktop.View.Helpers;
+namespace Omnius.Lxna.Ui.Desktop.View.Helpers;
 
 public static class ConvertHelper
 {

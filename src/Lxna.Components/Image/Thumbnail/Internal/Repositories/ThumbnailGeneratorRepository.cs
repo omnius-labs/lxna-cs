@@ -1,14 +1,14 @@
-using Core.Base;
-using Core.Base.Helpers;
-using Core.RocketPack;
 using LiteDB;
-using Lxna.Components.Image;
-using Lxna.Components.Image.Internal;
-using Lxna.Components.Internal;
-using Lxna.Components.Storage;
-using Lxna.Components.Thumbnail.Internal.Repositories.Entities;
+using Omnius.Core.Base;
+using Omnius.Core.Base.Helpers;
+using Omnius.Core.RocketPack;
+using Omnius.Lxna.Components.Image;
+using Omnius.Lxna.Components.Image.Internal;
+using Omnius.Lxna.Components.Internal;
+using Omnius.Lxna.Components.Storage;
+using Omnius.Lxna.Components.Thumbnail.Internal.Repositories.Entities;
 
-namespace Lxna.Components.Thumbnail.Internal.Repositories;
+namespace Omnius.Lxna.Components.Thumbnail.Internal.Repositories;
 
 internal sealed class ThumbnailGeneratorRepository : IDisposable
 {

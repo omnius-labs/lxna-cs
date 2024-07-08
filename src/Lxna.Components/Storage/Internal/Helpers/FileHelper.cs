@@ -1,7 +1,7 @@
 using System.Buffers;
-using Core.Serialization;
+using Omnius.Core.Serialization;
 
-namespace Lxna.Components.Storage.Internal.Helpers;
+namespace Omnius.Lxna.Components.Storage.Internal.Helpers;
 
 internal static unsafe class FileHelper
 {

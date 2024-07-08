@@ -1,9 +1,9 @@
-using Core.Base;
-using Lxna.Ui.Desktop.Shared;
+using Omnius.Core.Base;
+using Omnius.Lxna.Ui.Desktop.Shared;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Lxna.Ui.Desktop.View.Windows;
+namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
 public class MainWindowDesignModel : MainWindowModelBase
 {

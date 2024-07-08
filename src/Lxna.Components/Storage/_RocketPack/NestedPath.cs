@@ -1,8 +1,8 @@
-using Core.Base.Helpers;
-using Core.RocketPack;
-using Lxna.Components.Storage.Internal.Helpers;
+using Omnius.Core.Base.Helpers;
+using Omnius.Core.RocketPack;
+using Omnius.Lxna.Components.Storage.Internal.Helpers;
 
-namespace Lxna.Components.Storage;
+namespace Omnius.Lxna.Components.Storage;
 
 public readonly partial struct NestedPath : IComparable<NestedPath>
 {

@@ -1,6 +1,6 @@
 ﻿syntax v1.0;
 
-namespace "Lxna.Components.Image";
+namespace "Omnius.Lxna.Components.Image";
 
 message ThumbnailContent {
     Image: bytes(capacity: 33554432, recyclable: true),

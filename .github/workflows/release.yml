@@ -5,11 +5,12 @@ on:
     tags:
       - "v*.*.*"
 
+# env:
+#   ContinuousIntegrationBuild: true
+
 jobs:
   linux:
     runs-on: ubuntu-latest
-    env:
-      ContinuousIntegrationBuild: true
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
@@ -18,7 +19,7 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.202
+          dotnet-version: 8.x
           include-prerelease: true
       - name: Setup dotnet tool
         run: dotnet tool restore
@@ -41,8 +42,6 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    env:
-      ContinuousIntegrationBuild: true
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
@@ -51,7 +50,7 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.202
+          dotnet-version: 8.x
           include-prerelease: true
       - name: Setup dotnet tool
         run: dotnet tool restore

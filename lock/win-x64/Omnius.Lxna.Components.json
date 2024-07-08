@@ -230,7 +230,7 @@
         "resolved": "0.7.4",
         "contentHash": "ziptnotpUJr51afwXJQ5Wc03dvDiZAdmxS08s1g7SHn/VzbyZUXdH6yORk/zaNjzUOEE6pVZ0Nqztab0rYROgQ=="
       },
-      "core.base": {
+      "Omnius.Core.Base": {
         "type": "Project",
         "dependencies": {
           "NLog": "[5.2.8, )",
@@ -238,84 +238,84 @@
           "System.IO.Pipelines": "[8.0.0, )"
         }
       },
-      "core.collections": {
+      "Omnius.Core.Collections": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Tasks": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
-        }
-      },
-      "core.cryptography": {
-        "type": "Project",
-        "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Collections": "[0.0.1-alpha.1, )",
-          "Core.Pipelines": "[0.0.1-alpha.1, )",
-          "Core.RocketPack": "[0.0.1-alpha.1, )",
-          "Core.Serialization": "[0.0.1-alpha.1, )",
-          "Core.Streams": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
-        }
-      },
-      "core.net": {
-        "type": "Project",
-        "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Collections": "[0.0.1-alpha.1, )",
-          "Core.Cryptography": "[0.0.1-alpha.1, )",
-          "Core.RocketPack": "[0.0.1-alpha.1, )",
-          "Core.Serialization": "[0.0.1-alpha.1, )",
           "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Tasks": "[0.0.1-alpha.1, )"
+        }
+      },
+      "Omnius.Core.Cryptography": {
+        "type": "Project",
+        "dependencies": {
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Streams": "[0.0.1-alpha.1, )"
+        }
+      },
+      "Omnius.Core.Net": {
+        "type": "Project",
+        "dependencies": {
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Cryptography": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )",
           "Sprache": "[2.3.1, )"
         }
       },
-      "core.pipelines": {
+      "Omnius.Core.Pipelines": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )"
         }
       },
-      "core.rocketpack": {
+      "Omnius.Core.RocketPack": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Collections": "[0.0.1-alpha.1, )",
-          "Core.Pipelines": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )"
         }
       },
-      "core.serialization": {
+      "Omnius.Core.Serialization": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Pipelines": "[0.0.1-alpha.1, )",
-          "Core.RocketPack": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )"
         }
       },
-      "core.streams": {
+      "Omnius.Core.Streams": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.RocketPack": "[0.0.1-alpha.1, )",
-          "Core.Serialization": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )"
         }
       },
-      "core.tasks": {
+      "Omnius.Core.Tasks": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )"
         }
       },
-      "core.text": {
+      "Omnius.Core.Text": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )"
         }
       },
       "NeoSmart.AsyncLock": {

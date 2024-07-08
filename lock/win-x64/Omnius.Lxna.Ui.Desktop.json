@@ -789,7 +789,7 @@
         "resolved": "0.7.4",
         "contentHash": "ziptnotpUJr51afwXJQ5Wc03dvDiZAdmxS08s1g7SHn/VzbyZUXdH6yORk/zaNjzUOEE6pVZ0Nqztab0rYROgQ=="
       },
-      "core.avalonia": {
+      "Omnius.Core.Avalonia": {
         "type": "Project",
         "dependencies": {
           "Avalonia": "[11.0.7, )",
@@ -800,13 +800,13 @@
           "Avalonia.Xaml.Behaviors": "[11.0.6, )",
           "Avalonia.Xaml.Interactions": "[11.0.6, )",
           "Avalonia.Xaml.Interactivity": "[11.0.6, )",
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Pipelines": "[0.0.1-alpha.1, )",
-          "Core.Utils": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Utils": "[0.0.1-alpha.1, )"
         }
       },
-      "core.base": {
+      "Omnius.Core.Base": {
         "type": "Project",
         "dependencies": {
           "NLog": "[5.2.8, )",
@@ -814,87 +814,87 @@
           "System.IO.Pipelines": "[8.0.0, )"
         }
       },
-      "core.collections": {
+      "Omnius.Core.Collections": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Tasks": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
-        }
-      },
-      "core.cryptography": {
-        "type": "Project",
-        "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Collections": "[0.0.1-alpha.1, )",
-          "Core.Pipelines": "[0.0.1-alpha.1, )",
-          "Core.RocketPack": "[0.0.1-alpha.1, )",
-          "Core.Serialization": "[0.0.1-alpha.1, )",
-          "Core.Streams": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
-        }
-      },
-      "core.net": {
-        "type": "Project",
-        "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Collections": "[0.0.1-alpha.1, )",
-          "Core.Cryptography": "[0.0.1-alpha.1, )",
-          "Core.RocketPack": "[0.0.1-alpha.1, )",
-          "Core.Serialization": "[0.0.1-alpha.1, )",
           "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Tasks": "[0.0.1-alpha.1, )"
+        }
+      },
+      "Omnius.Core.Cryptography": {
+        "type": "Project",
+        "dependencies": {
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Streams": "[0.0.1-alpha.1, )"
+        }
+      },
+      "Omnius.Core.Net": {
+        "type": "Project",
+        "dependencies": {
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Cryptography": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )",
           "Sprache": "[2.3.1, )"
         }
       },
-      "core.pipelines": {
+      "Omnius.Core.Pipelines": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )"
         }
       },
-      "core.rocketpack": {
+      "Omnius.Core.RocketPack": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Collections": "[0.0.1-alpha.1, )",
-          "Core.Pipelines": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )"
         }
       },
-      "core.serialization": {
+      "Omnius.Core.Serialization": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Pipelines": "[0.0.1-alpha.1, )",
-          "Core.RocketPack": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Pipelines": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )"
         }
       },
-      "core.streams": {
+      "Omnius.Core.Streams": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.RocketPack": "[0.0.1-alpha.1, )",
-          "Core.Serialization": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )"
         }
       },
-      "core.tasks": {
+      "Omnius.Core.Tasks": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )"
         }
       },
-      "core.text": {
+      "Omnius.Core.Text": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "NLog": "[5.2.8, )"
+          "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )"
         }
       },
-      "core.utils": {
+      "Omnius.Core.Utils": {
         "type": "Project",
         "dependencies": {
           "NLog": "[5.2.8, )",
@@ -902,21 +902,21 @@
           "YamlDotNet": "[15.1.0, )"
         }
       },
-      "lxna.components": {
+      "Omnius.Lxna.Components": {
         "type": "Project",
         "dependencies": {
-          "Core.Base": "[0.0.1-alpha.1, )",
-          "Core.Collections": "[0.0.1-alpha.1, )",
-          "Core.Cryptography": "[0.0.1-alpha.1, )",
-          "Core.Net": "[0.0.1-alpha.1, )",
-          "Core.RocketPack": "[0.0.1-alpha.1, )",
-          "Core.Serialization": "[0.0.1-alpha.1, )",
-          "Core.Streams": "[0.0.1-alpha.1, )",
-          "Core.Text": "[0.0.1-alpha.1, )",
           "Generator.Equals": "[3.0.1, )",
           "LiteDB": "[5.0.17, )",
           "Magick.NET-Q16-AnyCPU": "[13.5.0, )",
           "NLog": "[5.2.8, )",
+          "Omnius.Core.Base": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Collections": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Cryptography": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Net": "[0.0.1-alpha.1, )",
+          "Omnius.Core.RocketPack": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Serialization": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Streams": "[0.0.1-alpha.1, )",
+          "Omnius.Core.Text": "[0.0.1-alpha.1, )",
           "SharpCompress": "[0.36.0, )",
           "SixLabors.ImageSharp": "[3.1.4, )"
         }
@@ -992,7 +992,7 @@
         "contentHash": "FHNOatmUq0sqJOkTx+UF/9YK1f180cnW5FVqnQMvYUN0elp6wFzbtPSiqbo1/ru8ICp43JM1i7kKkk6GsNGHlA=="
       }
     },
-    "net8.0/linux-x64": {
+    "net8.0/win-x64": {
       "Avalonia.Angle.Windows.Natives": {
         "type": "Transitive",
         "resolved": "2.1.0.2023020321",
@@ -1080,106 +1080,17 @@
         "resolved": "4.3.0",
         "contentHash": "OhBAVBQG5kFj1S+hCEQ3TUHBAEtZ3fbEMgZMRNdN8A0Pj4x+5nTELEqL59DU0TjKVE6II3dqKw4Dklb3szT65w=="
       },
-      "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
+      "runtime.win.System.Diagnostics.Debug": {
         "type": "Transitive",
         "resolved": "4.3.0",
-        "contentHash": "HdSSp5MnJSsg08KMfZThpuLPJpPwE5hBXvHwoKWosyHHfe8Mh5WKT0ylEOf6yNzX6Ngjxe4Whkafh5q7Ymac4Q=="
+        "contentHash": "hHHP0WCStene2jjeYcuDkETozUYF/3sHVRHAEOgS3L15hlip24ssqCTnJC28Z03Wpo078oMcJd0H4egD2aJI8g=="
       },
-      "runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
+      "runtime.win.System.Runtime.Extensions": {
         "type": "Transitive",
         "resolved": "4.3.0",
-        "contentHash": "+yH1a49wJMy8Zt4yx5RhJrxO/DBDByAiCzNwiETI+1S4mPdCu0OY4djdciC7Vssk0l22wQaDLrXxXkp+3+7bVA=="
-      },
-      "runtime.fedora.24-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "c3YNH1GQJbfIPJeCnr4avseugSqPrxwIqzthYyZDN6EuOyNOzq+y2KSUfRcXauya1sF4foESTgwM5e1A8arAKw=="
-      },
-      "runtime.native.System": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "c/qWt2LieNZIj1jGnVNsE2Kl23Ya2aSTBuXMD6V7k9KWr6l16Tqdwq+hJScEpWER9753NWC8h96PaVNY5Ld7Jw==",
+        "contentHash": "RkgHVhUPvzZxuUubiZe8yr/6CypRVXj0VBzaR8hsqQ8f+rUo7e4PWrHTLOCjd8fBMGWCrY//fi7Ku3qXD7oHRw==",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0"
-        }
-      },
-      "runtime.native.System.Security.Cryptography.OpenSsl": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "NS1U+700m4KFRHR5o4vo9DSlTmlCKu/u7dtE5sUHVIPB+xpXxYQvgBgA6wEIeCz6Yfn0Z52/72WYsToCEPJnrw==",
-        "dependencies": {
-          "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.fedora.24-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.opensuse.13.2-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.opensuse.42.1-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.osx.10.10-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.rhel.7-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.ubuntu.14.04-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
-        }
-      },
-      "runtime.opensuse.13.2-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "b3pthNgxxFcD+Pc0WSEoC0+md3MyhRS6aCEeenvNE3Fdw1HyJ18ZhRFVJJzIeR/O/jpxPboB805Ho0T3Ul7w8A=="
-      },
-      "runtime.opensuse.42.1-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "KeLz4HClKf+nFS7p/6Fi/CqyLXh81FpiGzcmuS8DGi9lUqSnZ6Es23/gv2O+1XVGfrbNmviF7CckBpavkBoIFQ=="
-      },
-      "runtime.osx.10.10-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "X7IdhILzr4ROXd8mI1BUCQMSHSQwelUlBjF1JyTKCjXaOGn2fB4EKBxQbCK2VjO3WaWIdlXZL3W6TiIVnrhX4g=="
-      },
-      "runtime.rhel.7-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "nyFNiCk/r+VOiIqreLix8yN+q3Wga9+SE8BCgkf+2BwEKiNx6DyvFjCgkfV743/grxv8jHJ8gUK4XEQw7yzRYg=="
-      },
-      "runtime.ubuntu.14.04-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "ytoewC6wGorL7KoCAvRfsgoJPJbNq+64k2SqW6JcOAebWsFUvCCYgfzQMrnpvPiEl4OrblUlhF2ji+Q1+SVLrQ=="
-      },
-      "runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "I8bKw2I8k58Wx7fMKQJn2R8lamboCAiHfHeV/pS65ScKWMMI0+wJkLYlEKvgW1D/XvSl/221clBoR2q9QNNM7A=="
-      },
-      "runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "VB5cn/7OzUfzdnC8tqAIMQciVLiq2epm2NrAm1E9OjNRyG4lVhfR61SMcLizejzQP8R8Uf/0l5qOIbUEi+RdEg=="
-      },
-      "runtime.unix.System.Diagnostics.Debug": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "WV8KLRHWVUVUDduFnvGMHt0FsEt2wK6xPl1EgDKlaMx2KnZ43A/O0GzP8wIuvAC7mq4T9V1mm90r+PXkL9FPdQ==",
-        "dependencies": {
-          "runtime.native.System": "4.3.0"
-        }
-      },
-      "runtime.unix.System.Private.Uri": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "ooWzobr5RAq34r9uan1r/WPXJYG1XWy9KanrxNvEnBzbFdQbMG7Y3bVi4QxR7xZMNLOxLLTAyXvnSkfj5boZSg==",
-        "dependencies": {
-          "runtime.native.System": "4.3.0"
-        }
-      },
-      "runtime.unix.System.Runtime.Extensions": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "zQiTBVpiLftTQZW8GFsV0gjYikB1WMkEPIxF5O6RkUrSV/OgvRRTYgeFQha/0keBpuS0HYweraGRwhfhJ7dj7w==",
-        "dependencies": {
-          "System.Private.Uri": "4.3.0",
-          "runtime.native.System": "4.3.0",
-          "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
+          "System.Private.Uri": "4.3.0"
         }
       },
       "SkiaSharp.NativeAssets.Linux": {
@@ -1219,7 +1130,7 @@
           "Microsoft.NETCore.Platforms": "1.1.0",
           "Microsoft.NETCore.Targets": "1.1.0",
           "System.Runtime": "4.3.0",
-          "runtime.unix.System.Diagnostics.Debug": "4.3.0"
+          "runtime.win.System.Diagnostics.Debug": "4.3.0"
         }
       },
       "System.Drawing.Common": {
@@ -1252,16 +1163,6 @@
           "System.Text.Encoding": "4.3.0",
           "System.Threading.Tasks": "4.3.0",
           "runtime.any.System.IO": "4.3.0"
-        }
-      },
-      "System.Private.Uri": {
-        "type": "Transitive",
-        "resolved": "4.3.2",
-        "contentHash": "o1+7RJnu3Ik3PazR7Z7tJhjPdE000Eq2KGLLWhqJJKXj04wrS8lwb1OFtDF9jzXXADhUuZNJZlPc98uwwqmpFA==",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.1",
-          "Microsoft.NETCore.Targets": "1.1.3",
-          "runtime.unix.System.Private.Uri": "4.3.0"
         }
       },
       "System.Reflection": {
@@ -1319,7 +1220,7 @@
           "Microsoft.NETCore.Platforms": "1.1.0",
           "Microsoft.NETCore.Targets": "1.1.0",
           "System.Runtime": "4.3.0",
-          "runtime.unix.System.Runtime.Extensions": "4.3.0"
+          "runtime.win.System.Runtime.Extensions": "4.3.0"
         }
       },
       "System.Text.Encoding": {

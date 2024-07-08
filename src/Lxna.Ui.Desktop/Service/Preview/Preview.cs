@@ -1,12 +1,12 @@
 using System.Buffers;
 using System.Runtime.ExceptionServices;
-using Core.Avalonia;
-using Core.Base;
-using Core.Streams;
-using Lxna.Components.Image;
-using Lxna.Components.Storage;
+using Omnius.Core.Avalonia;
+using Omnius.Core.Base;
+using Omnius.Core.Streams;
+using Omnius.Lxna.Components.Image;
+using Omnius.Lxna.Components.Storage;
 
-namespace Lxna.Ui.Desktop.Service.Preview;
+namespace Omnius.Lxna.Ui.Desktop.Service.Preview;
 
 public partial class PreviewsViewer
 {

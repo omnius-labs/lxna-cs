@@ -2,17 +2,17 @@ using System.Collections.Immutable;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
-using Core.Avalonia;
-using Core.Base;
-using Core.Streams;
-using Lxna.Components.Storage;
-using Lxna.Ui.Desktop.Service.Internal;
-using Lxna.Ui.Desktop.Service.Preview;
-using Lxna.Ui.Desktop.Shared;
+using Omnius.Core.Avalonia;
+using Omnius.Core.Base;
+using Omnius.Core.Streams;
+using Omnius.Lxna.Components.Storage;
+using Omnius.Lxna.Ui.Desktop.Service.Internal;
+using Omnius.Lxna.Ui.Desktop.Service.Preview;
+using Omnius.Lxna.Ui.Desktop.Shared;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Lxna.Ui.Desktop.View.Windows;
+namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
 public abstract class PreviewWindowModelBase : AsyncDisposableBase
 {

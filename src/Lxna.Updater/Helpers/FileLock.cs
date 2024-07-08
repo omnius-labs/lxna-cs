@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Lxna.Launcher.Helpers;
+namespace Omnius.Lxna.Launcher.Helpers;
 
 public sealed class FileLock
 {

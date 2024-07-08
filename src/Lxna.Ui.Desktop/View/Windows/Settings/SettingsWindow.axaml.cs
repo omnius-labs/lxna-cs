@@ -1,10 +1,10 @@
 using Avalonia;
 using Avalonia.Markup.Xaml;
-using Core.Avalonia;
+using Omnius.Core.Avalonia;
 
-namespace Lxna.Ui.Desktop.View.Windows;
+namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
-public class SettingsWindow : RestorableWindow
+public partial class SettingsWindow : RestorableWindow
 {
     public SettingsWindow()
         : base()

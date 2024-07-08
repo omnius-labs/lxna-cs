@@ -1,9 +1,9 @@
 ﻿syntax v1.0;
 
-using "Lxna.Components.Image";
-using "Lxna.Components.Storage";
+using "Omnius.Lxna.Components.Image";
+using "Omnius.Lxna.Components.Storage";
 
-namespace "Lxna.Components.Image.Internal";
+namespace "Omnius.Lxna.Components.Image.Internal";
 option csharp_access_level "internal";
 
 message FileMeta {

@@ -1,10 +1,10 @@
 using System.Reactive.Disposables;
 using Avalonia.Media.Imaging;
-using Lxna.Components.Storage;
+using Omnius.Lxna.Components.Storage;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace Lxna.Ui.Desktop.View.Windows;
+namespace Omnius.Lxna.Ui.Desktop.View.Windows;
 
 public class PreviewWindowDesignModel : PreviewWindowModelBase
 {

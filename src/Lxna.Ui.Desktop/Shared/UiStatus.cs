@@ -1,8 +1,8 @@
-using Core.Avalonia;
-using Core.Base.Helpers;
-using Core.Utils;
+using Omnius.Core.Avalonia;
+using Omnius.Core.Base.Helpers;
+using Omnius.Core.Utils;
 
-namespace Lxna.Ui.Desktop.Shared;
+namespace Omnius.Lxna.Ui.Desktop.Shared;
 
 public sealed class UiStatus
 {

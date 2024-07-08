@@ -1,9 +1,9 @@
 using System.Runtime.InteropServices;
-using Core.Base;
-using Lxna.Components.Storage.Internal;
-using Lxna.Components.Storage.Internal.Helpers;
+using Omnius.Core.Base;
+using Omnius.Lxna.Components.Storage.Internal;
+using Omnius.Lxna.Components.Storage.Internal.Helpers;
 
-namespace Lxna.Components.Storage;
+namespace Omnius.Lxna.Components.Storage;
 
 public record LocalStorageOptions
 {
