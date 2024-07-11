@@ -11,15 +11,15 @@
             "stopAtEntry": false,
             "console": "internalConsole",
             "windows": {
-                "program": "${workspaceFolder}/tmp/bin/win-vscode/Lxna.Ui.Desktop/Debug/net8.0/Lxna.Ui.Desktop.dll",
+                "program": "${workspaceFolder}/tmp/bin/win-vscode/Omnius.Lxna.Ui.Desktop/Debug/net8.0/Omnius.Lxna.Ui.Desktop.dll",
                 "envFile": "${workspaceFolder}/.env"
             },
             "linux": {
-                "program": "${workspaceFolder}/tmp/bin/linux-vscode/Lxna.Ui.Desktop/Debug/net8.0/Lxna.Ui.Desktop.dll",
+                "program": "${workspaceFolder}/tmp/bin/linux-vscode/Omnius.Lxna.Ui.Desktop/Debug/net8.0/Omnius.Lxna.Ui.Desktop.dll",
                 "envFile": "${workspaceFolder}/.env"
             },
             "osx": {
-                "program": "${workspaceFolder}/tmp/bin/osx-vscode/Lxna.Ui.Desktop/Debug/net8.0/Lxna.Ui.Desktop.dll",
+                "program": "${workspaceFolder}/tmp/bin/osx-vscode/Omnius.Lxna.Ui.Desktop/Debug/net8.0/Omnius.Lxna.Ui.Desktop.dll",
                 "envFile": "${workspaceFolder}/.env"
             }
         },
