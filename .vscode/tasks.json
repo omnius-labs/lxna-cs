@@ -17,25 +17,6 @@
             }
         },
         {
-            "label": "design-build",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/src/Lxna.Ui.Desktop/Lxna.Ui.Desktop.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "options": {
-                "env": {
-                    "BuildTargetName": "vscode-design",
-                    "DesignMode": "true"
-                }
-            },
-            "problemMatcher": "$msCompile",
-            "dependsOn": "gen-envfile"
-        },
-        {
             "label": "build",
             "command": "dotnet",
             "type": "process",
