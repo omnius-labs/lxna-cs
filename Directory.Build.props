@@ -14,8 +14,8 @@
     <Description>$(AssemblyName)</Description>
     <Authors>Lyrise</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/omnius-labs/lxna</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/omnius-labs/lxna</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/omnius-labs/lxna-cs</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/omnius-labs/lxna-cs</RepositoryUrl>
     <PackageTags>Lxna</PackageTags>
     <Copyright>Copyright (c) 2018 - 2024 Lyrise</Copyright>
     <RepositoryType>git</RepositoryType>
